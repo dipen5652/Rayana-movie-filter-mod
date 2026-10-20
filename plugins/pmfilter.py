@@ -41,15 +41,6 @@ BUTTONS1 = {}
 BUTTONS2 = {}
 SPELL_CHECK = {}
 
-# --- FIX: Symbol-tolerant normalization (BAD & APPLE, visionQuest etc) ---
-def normalize_search_query(text: str) -> str:
-    if not text:
-        return text
-    text = re.sub(r'([a-z])([A-Z])', r'\1 \2', text)
-    text = re.sub(r"[_\-\.#+$%^&*()!~`,;:\"'?/<\>\[\]{}=|\\]", " ", text)
-    text = re.sub(r"\s+", " ", text).strip()
-    return text
-
 
 @Client.on_message(filters.group & filters.text & filters.incoming & ~filters.regex(r"^/") )
 async def give_filter(client, message):
@@ -391,63 +382,30 @@ async def advantage_spoll_choker(bot, query):
     _, id, user = query.data.split('#')
     if int(user) != 0 and query.from_user.id != int(user):
         return await query.answer(script.ALRT_TXT.format(query.from_user.first_name), show_alert=True)
-    movie = None
-    try:
-        movies = await get_posterx(id, id=True) if TMDB_ON_SEARCH else await get_poster(id, id=True)
-        if movies:
-            movie = movies.get('title')
-    except Exception as e:
-        logger.error(f"get_poster failed for {id}: {e}")
-    if not movie:
-        movie = id
+    movies = await get_posterx(id, id=True) if TMDB_ON_SEARCH else await get_poster(id, id=True)
+    movie = movies.get('title')
     movie = re.sub(r"[:-]", " ", movie)
     movie = re.sub(r"\s+", " ", movie).strip()
-    normalized_movie = normalize_search_query(movie)
     await query.answer(script.TOP_ALRT_MSG)
-    files, offset, total_results = await get_search_results(query.message.chat.id, normalized_movie, offset=0, filter=True)
-    if not files:
-        files, offset, total_results = await get_search_results(query.message.chat.id, movie, offset=0, filter=True)
+    files, offset, total_results = await get_search_results(query.message.chat.id, movie, offset=0, filter=True)
     if files:
         k = (movie, files, offset, total_results)
         await auto_filter(bot, query, k)
     else:
         reqstr1 = query.from_user.id if query.from_user else 0
-        try:
-            reqstr = await bot.get_users(reqstr1)
-        except:
-            reqstr = query.from_user
+        reqstr = await bot.get_users(reqstr1)
         if NO_RESULTS_MSG:
             try:
                 await bot.send_message(chat_id=BIN_CHANNEL, text=script.NORSLTS.format(reqstr.id, reqstr.mention, movie))
             except Exception as e:
-                logger.error(f"Error In Spol: {e}")
-        btn = InlineKeyboardMarkup([[InlineKeyboardButton("Request Admin", url=OWNER_LNK)]])
-        try:
-            k = await query.message.edit_text(script.MVE_NT_FND, reply_markup=btn)
-            await asyncio.sleep(10)
-            await k.delete()
-        except Exception as e:
-            logger.error(f"Failed to edit in spol: {e}")
+                logger.error("Error In Spol: %s — Make Sure Bot Admin BIN CHANNEL", e)
+        btn = InlineKeyboardMarkup(
+            [[InlineKeyboardButton("ʀᴇǫᴜᴇsᴛ 📝 ᴀᴅᴍɪɴ", url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)]])
+        k = await query.message.edit(script.MVE_NT_FND, reply_markup=btn)
+        await asyncio.sleep(10)
+        await k.delete()
 
-@Client.on_callback_query(filters.regex(r"^Nayyi|^Nayi"))
-async def spell_suggestion_handler(bot, query):
-    try:
-        movie_name = query.data
-        if "#" in movie_name:
-            movie_name = movie_name.split("#")[1]
-        movie_name = movie_name.replace("_", " ").strip()
-        await query.answer(f"Searching for {movie_name}...")
-        normalized = normalize_search_query(movie_name)
-        files, offset, total_results = await get_search_results(query.message.chat.id, normalized, offset=0, filter=True)
-        if not files:
-            files, offset, total_results = await get_search_results(query.message.chat.id, movie_name, offset=0, filter=True)
-        if files:
-            k = (movie_name, files, offset, total_results)
-            await auto_filter(bot, query, k)
-    except Exception as e:
-        logger.exception(f"Error in spell handler: {e}")
-
-
+# Qualities
 @Client.on_callback_query(filters.regex(r"^qualities#"))
 async def qualities_cb_handler(client: Client, query: CallbackQuery):
     _, req, key = query.data.split("#")
@@ -764,7 +722,7 @@ async def seasons_cb_handler(client: Client, query: CallbackQuery):
     try:
         if int(req) not in [query.from_user.id, 0]:
             return await query.answer(
-                f"⚠️ ʜᴇʟʟᴏ {query.from_user.first_name},\nᴛʜɪꜱ ɪꜱ ɴᴏᴛ ʏᴏᴜʀ ᴍᴏᴠɪᴇ ʀᴇǫᴜᴇꜱᴛ,\nʀᴇǫᴜᴇꜱᴛ ʏᴏᴜʀ'ꜱ…",
+                f"⚠️ ʜᴇʟʟᴏ {query.from_user.first_name},\nᴛʜɪꜱ ɪꜱ ɴᴏᴛ ʏᴏᴜʀ ᴍᴏᴠɪᴇ ʀᴇǫᴜᴇꜱᴛ,\nʀᴇǫᴜᴇꜱᴛ ʏᴏᴜʀ'ꜱ…",
                 show_alert=True,
             )
     except Exception:
@@ -781,7 +739,7 @@ async def seasons_cb_handler(client: Client, query: CallbackQuery):
 
     btn.insert(
         0,
-        [InlineKeyboardButton("⇊ ꜱᴇʟᴇᴄᴛ ꜱᴇᴀꜱᴏɴ ⇊", callback_data="ident", style=enums.ButtonStyle.SUCCESS)],
+        [InlineKeyboardButton("⇊ ꜱᴇʟᴇᴄᴛ ꜱᴇᴀꜱᴏɴ ⇊", callback_data="ident", style=enums.ButtonStyle.SUCCESS)],
     )
     btn.append([InlineKeyboardButton(text="↭ ʙᴀᴄᴋ ᴛᴏ ꜰɪʟᴇs ​↭",
                callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.PRIMARY)])
