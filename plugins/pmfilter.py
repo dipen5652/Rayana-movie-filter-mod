@@ -379,102 +379,33 @@ async def next_page(bot, query):
 
 @Client.on_callback_query(filters.regex(r"^spol"))
 async def advantage_spoll_choker(bot, query):
-    try:
-        data = query.data.split('#')
-        # New format: spol#Title#user  (title directly)
-        # Old format: spol#imdb_id#user  (fallback supported)
-        if len(data) == 3:
-            _, movie, user = data
-            # If movie looks like imdb_id (tt123), try to get title from button text
-            if movie.startswith('tt') and movie[2:].isdigit():
-                # Get title from clicked button text
-                try:
-                    if query.message and query.message.reply_markup:
-                        for row in query.message.reply_markup.inline_keyboard:
-                            for btn in row:
-                                if btn.callback_data == query.data:
-                                    movie = btn.text
-                                    break
-                except:
-                    pass
-        else:
-            # Unexpected format, try to get from button text
-            movie = "Unknown"
+    _, id, user = query.data.split('#')
+    if int(user) != 0 and query.from_user.id != int(user):
+        return await query.answer(script.ALRT_TXT.format(query.from_user.first_name), show_alert=True)
+    movies = await get_posterx(id, id=True) if TMDB_ON_SEARCH else await get_poster(id, id=True)
+    movie = movies.get('title')
+    movie = re.sub(r"[:-]", " ", movie)
+    movie = re.sub(r"\s+", " ", movie).strip()
+    await query.answer(script.TOP_ALRT_MSG)
+    files, offset, total_results = await get_search_results(query.message.chat.id, movie, offset=0, filter=True)
+    if files:
+        k = (movie, files, offset, total_results)
+        await auto_filter(bot, query, k)
+    else:
+        reqstr1 = query.from_user.id if query.from_user else 0
+        reqstr = await bot.get_users(reqstr1)
+        if NO_RESULTS_MSG:
             try:
-                if query.message and query.message.reply_markup:
-                    for row in query.message.reply_markup.inline_keyboard:
-                        for btn in row:
-                            if btn.callback_data == query.data:
-                                movie = btn.text
-                                break
-            except:
-                pass
-            user = data[-1] if data else "0"
-        
-        if int(user) != 0 and query.from_user.id != int(user):
-            return await query.answer(script.ALRT_TXT.format(query.from_user.first_name), show_alert=True)
-        
-        movie = re.sub(r"[:-]", " ", movie)
-        movie = re.sub(r"\s+", " ", movie).strip()
-        if not movie:
-            movie = "Movie"
-        
-        await query.answer(f"Searching for {movie}...", show_alert=False)
-        
-        # Direct search with movie title - NO get_posterx needed, so never fails
-        files, offset, total_results = await get_search_results(query.message.chat.id, movie, offset=0, filter=True)
-        
-        if files:
-            k = (movie, files, offset, total_results)
-            await auto_filter(bot, query, k)
-        else:
-            # If not found, try with first word for flexibility
-            try:
-                first_word = movie.split()[0] if movie else movie
-                if first_word and len(first_word) > 2:
-                    files2, offset2, total2 = await get_search_results(query.message.chat.id, first_word, offset=0, filter=True)
-                    if files2:
-                        # Filter files that contain second word if exists
-                        if len(movie.split()) > 1:
-                            second = movie.split()[1].lower()
-                            filtered = [f for f in files2 if second in f.file_name.lower()]
-                            if filtered:
-                                files2 = filtered
-                                total2 = len(filtered)
-                        if files2:
-                            k = (movie, files2, offset2, total2)
-                            await auto_filter(bot, query, k)
-                            return
+                await bot.send_message(chat_id=BIN_CHANNEL, text=script.NORSLTS.format(reqstr.id, reqstr.mention, movie))
             except Exception as e:
-                logger.error(f"Fallback search error: {e}")
-            
-            # Still not found - show not found message (don't hang on SEARCHING)
-            reqstr1 = query.from_user.id if query.from_user else 0
-            try:
-                reqstr = await bot.get_users(reqstr1)
-            except:
-                reqstr = query.from_user
-            if NO_RESULTS_MSG:
-                try:
-                    await bot.send_message(chat_id=BIN_CHANNEL, text=script.NORSLTS.format(reqstr.id, reqstr.mention, movie))
-                except Exception as e:
-                    logger.error(f"Error In Spol: {e}")
-            btn = InlineKeyboardMarkup([[InlineKeyboardButton("Request Admin", url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)]])
-            try:
-                await query.message.edit_text(text=script.MVE_NT_FND.format(movie), reply_markup=btn)
-            except Exception:
-                try:
-                    await query.message.reply_text(text=script.MVE_NT_FND.format(movie), reply_markup=btn)
-                except:
-                    pass
-    except Exception as e:
-        logger.error(f"Error in advantage_spoll_choker: {e}", exc_info=True)
-        try:
-            await query.answer("Error occurred, please try again!", show_alert=True)
-        except:
-            pass
+                logger.error("Error In Spol: %s — Make Sure Bot Admin BIN CHANNEL", e)
+        btn = InlineKeyboardMarkup(
+            [[InlineKeyboardButton("ʀᴇǫᴜᴇsᴛ 📝 ᴀᴅᴍɪɴ", url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)]])
+        k = await query.message.edit(script.MVE_NT_FND, reply_markup=btn)
+        await asyncio.sleep(10)
+        await k.delete()
 
-
+# Qualities
 @Client.on_callback_query(filters.regex(r"^qualities#"))
 async def qualities_cb_handler(client: Client, query: CallbackQuery):
     _, req, key = query.data.split("#")
@@ -791,7 +722,7 @@ async def seasons_cb_handler(client: Client, query: CallbackQuery):
     try:
         if int(req) not in [query.from_user.id, 0]:
             return await query.answer(
-                f"⚠️ ʜᴇʟʟᴏ {query.from_user.first_name},\nᴛʜɪꜱ ɪꜱ ɴᴏᴛ ʏᴏᴜʀ ᴍᴏᴠɪᴇ ʀᴇǫᴜᴇꜱᴛ,\nʀᴇǫᴜᴇꜱᴛ ʏᴏᴜʀ'ꜱ…",
+                f"⚠️ ʜᴇʟʟᴏ {query.from_user.first_name},\nᴛʜɪꜱ ɪꜱ ɴᴏᴛ ʏᴏᴜʀ ᴍᴏᴠɪᴇ ʀᴇǫᴜᴇꜱᴛ,\nʀᴇǫᴜᴇꜱᴛ ʏᴏᴜʀ'ꜱ…",
                 show_alert=True,
             )
     except Exception:
@@ -808,7 +739,7 @@ async def seasons_cb_handler(client: Client, query: CallbackQuery):
 
     btn.insert(
         0,
-        [InlineKeyboardButton("⇊ ꜱᴇʟᴇᴄᴛ ꜱᴇᴀꜱᴏɴ ⇊", callback_data="ident", style=enums.ButtonStyle.SUCCESS)],
+        [InlineKeyboardButton("⇊ ꜱᴇʟᴇᴄᴛ ꜱᴇᴀꜱᴏɴ ⇊", callback_data="ident", style=enums.ButtonStyle.SUCCESS)],
     )
     btn.append([InlineKeyboardButton(text="↭ ʙᴀᴄᴋ ᴛᴏ ꜰɪʟᴇs ​↭",
                callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.PRIMARY)])
@@ -2058,11 +1989,9 @@ async def advantage_spell_chok(client, message):
             pass
         return
     user = message.from_user.id if message.from_user else 0
-    # FIX: Store title directly in callback_data, not just imdb_id, so click never needs get_posterx
-    buttons = []
-    for movie in movies:
-        safe_title = movie.title.replace("#", "").strip()[:40]  # 40 chars max for callback_data limit
-        buttons.append([InlineKeyboardButton(text=movie.title, callback_data=f"spol#{safe_title}#{user}")])
+    buttons = [
+        [InlineKeyboardButton(text=movie.title, callback_data=f"spol#{movie.imdb_id}#{user}")
+         ] for movie in movies]
 
     buttons.append([InlineKeyboardButton(
         text="🚫 ᴄʟᴏsᴇ 🚫", callback_data='close_data', style=enums.ButtonStyle.DANGER)])
@@ -2073,4 +2002,3 @@ async def advantage_spell_chok(client, message):
         await message.delete()
     except Exception:
         pass
-    
