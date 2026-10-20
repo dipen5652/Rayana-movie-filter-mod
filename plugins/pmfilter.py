@@ -48,7 +48,7 @@ async def give_filter(client, message):
         try:
             await message.react(emoji=random.choice(REACTIONS), big=True)
         except Exception:
-            await message.react(emoji="⚡️")
+            await message.react(emoji="âš¡ï¸")
             pass
     await mdb.update_top_messages(message.from_user.id, message.text)
     if message.chat.id != SUPPORT_CHAT_ID:
@@ -76,7 +76,7 @@ async def give_filter(client, message):
         await message.reply_text(
             script.ALREADY_AVAILABLE_TXT.format(message.from_user.mention, total_results, search),
             reply_markup=InlineKeyboardMarkup(
-                [[InlineKeyboardButton("🔍 ᴊᴏɪɴ ᴀɴᴅ ꜱᴇᴀʀᴄʜ ʜᴇʀᴇ 🔎", url=GRP_LNK)]])
+                [[InlineKeyboardButton("ðŸ” á´Šá´ÉªÉ´ á´€É´á´… êœ±á´‡á´€Ê€á´„Êœ Êœá´‡Ê€á´‡ ðŸ”Ž", url=GRP_LNK)]])
         )
 
 
@@ -91,7 +91,7 @@ async def pm_text(bot, message):
         try:
             await message.react(emoji=random.choice(REACTIONS), big=True)
         except Exception:
-            await message.react(emoji="⚡️")
+            await message.react(emoji="âš¡ï¸")
             pass
     
     if content.startswith(("#")):
@@ -102,45 +102,45 @@ async def pm_text(bot, message):
         pm_search = await db.pm_search_status(bot_id)
         
         if pm_search:
-            # PM Search enabled - করতে পারবে search
+            # PM Search enabled - à¦•à¦°à¦¤à§‡ à¦ªà¦¾à¦°à¦¬à§‡ search
             await auto_filter(bot, message)
         else:
-            # PM Search disabled - মেসেজ দেখাবে
-            logger.info(f"🚫 PM Search Disabled For User: {user_id}")
+            # PM Search disabled - à¦®à§‡à¦¸à§‡à¦œ à¦¦à§‡à¦–à¦¾à¦¬à§‡
+            logger.info(f"ðŸš« PM Search Disabled For User: {user_id}")
             
             try:
                 await message.reply_text(
                     text=script.PM_SEARCH_DISABLED_TXT.format(user=user),
                     reply_markup=InlineKeyboardMarkup([
-                        [InlineKeyboardButton("⚝ ᴍɪss ᴘʀᴏᴠɪᴅᴇʀ ʀᴇǫᴜᴇsᴛ ⚝", url=GRP_LNK)]
+                        [InlineKeyboardButton("âš á´Éªss á´˜Ê€á´á´ Éªá´…á´‡Ê€ Ê€á´‡Ç«á´œá´‡sá´› âš", url=GRP_LNK)]
                     ])
                 )
             except Exception as e:
-                logger.error(f"❌ Failed to send PM_SEARCH_DISABLED message: {e}")
+                logger.error(f"âŒ Failed to send PM_SEARCH_DISABLED message: {e}")
                 # Fallback message
                 try:
                     await message.reply_text(
-                        f"<b>🙋 Hey {user},\n\n"
-                        "ʏᴏᴜ ᴄᴀɴ sᴇᴀʀᴄʜ ᴏɴʟʏ ɪɴ sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ!\n\n"
-                        "📝 ᴘʟᴇᴀsᴇ ʀᴇǫᴜᴇsᴛ ɪɴ: {}</b>".format(GRP_LNK),
+                        f"<b>ðŸ™‹ Hey {user},\n\n"
+                        "Êá´á´œ á´„á´€É´ sá´‡á´€Ê€á´„Êœ á´É´ÊŸÊ ÉªÉ´ sá´œá´˜á´˜á´Ê€á´› É¢Ê€á´á´œá´˜!\n\n"
+                        "ðŸ“ á´˜ÊŸá´‡á´€sá´‡ Ê€á´‡Ç«á´œá´‡sá´› ÉªÉ´: {}</b>".format(GRP_LNK),
                         reply_markup=InlineKeyboardMarkup([
-                            [InlineKeyboardButton("⚝ ᴍɪss ᴘʀᴏᴠɪᴅᴇʀ ʀᴇǫᴜᴇsᴛ ⚝", url=GRP_LNK)]
+                            [InlineKeyboardButton("âš á´Éªss á´˜Ê€á´á´ Éªá´…á´‡Ê€ Ê€á´‡Ç«á´œá´‡sá´› âš", url=GRP_LNK)]
                         ])
                     )
                 except Exception as e2:
-                    logger.error(f"❌ Fallback message also failed: {e2}")
+                    logger.error(f"âŒ Fallback message also failed: {e2}")
             
-            # Log করুন
+            # Log à¦•à¦°à§à¦¨
             try:
                 await bot.send_message(
                     chat_id=LOG_CHANNEL,
                     text=script.PM_LOG_TXT.format(user, user_id, content)
                 )
             except Exception as e:
-                logger.error(f"❌ Failed to log PM message: {e}")
+                logger.error(f"âŒ Failed to log PM message: {e}")
     
     except Exception as e:
-        logger.error(f"❌ Error in pm_text handler: {e}", exc_info=True)
+        logger.error(f"âŒ Error in pm_text handler: {e}", exc_info=True)
 
 
 @Client.on_callback_query(filters.regex(r"^reffff"))
@@ -149,7 +149,7 @@ async def refercall(bot, query):
         InlineKeyboardButton(
             'invite link', url=f'https://telegram.me/share/url?url=https://t.me/{bot.me.username}?start=reff_{query.from_user.id}&text=Hello%21%20Experience%20a%20bot%20that%20offers%20a%20vast%20library%20of%20unlimited%20movies%20and%20series.%20%F0%9F%98%83'),
         InlineKeyboardButton(
-            f'⏳ {referdb.get_refer_points(query.from_user.id)}', callback_data='ref_point'),
+            f'â³ {referdb.get_refer_points(query.from_user.id)}', callback_data='ref_point'),
         InlineKeyboardButton('Back', callback_data='premium_info')
     ]]
     reply_markup = InlineKeyboardMarkup(btn)
@@ -203,7 +203,7 @@ async def next_page(bot, query):
     if settings.get('button'):
         btn = [
             [
-                InlineKeyboardButton(text=f"{get_size(file.file_size)} ≽ " + clean_filename(
+                InlineKeyboardButton(text=f"{get_size(file.file_size)} â‰½ " + clean_filename(
                     file.file_name), callback_data=f'file#{file.file_id}'),
             ]
             for file in files
@@ -211,17 +211,17 @@ async def next_page(bot, query):
         btn.insert(0,
                    [
                        InlineKeyboardButton(
-                           '𝐐ᴜᴀʟɪᴛʏ', callback_data=f"qualities#{req}#{key}", style=enums.ButtonStyle.DANGER),
+                           'ðá´œá´€ÊŸÉªá´›Ê', callback_data=f"qualities#{req}#{key}", style=enums.ButtonStyle.DANGER),
                        InlineKeyboardButton(
-                           "𝐋ᴀɴɢᴜᴀɢᴇ", callback_data=f"languages#{req}#{key}", style=enums.ButtonStyle.PRIMARY),
+                           "ð‹á´€É´É¢á´œá´€É¢á´‡", callback_data=f"languages#{req}#{key}", style=enums.ButtonStyle.PRIMARY),
                        InlineKeyboardButton(
-                           "𝐒ᴇᴀsᴏɴ",  callback_data=f"seasons#{req}#{key}", style=enums.ButtonStyle.DANGER)
+                           "ð’á´‡á´€sá´É´",  callback_data=f"seasons#{req}#{key}", style=enums.ButtonStyle.DANGER)
                    ]
                    )
         btn.insert(0,
                    [
                        InlineKeyboardButton(
-                           "🗃️ Sᴇɴᴅ Aʟʟ 🗃️", callback_data=f"sendfiles#{key}", style=enums.ButtonStyle.SUCCESS)
+                           "ðŸ—ƒï¸ Sá´‡É´á´… AÊŸÊŸ ðŸ—ƒï¸", callback_data=f"sendfiles#{key}", style=enums.ButtonStyle.SUCCESS)
 
                    ]
                    )
@@ -231,15 +231,15 @@ async def next_page(bot, query):
         btn.insert(0,
                    [
                        InlineKeyboardButton(
-                           '𝐐ᴜᴀʟɪᴛʏ', callback_data=f"qualities#{req}#{key}", style=enums.ButtonStyle.DANGER),
+                           'ðá´œá´€ÊŸÉªá´›Ê', callback_data=f"qualities#{req}#{key}", style=enums.ButtonStyle.DANGER),
                        InlineKeyboardButton(
-                           "𝐋ᴀɴɢᴜᴀɢᴇ", callback_data=f"languages#{req}#{key}", style=enums.ButtonStyle.PRIMARY),
+                           "ð‹á´€É´É¢á´œá´€É¢á´‡", callback_data=f"languages#{req}#{key}", style=enums.ButtonStyle.PRIMARY),
                        InlineKeyboardButton(
-                           "𝐒ᴇᴀsᴏɴ",  callback_data=f"seasons#{req}#{key}", style=enums.ButtonStyle.DANGER)
+                           "ð’á´‡á´€sá´É´",  callback_data=f"seasons#{req}#{key}", style=enums.ButtonStyle.DANGER)
                    ]
                    )
         btn.insert(0, [
-            InlineKeyboardButton("🗃️ Sᴇɴᴅ Aʟʟ 🗃️", callback_data=f"sendfiles#{key}", style=enums.ButtonStyle.SUCCESS)
+            InlineKeyboardButton("ðŸ—ƒï¸ Sá´‡É´á´… AÊŸÊŸ ðŸ—ƒï¸", callback_data=f"sendfiles#{key}", style=enums.ButtonStyle.SUCCESS)
         ])
     if ULTRA_FAST_MODE:
         if 0 < offset <= 10:
@@ -250,16 +250,16 @@ async def next_page(bot, query):
             off_set = offset - 10
         if n_offset == 0:
             btn.append(
-                [InlineKeyboardButton("⋞ ʙᴀᴄᴋ", callback_data=f"next_{req}_{key}_{off_set}"), InlineKeyboardButton(f"{math.ceil(int(offset)/10)+1}", callback_data="pages")]
+                [InlineKeyboardButton("â‹ž Ê™á´€á´„á´‹", callback_data=f"next_{req}_{key}_{off_set}"), InlineKeyboardButton(f"{math.ceil(int(offset)/10)+1}", callback_data="pages")]
             )
         elif off_set is None:
-            btn.append([InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages"), InlineKeyboardButton(f"{math.ceil(int(offset)/10)+1}", callback_data="pages"), InlineKeyboardButton("ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{n_offset}")])
+            btn.append([InlineKeyboardButton("á´˜á´€É¢á´‡", callback_data="pages"), InlineKeyboardButton(f"{math.ceil(int(offset)/10)+1}", callback_data="pages"), InlineKeyboardButton("É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{n_offset}")])
         else:
             btn.append(
                 [
-                    InlineKeyboardButton("⋞ ʙᴀᴄᴋ", callback_data=f"next_{req}_{key}_{off_set}", style=enums.ButtonStyle.DANGER),
+                    InlineKeyboardButton("â‹ž Ê™á´€á´„á´‹", callback_data=f"next_{req}_{key}_{off_set}", style=enums.ButtonStyle.DANGER),
                     InlineKeyboardButton(f"{math.ceil(int(offset)/10)+1}", callback_data="pages", style=enums.ButtonStyle.DANGER),
-                    InlineKeyboardButton("ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.SUCCESS)
+                    InlineKeyboardButton("É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.SUCCESS)
                 ],
             )
     else:
@@ -272,20 +272,20 @@ async def next_page(bot, query):
                 else:
                     off_set = offset - 10
                 if n_offset == 0:
-                    btn.append([InlineKeyboardButton("⋞ ʙᴀᴄᴋ", callback_data=f"next_{req}_{key}_{off_set}"), InlineKeyboardButton(
+                    btn.append([InlineKeyboardButton("â‹ž Ê™á´€á´„á´‹", callback_data=f"next_{req}_{key}_{off_set}"), InlineKeyboardButton(
                         f"{math.ceil(int(offset)/10)+1} / {math.ceil(total/10)}", callback_data="pages", style=enums.ButtonStyle.DANGER)])
                 elif off_set is None:
-                    btn.append([InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages"), InlineKeyboardButton(
-                        f"{math.ceil(int(offset)/10)+1} / {math.ceil(total/10)}", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton("ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)])
+                    btn.append([InlineKeyboardButton("á´˜á´€É¢á´‡", callback_data="pages"), InlineKeyboardButton(
+                        f"{math.ceil(int(offset)/10)+1} / {math.ceil(total/10)}", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton("É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)])
                 else:
                     btn.append(
                         [
                             InlineKeyboardButton(
-                                "⋞ ʙᴀᴄᴋ", callback_data=f"next_{req}_{key}_{off_set}", style=enums.ButtonStyle.DANGER),
+                                "â‹ž Ê™á´€á´„á´‹", callback_data=f"next_{req}_{key}_{off_set}", style=enums.ButtonStyle.DANGER),
                             InlineKeyboardButton(
                                 f"{math.ceil(int(offset)/10)+1} / {math.ceil(total/10)}", callback_data="pages", style=enums.ButtonStyle.SUCCESS),
                             InlineKeyboardButton(
-                                "ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)
+                                "É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)
                         ],
                     )
             else:
@@ -296,20 +296,20 @@ async def next_page(bot, query):
                 else:
                     off_set = offset - int(MAX_B_TN)
                 if n_offset == 0:
-                    btn.append([InlineKeyboardButton("⋞ ʙᴀᴄᴋ", callback_data=f"next_{req}_{key}_{off_set}, style=enums.ButtonStyle.DANGER"), InlineKeyboardButton(
+                    btn.append([InlineKeyboardButton("â‹ž Ê™á´€á´„á´‹", callback_data=f"next_{req}_{key}_{off_set}, style=enums.ButtonStyle.DANGER"), InlineKeyboardButton(
                         f"{math.ceil(int(offset)/int(MAX_B_TN))+1} / {math.ceil(total/int(MAX_B_TN))}", callback_data="pages", style=enums.ButtonStyle.SUCCESS)])
                 elif off_set is None:
-                    btn.append([InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(
-                        f"{math.ceil(int(offset)/int(MAX_B_TN))+1} / {math.ceil(total/int(MAX_B_TN))}", callback_data="pages, style=enums.ButtonStyle.PRIMARY"), InlineKeyboardButton("ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)])
+                    btn.append([InlineKeyboardButton("á´˜á´€É¢á´‡", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(
+                        f"{math.ceil(int(offset)/int(MAX_B_TN))+1} / {math.ceil(total/int(MAX_B_TN))}", callback_data="pages, style=enums.ButtonStyle.PRIMARY"), InlineKeyboardButton("É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)])
                 else:
                     btn.append(
                         [
                             InlineKeyboardButton(
-                                "⋞ ʙᴀᴄᴋ", callback_data=f"next_{req}_{key}_{off_set}", style=enums.ButtonStyle.DANGER),
+                                "â‹ž Ê™á´€á´„á´‹", callback_data=f"next_{req}_{key}_{off_set}", style=enums.ButtonStyle.DANGER),
                             InlineKeyboardButton(
                                 f"{math.ceil(int(offset)/int(MAX_B_TN))+1} / {math.ceil(total/int(MAX_B_TN))}", callback_data="pages", style=enums.ButtonStyle.PRIMARY),
                             InlineKeyboardButton(
-                                "ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)
+                                "É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)
                         ],
                     )
         except KeyError:
@@ -322,21 +322,21 @@ async def next_page(bot, query):
                 off_set = offset - 10
             if n_offset == 0:
                 btn.append(
-                    [InlineKeyboardButton("⋞ ʙᴀᴄᴋ", callback_data=f"next_{req}_{key}_{off_set}", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
+                    [InlineKeyboardButton("â‹ž Ê™á´€á´„á´‹", callback_data=f"next_{req}_{key}_{off_set}", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
                         f"{math.ceil(int(offset)/10)+1} / {math.ceil(total/10)}", callback_data="pages", style=enums.ButtonStyle.PRIMARY)]
                 )
             elif off_set is None:
-                btn.append([InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
-                    f"{math.ceil(int(offset)/10)+1} / {math.ceil(total/10)}", callback_data="pages", style=enums.ButtonStyle.PRIMARY), InlineKeyboardButton("ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)])
+                btn.append([InlineKeyboardButton("á´˜á´€É¢á´‡", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
+                    f"{math.ceil(int(offset)/10)+1} / {math.ceil(total/10)}", callback_data="pages", style=enums.ButtonStyle.PRIMARY), InlineKeyboardButton("É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)])
             else:
                 btn.append(
                     [
                         InlineKeyboardButton(
-                            "⋞ ʙᴀᴄᴋ", callback_data=f"next_{req}_{key}_{off_set}", style=enums.ButtonStyle.DANGER),
+                            "â‹ž Ê™á´€á´„á´‹", callback_data=f"next_{req}_{key}_{off_set}", style=enums.ButtonStyle.DANGER),
                         InlineKeyboardButton(
                             f"{math.ceil(int(offset)/10)+1} / {math.ceil(total/10)}", callback_data="pages", style=enums.ButtonStyle.PRIMARY),
                         InlineKeyboardButton(
-                            "ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)
+                            "É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)
                     ],
                 )
     if not settings["button"]:
@@ -398,9 +398,9 @@ async def advantage_spoll_choker(bot, query):
             try:
                 await bot.send_message(chat_id=BIN_CHANNEL, text=script.NORSLTS.format(reqstr.id, reqstr.mention, movie))
             except Exception as e:
-                logger.error("Error In Spol: %s — Make Sure Bot Admin BIN CHANNEL", e)
+                logger.error("Error In Spol: %s â€” Make Sure Bot Admin BIN CHANNEL", e)
         btn = InlineKeyboardMarkup(
-            [[InlineKeyboardButton("ʀᴇǫᴜᴇsᴛ 📝 ᴀᴅᴍɪɴ", url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)]])
+            [[InlineKeyboardButton("Ê€á´‡Ç«á´œá´‡sá´› ðŸ“ á´€á´…á´ÉªÉ´", url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)]])
         k = await query.message.edit(script.MVE_NT_FND, reply_markup=btn)
         await asyncio.sleep(10)
         await k.delete()
@@ -412,8 +412,8 @@ async def qualities_cb_handler(client: Client, query: CallbackQuery):
     try:
         if int(req) not in [query.from_user.id, 0]:
             return await query.answer(
-                f"⚠️ ʜᴇʟʟᴏ {query.from_user.first_name},\n"
-                f"ᴛʜɪꜱ ɪꜱ ɴᴏᴛ ʏᴏᴜʀ ᴍᴏᴠɪᴇ ʀᴇǫᴜᴇꜱᴛ,\nʀᴇǫᴜᴇꜱᴛ ʏᴏᴜʀ'ꜱ...",
+                f"âš ï¸ Êœá´‡ÊŸÊŸá´ {query.from_user.first_name},\n"
+                f"á´›ÊœÉªêœ± Éªêœ± É´á´á´› Êá´á´œÊ€ á´á´á´ Éªá´‡ Ê€á´‡Ç«á´œá´‡êœ±á´›,\nÊ€á´‡Ç«á´œá´‡êœ±á´› Êá´á´œÊ€'êœ±...",
                 show_alert=True,
             )
     except Exception:
@@ -434,10 +434,10 @@ async def qualities_cb_handler(client: Client, query: CallbackQuery):
         btn.append(row)
 
     btn.insert(0, [
-        InlineKeyboardButton(text="⇊ ꜱᴇʟᴇᴄᴛ ǫᴜᴀʟɪᴛʏ ⇊", callback_data="ident", style=enums.ButtonStyle.PRIMARY)
+        InlineKeyboardButton(text="â‡Š êœ±á´‡ÊŸá´‡á´„á´› Ç«á´œá´€ÊŸÉªá´›Ê â‡Š", callback_data="ident", style=enums.ButtonStyle.PRIMARY)
     ])
     btn.append([
-        InlineKeyboardButton(text="↭ ʙᴀᴄᴋ ᴛᴏ ꜰɪʟᴇs ↭",
+        InlineKeyboardButton(text="â†­ Ê™á´€á´„á´‹ á´›á´ êœ°ÉªÊŸá´‡s â†­",
                              callback_data=f"fq#homepage#{req}#{key}", style=enums.ButtonStyle.SUCCESS)
     ])
 
@@ -459,7 +459,7 @@ async def filter_qualities_cb_handler(client: Client, query: CallbackQuery):
     message = query.message
     try:
         if int(req) not in [query.from_user.id, 0]:
-            return await query.answer(f"⚠️ ʜᴇʟʟᴏ {query.from_user.first_name},\nᴛʜɪꜱ ɪꜱ ɴᴏᴛ ʏᴏᴜʀ ᴍᴏᴠɪᴇ ʀᴇǫᴜᴇꜱᴛ,\nʀᴇǫᴜᴇꜱᴛ ʏᴏᴜʀ'ꜱ...", show_alert=True,)
+            return await query.answer(f"âš ï¸ Êœá´‡ÊŸÊŸá´ {query.from_user.first_name},\ná´›ÊœÉªêœ± Éªêœ± É´á´á´› Êá´á´œÊ€ á´á´á´ Éªá´‡ Ê€á´‡Ç«á´œá´‡êœ±á´›,\nÊ€á´‡Ç«á´œá´‡êœ±á´› Êá´á´œÊ€'êœ±...", show_alert=True,)
     except Exception:
         pass
     if qual != "homepage":
@@ -467,14 +467,14 @@ async def filter_qualities_cb_handler(client: Client, query: CallbackQuery):
     BUTTONS[key] = search
     files, offset, total_results = await get_search_results(chat_id, search, offset=0, filter=True)
     if not files:
-        await query.answer("🚫 ɴᴏ ꜰɪʟᴇꜱ ᴡᴇʀᴇ ꜰᴏᴜɴᴅ 🚫", show_alert=1)
+        await query.answer("ðŸš« É´á´ êœ°ÉªÊŸá´‡êœ± á´¡á´‡Ê€á´‡ êœ°á´á´œÉ´á´… ðŸš«", show_alert=1)
         return
     temp.GETALL[key] = files
     settings = await get_settings(message.chat.id)
     if settings.get('button'):
         btn = [
             [
-                InlineKeyboardButton(text=f"{get_size(file.file_size)} ≽ " + clean_filename(
+                InlineKeyboardButton(text=f"{get_size(file.file_size)} â‰½ " + clean_filename(
                     file.file_name), callback_data=f'file#{file.file_id}'),
             ]
             for file in files
@@ -482,17 +482,17 @@ async def filter_qualities_cb_handler(client: Client, query: CallbackQuery):
         btn.insert(0,
                    [
                        InlineKeyboardButton(
-                           '𝐐ᴜᴀʟɪᴛʏ', callback_data=f"qualities#{req}#{key}", style=enums.ButtonStyle.DANGER),
+                           'ðá´œá´€ÊŸÉªá´›Ê', callback_data=f"qualities#{req}#{key}", style=enums.ButtonStyle.DANGER),
                        InlineKeyboardButton(
-                           "𝐋ᴀɴɢᴜᴀɢᴇ", callback_data=f"languages#{req}#{key}", style=enums.ButtonStyle.PRIMARY),
+                           "ð‹á´€É´É¢á´œá´€É¢á´‡", callback_data=f"languages#{req}#{key}", style=enums.ButtonStyle.PRIMARY),
                        InlineKeyboardButton(
-                           "𝐒ᴇᴀsᴏɴ",  callback_data=f"seasons#{req}#{key}", style=enums.ButtonStyle.DANGER)
+                           "ð’á´‡á´€sá´É´",  callback_data=f"seasons#{req}#{key}", style=enums.ButtonStyle.DANGER)
                    ]
                    )
         btn.insert(0,
     [
         InlineKeyboardButton(
-            "🗃️ Sᴇɴᴅ Aʟʟ 🗃️",
+            "ðŸ—ƒï¸ Sá´‡É´á´… AÊŸÊŸ ðŸ—ƒï¸",
             callback_data=f"sendfiles#{key}",
             style=enums.ButtonStyle.SUCCESS
         )
@@ -502,17 +502,17 @@ async def filter_qualities_cb_handler(client: Client, query: CallbackQuery):
         btn.insert(0,
                    [
                        InlineKeyboardButton(
-                           '𝐐ᴜᴀʟɪᴛʏ', callback_data=f"qualities#{req}#{key}", style=enums.ButtonStyle.DANGER),
+                           'ðá´œá´€ÊŸÉªá´›Ê', callback_data=f"qualities#{req}#{key}", style=enums.ButtonStyle.DANGER),
                        InlineKeyboardButton(
-                           "𝐋ᴀɴɢᴜᴀɢᴇ", callback_data=f"languages#{req}#{key}", style=enums.ButtonStyle.PRIMARY),
+                           "ð‹á´€É´É¢á´œá´€É¢á´‡", callback_data=f"languages#{req}#{key}", style=enums.ButtonStyle.PRIMARY),
                        InlineKeyboardButton(
-                           "𝐒ᴇᴀsᴏɴ",  callback_data=f"seasons#{req}#{key}", style=enums.ButtonStyle.DANGER)
+                           "ð’á´‡á´€sá´É´",  callback_data=f"seasons#{req}#{key}", style=enums.ButtonStyle.DANGER)
                    ]
                    )
         btn.insert(0,
                    [
                        InlineKeyboardButton(
-                           "🗃️ Sᴇɴᴅ Aʟʟ 🗃️", callback_data=f"sendfiles#{key}", style=enums.ButtonStyle.SUCCESS)
+                           "ðŸ—ƒï¸ Sá´‡É´á´… AÊŸÊŸ ðŸ—ƒï¸", callback_data=f"sendfiles#{key}", style=enums.ButtonStyle.SUCCESS)
 
                    ])
     if offset != "":
@@ -520,27 +520,27 @@ async def filter_qualities_cb_handler(client: Client, query: CallbackQuery):
             if settings['max_btn']:
                 btn.append(
 
-                    [InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
-                        text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)]
+                    [InlineKeyboardButton("á´˜á´€É¢á´‡", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
+                        text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(text="É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)]
                 )
             else:
                 btn.append(
 
-                    [InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
-                        text=f"1/{math.ceil(int(total_results)/int(MAX_B_TN))}", callback_data="pages", style=enums.ButtonStyle.PRIMARY), InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)]
+                    [InlineKeyboardButton("á´˜á´€É¢á´‡", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
+                        text=f"1/{math.ceil(int(total_results)/int(MAX_B_TN))}", callback_data="pages", style=enums.ButtonStyle.PRIMARY), InlineKeyboardButton(text="É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)]
                 )
         except KeyError:
             await save_group_settings(query.message.chat.id, 'max_btn', True)
             btn.append(
 
-                [InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
-                    text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.PRIMARY), InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)]
+                [InlineKeyboardButton("á´˜á´€É¢á´‡", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
+                    text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.PRIMARY), InlineKeyboardButton(text="É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)]
             )
     else:
         btn.append(
 
             [InlineKeyboardButton(
-                text="↭ ɴᴏ ᴍᴏʀᴇ ᴘᴀɢᴇꜱ ᴀᴠᴀɪʟᴀʙʟᴇ ↭", callback_data="pages", style=enums.ButtonStyle.DANGER)]
+                text="â†­ É´á´ á´á´Ê€á´‡ á´˜á´€É¢á´‡êœ± á´€á´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ â†­", callback_data="pages", style=enums.ButtonStyle.DANGER)]
         )
     if not settings["button"]:
         cur_time = datetime.now(pytz.timezone('Asia/Kolkata')).time()
@@ -570,8 +570,8 @@ async def languages_cb_handler(client: Client, query: CallbackQuery):
     try:
         if int(req) not in [query.from_user.id, 0]:
             return await query.answer(
-                f"⚠️ ʜᴇʟʟᴏ {query.from_user.first_name},\n"
-                f"ᴛʜɪꜱ ɪꜱ ɴᴏᴛ ʏᴏᴜʀ ᴍᴏᴠɪᴇ ʀᴇǫᴜᴇꜱᴛ,\nʀᴇǫᴜᴇꜱᴛ ʏᴏᴜʀ'ꜱ...",
+                f"âš ï¸ Êœá´‡ÊŸÊŸá´ {query.from_user.first_name},\n"
+                f"á´›ÊœÉªêœ± Éªêœ± É´á´á´› Êá´á´œÊ€ á´á´á´ Éªá´‡ Ê€á´‡Ç«á´œá´‡êœ±á´›,\nÊ€á´‡Ç«á´œá´‡êœ±á´› Êá´á´œÊ€'êœ±...",
                 show_alert=True,
             )
     except Exception:
@@ -594,8 +594,8 @@ async def languages_cb_handler(client: Client, query: CallbackQuery):
         btn.append(row)
 
     btn.insert(0, [InlineKeyboardButton(
-        text="⇊ ꜱᴇʟᴇᴄᴛ ʟᴀɴɢᴜᴀɢᴇ ⇊", callback_data="ident", style=enums.ButtonStyle.SUCCESS)])
-    btn.append([InlineKeyboardButton(text="↭ ʙᴀᴄᴋ ᴛᴏ ꜰɪʟᴇs ↭",
+        text="â‡Š êœ±á´‡ÊŸá´‡á´„á´› ÊŸá´€É´É¢á´œá´€É¢á´‡ â‡Š", callback_data="ident", style=enums.ButtonStyle.SUCCESS)])
+    btn.append([InlineKeyboardButton(text="â†­ Ê™á´€á´„á´‹ á´›á´ êœ°ÉªÊŸá´‡s â†­",
                callback_data=f"fl#homepage#{req}#{key}", style=enums.ButtonStyle.PRIMARY)])
 
     await query.edit_message_reply_markup(InlineKeyboardMarkup(btn))
@@ -616,7 +616,7 @@ async def filter_languages_cb_handler(client: Client, query: CallbackQuery):
     message = query.message
     try:
         if int(req) not in [query.from_user.id, 0]:
-            return await query.answer(f"⚠️ ʜᴇʟʟᴏ {query.from_user.first_name},\nᴛʜɪꜱ ɪꜱ ɴᴏᴛ ʏᴏᴜʀ ᴍᴏᴠɪᴇ ʀᴇǫᴜᴇꜱᴛ,\nʀᴇǫᴜᴇꜱᴛ ʏᴏᴜʀ'ꜱ...", show_alert=True,)
+            return await query.answer(f"âš ï¸ Êœá´‡ÊŸÊŸá´ {query.from_user.first_name},\ná´›ÊœÉªêœ± Éªêœ± É´á´á´› Êá´á´œÊ€ á´á´á´ Éªá´‡ Ê€á´‡Ç«á´œá´‡êœ±á´›,\nÊ€á´‡Ç«á´œá´‡êœ±á´› Êá´á´œÊ€'êœ±...", show_alert=True,)
     except Exception:
         pass
     if lang != "homepage":
@@ -624,14 +624,14 @@ async def filter_languages_cb_handler(client: Client, query: CallbackQuery):
     BUTTONS[key] = search
     files, offset, total_results = await get_search_results(chat_id, search, offset=0, filter=True)
     if not files:
-        await query.answer("🚫 ɴᴏ ꜰɪʟᴇꜱ ᴡᴇʀᴇ ꜰᴏᴜɴᴅ 🚫", show_alert=1)
+        await query.answer("ðŸš« É´á´ êœ°ÉªÊŸá´‡êœ± á´¡á´‡Ê€á´‡ êœ°á´á´œÉ´á´… ðŸš«", show_alert=1)
         return
     temp.GETALL[key] = files
     settings = await get_settings(message.chat.id)
     if settings.get('button'):
         btn = [
             [
-                InlineKeyboardButton(text=f"{get_size(file.file_size)} ≽ " + clean_filename(
+                InlineKeyboardButton(text=f"{get_size(file.file_size)} â‰½ " + clean_filename(
                     file.file_name), callback_data=f'file#{file.file_id}'),
             ]
             for file in files
@@ -639,16 +639,16 @@ async def filter_languages_cb_handler(client: Client, query: CallbackQuery):
         btn.insert(0,
                    [
                        InlineKeyboardButton(
-                           '𝐐ᴜᴀʟɪᴛʏ', callback_data=f"qualities#{req}#{key}", style=enums.ButtonStyle.DANGER),
+                           'ðá´œá´€ÊŸÉªá´›Ê', callback_data=f"qualities#{req}#{key}", style=enums.ButtonStyle.DANGER),
                        InlineKeyboardButton(
-                           "𝐋ᴀɴɢᴜᴀɢᴇ", callback_data=f"languages#{req}#{key}", style=enums.ButtonStyle.PRIMARY),
+                           "ð‹á´€É´É¢á´œá´€É¢á´‡", callback_data=f"languages#{req}#{key}", style=enums.ButtonStyle.PRIMARY),
                        InlineKeyboardButton(
-                           "𝐒ᴇᴀsᴏɴ",  callback_data=f"seasons#{req}#{key}", style=enums.ButtonStyle.DANGER)
+                           "ð’á´‡á´€sá´É´",  callback_data=f"seasons#{req}#{key}", style=enums.ButtonStyle.DANGER)
                    ]
                    )
         [
     InlineKeyboardButton(
-        "🗃️ Sᴇɴᴅ Aʟʟ 🗃️",
+        "ðŸ—ƒï¸ Sá´‡É´á´… AÊŸÊŸ ðŸ—ƒï¸",
         callback_data=f"sendfiles#{key}",
         style=enums.ButtonStyle.SUCCESS
     )
@@ -658,16 +658,16 @@ async def filter_languages_cb_handler(client: Client, query: CallbackQuery):
         btn.insert(0,
                    [
                        InlineKeyboardButton(
-                           '𝐐ᴜᴀʟɪᴛʏ', callback_data=f"qualities#{req}#{key}", style=enums.ButtonStyle.DANGER),
+                           'ðá´œá´€ÊŸÉªá´›Ê', callback_data=f"qualities#{req}#{key}", style=enums.ButtonStyle.DANGER),
                        InlineKeyboardButton(
-                           "𝐋ᴀɴɢᴜᴀɢᴇ", callback_data=f"languages#{req}#{key}", style=enums.ButtonStyle.PRIMARY),
+                           "ð‹á´€É´É¢á´œá´€É¢á´‡", callback_data=f"languages#{req}#{key}", style=enums.ButtonStyle.PRIMARY),
                        InlineKeyboardButton(
-                           "𝐒ᴇᴀsᴏɴ",  callback_data=f"seasons#{req}#{key}", style=enums.ButtonStyle.DANGER)
+                           "ð’á´‡á´€sá´É´",  callback_data=f"seasons#{req}#{key}", style=enums.ButtonStyle.DANGER)
                    ]
                    )
         [
     InlineKeyboardButton(
-        "🗃️ Sᴇɴᴅ Aʟʟ 🗃️",
+        "ðŸ—ƒï¸ Sá´‡É´á´… AÊŸÊŸ ðŸ—ƒï¸",
         callback_data=...,
         style=enums.ButtonStyle.SUCCESS
     )
@@ -677,25 +677,25 @@ async def filter_languages_cb_handler(client: Client, query: CallbackQuery):
             if settings['max_btn']:
                 btn.append(
                     [
-                        InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
-                            text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.PRIMARY), InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)
+                        InlineKeyboardButton("á´˜á´€É¢á´‡", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
+                            text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.PRIMARY), InlineKeyboardButton(text="É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)
                     ])
             else:
                 btn.append(
                     [
-                        InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.FANGER), InlineKeyboardButton(
-                            text=f"1/{math.ceil(int(total_results)/int(MAX_B_TN))}", callback_data="pages", style=enums.ButtonStyle.PRIMARY), InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)
+                        InlineKeyboardButton("á´˜á´€É¢á´‡", callback_data="pages", style=enums.ButtonStyle.FANGER), InlineKeyboardButton(
+                            text=f"1/{math.ceil(int(total_results)/int(MAX_B_TN))}", callback_data="pages", style=enums.ButtonStyle.PRIMARY), InlineKeyboardButton(text="É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)
                     ])
         except KeyError:
             await save_group_settings(query.message.chat.id, 'max_btn', True)
             btn.append(
                 [
-                    InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
-                        text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.PRIMARY), InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)
+                    InlineKeyboardButton("á´˜á´€É¢á´‡", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
+                        text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.PRIMARY), InlineKeyboardButton(text="É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)
                 ])
     else:
         btn.append([InlineKeyboardButton(
-            text="↭ ɴᴏ ᴍᴏʀᴇ ᴘᴀɢᴇꜱ ᴀᴠᴀɪʟᴀʙʟᴇ ↭", callback_data="pages", style=enums.ButtonStyle.PRIMARY)])
+            text="â†­ É´á´ á´á´Ê€á´‡ á´˜á´€É¢á´‡êœ± á´€á´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ â†­", callback_data="pages", style=enums.ButtonStyle.PRIMARY)])
     if not settings["button"]:
         cur_time = datetime.now(pytz.timezone('Asia/Kolkata')).time()
         time_difference = timedelta(hours=cur_time.hour, minutes=cur_time.minute, seconds=(cur_time.second+(cur_time.microsecond/1000000))) - \
@@ -722,7 +722,7 @@ async def seasons_cb_handler(client: Client, query: CallbackQuery):
     try:
         if int(req) not in [query.from_user.id, 0]:
             return await query.answer(
-                f"⚠️ ʜᴇʟʟᴏ {query.from_user.first_name},\nᴛʜɪꜱ ɪꜱ ɴᴏᴛ ʏᴏᴜʀ ᴍᴏᴠɪᴇ ʀᴇǫᴜᴇꜱᴛ,\nʀᴇǫᴜᴇꜱᴛ ʏᴏᴜʀ'ꜱ…",
+                f"âš ï¸ Êœá´‡ÊŸÊŸá´Â {query.from_user.first_name},\ná´›ÊœÉªêœ±Â Éªêœ±Â É´á´á´›Â Êá´á´œÊ€Â á´á´á´ Éªá´‡Â Ê€á´‡Ç«á´œá´‡êœ±á´›,\nÊ€á´‡Ç«á´œá´‡êœ±á´›Â Êá´á´œÊ€'êœ±â€¦",
                 show_alert=True,
             )
     except Exception:
@@ -732,16 +732,16 @@ async def seasons_cb_handler(client: Client, query: CallbackQuery):
     for i in range(0, len(SEASONS) - 1, 2):
         btn.append([
             InlineKeyboardButton(
-                f"𝐒ᴇᴀꜱᴏɴ {SEASONS[i][1:]}", callback_data=f"fs#{SEASONS[i].lower()}#{req}#{key}", style=enums.ButtonStyle.DANGER),
+                f"ð’á´‡á´€êœ±á´É´ {SEASONS[i][1:]}", callback_data=f"fs#{SEASONS[i].lower()}#{req}#{key}", style=enums.ButtonStyle.DANGER),
             InlineKeyboardButton(
-                f"𝐒ᴇᴀꜱᴏɴ {SEASONS[i+1][1:]}", callback_data=f"fs#{SEASONS[i+1].lower()}#{req}#{key}", style=enums.ButtonStyle.DANGER)
+                f"ð’á´‡á´€êœ±á´É´ {SEASONS[i+1][1:]}", callback_data=f"fs#{SEASONS[i+1].lower()}#{req}#{key}", style=enums.ButtonStyle.DANGER)
         ])
 
     btn.insert(
         0,
-        [InlineKeyboardButton("⇊ ꜱᴇʟᴇᴄᴛ ꜱᴇᴀꜱᴏɴ ⇊", callback_data="ident", style=enums.ButtonStyle.SUCCESS)],
+        [InlineKeyboardButton("â‡Š êœ±á´‡ÊŸá´‡á´„á´›Â êœ±á´‡á´€êœ±á´É´ â‡Š", callback_data="ident", style=enums.ButtonStyle.SUCCESS)],
     )
-    btn.append([InlineKeyboardButton(text="↭ ʙᴀᴄᴋ ᴛᴏ ꜰɪʟᴇs ​↭",
+    btn.append([InlineKeyboardButton(text="â†­ Ê™á´€á´„á´‹ á´›á´ êœ°ÉªÊŸá´‡s â€‹â†­",
                callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.PRIMARY)])
     await query.edit_message_reply_markup(InlineKeyboardMarkup(btn))
     await query.answer()
@@ -764,7 +764,7 @@ async def filter_seasons_cb_handler(client: Client, query: CallbackQuery):
     BUTTONS[key] = search_final
     try:
         if int(req) not in [query.from_user.id, 0]:
-            return await query.answer("⚠️ Not your request", show_alert=True)
+            return await query.answer("âš ï¸ Not your request", show_alert=True)
     except Exception:
         pass
 
@@ -772,7 +772,7 @@ async def filter_seasons_cb_handler(client: Client, query: CallbackQuery):
     files, n_offset, total_results = await get_search_results(chat_id, query_input, offset=0, filter=True)
     if not files:
         BUTTONS[key] = None
-        return await query.answer("🚫 ɴᴏ ꜰɪʟᴇꜱ ꜰᴏᴜɴᴅ 🚫", show_alert=True)
+        return await query.answer("ðŸš« É´á´ êœ°ÉªÊŸá´‡êœ± êœ°á´á´œÉ´á´… ðŸš«", show_alert=True)
 
     temp.GETALL[key] = files
     settings = await get_settings(chat_id)
@@ -782,7 +782,7 @@ async def filter_seasons_cb_handler(client: Client, query: CallbackQuery):
             [
                 [
                     InlineKeyboardButton(
-                        f"{get_size(f.file_size)} ≽ " +
+                        f"{get_size(f.file_size)} â‰½ " +
                         clean_filename(f.file_name),
                         callback_data=f"file#{f.file_id}",
                     )
@@ -793,14 +793,14 @@ async def filter_seasons_cb_handler(client: Client, query: CallbackQuery):
     btn.insert(
         0,
         [
-            InlineKeyboardButton("𝐐ᴜᴀʟɪᴛʏ", callback_data=f"qualities#{req}#{key}", style=enums.ButtonStyle.DANGER),
-            InlineKeyboardButton("𝐋ᴀɴɢᴜᴀɢᴇ", callback_data=f"languages#{req}#{key}", style=enums.ButtonStyle.PRIMARY),
-            InlineKeyboardButton("𝐒ᴇᴀꜱᴏɴ", callback_data=f"seasons#{req}#{key}", style=enums.ButtonStyle.DANGER),
+            InlineKeyboardButton("ðá´œá´€ÊŸÉªá´›Ê", callback_data=f"qualities#{req}#{key}", style=enums.ButtonStyle.DANGER),
+            InlineKeyboardButton("ð‹á´€É´É¢á´œá´€É¢á´‡", callback_data=f"languages#{req}#{key}", style=enums.ButtonStyle.PRIMARY),
+            InlineKeyboardButton("ð’á´‡á´€êœ±á´É´", callback_data=f"seasons#{req}#{key}", style=enums.ButtonStyle.DANGER),
         ],
     )
     [
     InlineKeyboardButton(
-        "🗃️ Sᴇɴᴅ Aʟʟ 🗃️",
+        "ðŸ—ƒï¸ Sá´‡É´á´… AÊŸÊŸ ðŸ—ƒï¸",
         callback_data=...,
         style=enums.ButtonStyle.SUCCESS
     )
@@ -809,26 +809,26 @@ async def filter_seasons_cb_handler(client: Client, query: CallbackQuery):
         try:
             if settings['max_btn']:
                 btn.append(
-                    [InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
-                        text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)]
+                    [InlineKeyboardButton("á´˜á´€É¢á´‡", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
+                        text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(text="É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)]
                 )
 
             else:
                 btn.append(
-                    [InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
-                        text=f"1/{math.ceil(int(total_results)/int(MAX_B_TN))}", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)]
+                    [InlineKeyboardButton("á´˜á´€É¢á´‡", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
+                        text=f"1/{math.ceil(int(total_results)/int(MAX_B_TN))}", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(text="É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)]
                 )
         except KeyError:
             await save_group_settings(query.message.chat.id, 'max_btn', True)
             btn.append(
-                [InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
-                    text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)]
+                [InlineKeyboardButton("á´˜á´€É¢á´‡", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
+                    text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(text="É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)]
             )
     else:
         n_offset = 0
         btn.append(
             [InlineKeyboardButton(
-                "↭  ɴᴏ ᴍᴏʀᴇ ᴘᴀɢᴇꜱ ᴀᴠᴀɪʟᴀʙʟᴇ ↭", callback_data="pages", style=enums.ButtonStyle.PRIMARY)]
+                "â†­  É´á´ á´á´Ê€á´‡ á´˜á´€É¢á´‡êœ± á´€á´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ â†­", callback_data="pages", style=enums.ButtonStyle.PRIMARY)]
         )
     if not settings.get("button"):
         time_difference = datetime.now(pytz.timezone("Asia/Kolkata")) - start_t
@@ -864,7 +864,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             user = query.from_user.id
         if int(user) != 0 and query.from_user.id != int(user):
             return await query.answer(script.NT_ALRT_TXT, show_alert=True)
-        await query.answer("ᴛʜᴀɴᴋs ꜰᴏʀ ᴄʟᴏsᴇ 🙈")
+        await query.answer("á´›Êœá´€É´á´‹s êœ°á´Ê€ á´„ÊŸá´sá´‡ ðŸ™ˆ")
         await query.message.delete()
         try:
             await query.message.reply_to_message.delete()
@@ -872,7 +872,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             pass
 
     elif query.data == "pages":
-        await query.answer("ᴛʜɪs ɪs ᴘᴀɢᴇs ʙᴜᴛᴛᴏɴ ʙꜱᴅᴋ 😅")
+        await query.answer("á´›ÊœÉªs Éªs á´˜á´€É¢á´‡s Ê™á´œá´›á´›á´É´ Ê™êœ±á´…á´‹ ðŸ˜…")
 
 
 
@@ -890,7 +890,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             await query.answer(url=f"https://telegram.me/{temp.U_NAME}?start=allfiles_{query.message.chat.id}_{key}")
             return
         except UserIsBlocked:
-            await query.answer('Uɴʙʟᴏᴄᴋ ᴛʜᴇ ʙᴏᴛ ᴍᴀʜɴ !', show_alert=True)
+            await query.answer('UÉ´Ê™ÊŸá´á´„á´‹ á´›Êœá´‡ Ê™á´á´› á´á´€ÊœÉ´ !', show_alert=True)
         except PeerIdInvalid:
             await query.answer(url=f"https://telegram.me/{temp.U_NAME}?start=sendfiles3_{key}")
         except Exception as e:
@@ -903,8 +903,8 @@ async def cb_handler(client: Client, query: CallbackQuery):
         await Media.collection.drop()
         if MULTIPLE_DB:    
             await Media2.collection.drop()
-        await query.answer("Eᴠᴇʀʏᴛʜɪɴɢ's Gᴏɴᴇ")
-        await query.message.edit('ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ᴅᴇʟᴇᴛᴇᴅ ᴀʟʟ ɪɴᴅᴇxᴇᴅ ꜰɪʟᴇꜱ ✅')
+        await query.answer("Eá´ á´‡Ê€Êá´›ÊœÉªÉ´É¢'s Gá´É´á´‡")
+        await query.message.edit('êœ±á´œá´„á´„á´‡êœ±êœ±êœ°á´œÊŸÊŸÊ á´…á´‡ÊŸá´‡á´›á´‡á´… á´€ÊŸÊŸ ÉªÉ´á´…á´‡xá´‡á´… êœ°ÉªÊŸá´‡êœ± âœ…')
 
     elif query.data.startswith("checksub"):
         try:
@@ -931,15 +931,15 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 if AUTH_REQ_CHANNELS:
                     btn += await is_req_subscribed(client, query.from_user.id, AUTH_REQ_CHANNELS)
             if btn:
-                btn.append([InlineKeyboardButton("♻️ ᴛʀʏ ᴀɢᴀɪɴ ♻️", callback_data=f"checksub#{kk}#{file_id}", style=enums.ButtonStyle.PRIMARY)])
+                btn.append([InlineKeyboardButton("â™»ï¸ á´›Ê€Ê á´€É¢á´€ÉªÉ´ â™»ï¸", callback_data=f"checksub#{kk}#{file_id}", style=enums.ButtonStyle.PRIMARY)])
                 try:
                     await query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup(btn))
                 except (MessageNotModified, MessageIdInvalid):
                     pass
                 await query.answer(
-                    f"👋 Hello {query.from_user.first_name},\n\n"
-                    "🛑 Yᴏᴜ ʜᴀᴠᴇ ɴᴏᴛ ᴊᴏɪɴᴇᴅ ᴀʟʟ ʀᴇǫᴜɪʀᴇᴅ ᴜᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟs.\n"
-                    "👉 Pʟᴇᴀsᴇ ᴊᴏɪɴ ᴇᴀᴄʜ ᴏɴᴇ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.\n",
+                    f"ðŸ‘‹ Hello {query.from_user.first_name},\n\n"
+                    "ðŸ›‘ Yá´á´œ Êœá´€á´ á´‡ É´á´á´› á´Šá´ÉªÉ´á´‡á´… á´€ÊŸÊŸ Ê€á´‡Ç«á´œÉªÊ€á´‡á´… á´œá´˜á´…á´€á´›á´‡ CÊœá´€É´É´á´‡ÊŸs.\n"
+                    "ðŸ‘‰ PÊŸá´‡á´€sá´‡ á´Šá´ÉªÉ´ á´‡á´€á´„Êœ á´É´á´‡ á´€É´á´… á´›Ê€Ê á´€É¢á´€ÉªÉ´.\n",
                     show_alert=True
                 )
                 return
@@ -947,15 +947,15 @@ async def cb_handler(client: Client, query: CallbackQuery):
             if query.message.chat.type == enums.ChatType.PRIVATE:
                 await query.message.delete()
         except Exception as e:
-            await log_error(client, f"❌ Error in checksub callback:\n\n{repr(e)}")
-            logger.error(f"❌ Error in checksub callback:\n\n{repr(e)}")
+            await log_error(client, f"âŒ Error in checksub callback:\n\n{repr(e)}")
+            logger.error(f"âŒ Error in checksub callback:\n\n{repr(e)}")
 
 
     elif query.data.startswith("killfilesdq"):
         ident, keyword = query.data.split("#")
         await query.message.edit_text(f"<b>Fetching Files for your query {keyword} on DB... Please wait...</b>")
         files, total = await get_bad_files(keyword)
-        await query.message.edit_text("<b>ꜰɪʟᴇ ᴅᴇʟᴇᴛɪᴏɴ ᴘʀᴏᴄᴇꜱꜱ ᴡɪʟʟ ꜱᴛᴀʀᴛ ɪɴ 5 ꜱᴇᴄᴏɴᴅꜱ !</b>")
+        await query.message.edit_text("<b>êœ°ÉªÊŸá´‡ á´…á´‡ÊŸá´‡á´›Éªá´É´ á´˜Ê€á´á´„á´‡êœ±êœ± á´¡ÉªÊŸÊŸ êœ±á´›á´€Ê€á´› ÉªÉ´ 5 êœ±á´‡á´„á´É´á´…êœ± !</b>")
         await asyncio.sleep(5)
         deleted = 0
         async with lock:
@@ -972,15 +972,15 @@ async def cb_handler(client: Client, query: CallbackQuery):
                         })
                     if result.deleted_count:
                         logger.info(
-                            f'ꜰɪʟᴇ ꜰᴏᴜɴᴅ ꜰᴏʀ ʏᴏᴜʀ ǫᴜᴇʀʏ {keyword}! ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ᴅᴇʟᴇᴛᴇᴅ {file_name} ꜰʀᴏᴍ ᴅᴀᴛᴀʙᴀꜱᴇ.')
+                            f'êœ°ÉªÊŸá´‡ êœ°á´á´œÉ´á´… êœ°á´Ê€ Êá´á´œÊ€ Ç«á´œá´‡Ê€Ê {keyword}! êœ±á´œá´„á´„á´‡êœ±êœ±êœ°á´œÊŸÊŸÊ á´…á´‡ÊŸá´‡á´›á´‡á´… {file_name} êœ°Ê€á´á´ á´…á´€á´›á´€Ê™á´€êœ±á´‡.')
                     deleted += 1
                     if deleted % 20 == 0:
-                        await query.message.edit_text(f"<b>ᴘʀᴏᴄᴇꜱꜱ ꜱᴛᴀʀᴛᴇᴅ ꜰᴏʀ ᴅᴇʟᴇᴛɪɴɢ ꜰɪʟᴇꜱ ꜰʀᴏᴍ ᴅʙ. ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ᴅᴇʟᴇᴛᴇᴅ {str(deleted)} ꜰɪʟᴇꜱ ꜰʀᴏᴍ ᴅʙ ꜰᴏʀ ʏᴏᴜʀ ǫᴜᴇʀʏ {keyword} !\n\nᴘʟᴇᴀꜱᴇ ᴡᴀɪᴛ...</b>")
+                        await query.message.edit_text(f"<b>á´˜Ê€á´á´„á´‡êœ±êœ± êœ±á´›á´€Ê€á´›á´‡á´… êœ°á´Ê€ á´…á´‡ÊŸá´‡á´›ÉªÉ´É¢ êœ°ÉªÊŸá´‡êœ± êœ°Ê€á´á´ á´…Ê™. êœ±á´œá´„á´„á´‡êœ±êœ±êœ°á´œÊŸÊŸÊ á´…á´‡ÊŸá´‡á´›á´‡á´… {str(deleted)} êœ°ÉªÊŸá´‡êœ± êœ°Ê€á´á´ á´…Ê™ êœ°á´Ê€ Êá´á´œÊ€ Ç«á´œá´‡Ê€Ê {keyword} !\n\ná´˜ÊŸá´‡á´€êœ±á´‡ á´¡á´€Éªá´›...</b>")
             except Exception as e:
                 logger.error("Error In killfiledq: %s", e)
                 await query.message.edit_text(f'Error: {e}')
             else:
-                await query.message.edit_text(f"<b>ᴘʀᴏᴄᴇꜱꜱ ᴄᴏᴍᴘʟᴇᴛᴇᴅ ꜰᴏʀ ꜰɪʟᴇ ᴅᴇʟᴇᴛᴀᴛɪᴏɴ !\n\nꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ᴅᴇʟᴇᴛᴇᴅ {str(deleted)} ꜰɪʟᴇꜱ ꜰʀᴏᴍ ᴅʙ ꜰᴏʀ ʏᴏᴜʀ ǫᴜᴇʀʏ {keyword}.</b>")
+                await query.message.edit_text(f"<b>á´˜Ê€á´á´„á´‡êœ±êœ± á´„á´á´á´˜ÊŸá´‡á´›á´‡á´… êœ°á´Ê€ êœ°ÉªÊŸá´‡ á´…á´‡ÊŸá´‡á´›á´€á´›Éªá´É´ !\n\nêœ±á´œá´„á´„á´‡êœ±êœ±êœ°á´œÊŸÊŸÊ á´…á´‡ÊŸá´‡á´›á´‡á´… {str(deleted)} êœ°ÉªÊŸá´‡êœ± êœ°Ê€á´á´ á´…Ê™ êœ°á´Ê€ Êá´á´œÊ€ Ç«á´œá´‡Ê€Ê {keyword}.</b>")
 
     elif query.data.startswith("opnsetgrp"):
         ident, grp_id = query.data.split("#")
@@ -991,7 +991,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 and st.status != enums.ChatMemberStatus.OWNER
                 and str(userid) not in ADMINS
         ):
-            await query.answer("ʏᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ʀɪɢʜᴛꜱ ᴛᴏ ᴅᴏ ᴛʜɪꜱ !", show_alert=True)
+            await query.answer("Êá´á´œ á´…á´É´'á´› Êœá´€á´ á´‡ Ê€ÉªÉ¢Êœá´›êœ± á´›á´ á´…á´ á´›ÊœÉªêœ± !", show_alert=True)
             return
         title = query.message.chat.title
         settings = await get_settings(grp_id)
@@ -1013,16 +1013,16 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 and st.status != enums.ChatMemberStatus.OWNER
                 and str(userid) not in ADMINS
         ):
-            await query.answer("Yᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ sᴜғғɪᴄɪᴀɴᴛ ʀɪɢʜᴛs ᴛᴏ ᴅᴏ ᴛʜɪs !", show_alert=True)
+            await query.answer("Yá´á´œ á´…á´É´'á´› Êœá´€á´ á´‡ sá´œÒ“Ò“Éªá´„Éªá´€É´á´› Ê€ÉªÉ¢Êœá´›s á´›á´ á´…á´ á´›ÊœÉªs !", show_alert=True)
             return
         title = query.message.chat.title
         settings = await get_settings(grp_id)
         btn2 = [[
             InlineKeyboardButton(
-                "ᴄʜᴇᴄᴋ ᴍʏ ᴅᴍ 🗳️", url=f"telegram.me/{temp.U_NAME}", style=enums.ButtonStyle.SUCCESS)
+                "á´„Êœá´‡á´„á´‹ á´Ê á´…á´ ðŸ—³ï¸", url=f"telegram.me/{temp.U_NAME}", style=enums.ButtonStyle.SUCCESS)
         ]]
         reply_markup = InlineKeyboardMarkup(btn2)
-        await query.message.edit_text(f"<b>ʏᴏᴜʀ sᴇᴛᴛɪɴɢs ᴍᴇɴᴜ ғᴏʀ {title} ʜᴀs ʙᴇᴇɴ sᴇɴᴛ ᴛᴏ ʏᴏᴜ ʙʏ ᴅᴍ.</b>")
+        await query.message.edit_text(f"<b>Êá´á´œÊ€ sá´‡á´›á´›ÉªÉ´É¢s á´á´‡É´á´œ Ò“á´Ê€ {title} Êœá´€s Ê™á´‡á´‡É´ sá´‡É´á´› á´›á´ Êá´á´œ Ê™Ê á´…á´.</b>")
         await query.message.edit_reply_markup(reply_markup)
         if settings is not None:
             btn = await group_setting_buttons(int(grp_id))
@@ -1038,64 +1038,64 @@ async def cb_handler(client: Client, query: CallbackQuery):
     elif query.data.startswith("show_option"):
         ident, from_user = query.data.split("#")
         btn = [[
-            InlineKeyboardButton("⚠️ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ ⚠️", callback_data=f"unavailable#{from_user}"),
-            InlineKeyboardButton("🟢 ᴜᴘʟᴏᴀᴅᴇᴅ 🟢", callback_data=f"uploaded#{from_user}")
+            InlineKeyboardButton("âš ï¸ á´œÉ´á´€á´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ âš ï¸", callback_data=f"unavailable#{from_user}"),
+            InlineKeyboardButton("ðŸŸ¢ á´œá´˜ÊŸá´á´€á´…á´‡á´… ðŸŸ¢", callback_data=f"uploaded#{from_user}")
         ], [
-            InlineKeyboardButton("♻️ ᴀʟʀᴇᴀᴅʏ ᴀᴠᴀɪʟᴀʙʟᴇ ♻️", callback_data=f"already_available#{from_user}")
+            InlineKeyboardButton("â™»ï¸ á´€ÊŸÊ€á´‡á´€á´…Ê á´€á´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ â™»ï¸", callback_data=f"already_available#{from_user}")
         ], [
-            InlineKeyboardButton("📌 Not Released 📌", callback_data=f"Not_Released#{from_user}"),
-            InlineKeyboardButton("♨️Type Correct Spelling♨️", callback_data=f"Type_Correct_Spelling#{from_user}")
+            InlineKeyboardButton("ðŸ“Œ Not Released ðŸ“Œ", callback_data=f"Not_Released#{from_user}"),
+            InlineKeyboardButton("â™¨ï¸Type Correct Spellingâ™¨ï¸", callback_data=f"Type_Correct_Spelling#{from_user}")
         ], [
-            InlineKeyboardButton("⚜️ Not Available In The Hindi ⚜️", callback_data=f"Not_Available_In_The_Hindi#{from_user}")
+            InlineKeyboardButton("âšœï¸ Not Available In The Hindi âšœï¸", callback_data=f"Not_Available_In_The_Hindi#{from_user}")
         ]]
         if query.from_user.id in ADMINS:
             reply_markup = InlineKeyboardMarkup(btn)
             await query.message.edit_reply_markup(reply_markup)
-            await query.answer("Hᴇʀᴇ ᴀʀᴇ ᴛʜᴇ ᴏᴘᴛɪᴏɴs !")
+            await query.answer("Há´‡Ê€á´‡ á´€Ê€á´‡ á´›Êœá´‡ á´á´˜á´›Éªá´É´s !")
         else:
-            await query.answer("Yᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ sᴜғғɪᴄɪᴀɴᴛ ʀɪɢʜᴛs ᴛᴏ ᴅᴏ ᴛʜɪs !", show_alert=True)
+            await query.answer("Yá´á´œ á´…á´É´'á´› Êœá´€á´ á´‡ sá´œÒ“Ò“Éªá´„Éªá´€É´á´› Ê€ÉªÉ¢Êœá´›s á´›á´ á´…á´ á´›ÊœÉªs !", show_alert=True)
 
     elif query.data.split("#")[0] in ["unavailable", "Not_Released", "Type_Correct_Spelling", "Not_Available_In_The_Hindi", "uploaded", "already_available"]:
         key = query.data.split("#")[0]
         ident, from_user = query.data.split("#")
         if query.from_user.id not in ADMINS:
-            return await query.answer("Yᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ sᴜғғɪᴄɪᴀɴᴛ ʀɪɢʜᴛs ᴛᴏ ᴅᴏ ᴛʜɪs !", show_alert=True)
+            return await query.answer("Yá´á´œ á´…á´É´'á´› Êœá´€á´ á´‡ sá´œÒ“Ò“Éªá´„Éªá´€É´á´› Ê€ÉªÉ¢Êœá´›s á´›á´ á´…á´ á´›ÊœÉªs !", show_alert=True)
             
         status_configs = {
             "unavailable": {
-                "btn_text": "⚠️ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ ⚠️", "alert_key": "unalert", "answer": "Sᴇᴛ ᴛᴏ Uɴᴀᴠᴀɪʟᴀʙʟᴇ !",
-                "pm": "<b>Hᴇʏ {mention},</b>\n\n<u>{content}</u> Hᴀs Bᴇᴇɴ Mᴀʀᴋᴇᴅ Aᴅ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ...💔\n\n#Uɴᴀᴠᴀɪʟᴀʙʟᴇ ⚠️",
-                "sup": "<b>Hᴇʏ {mention},</b>\n\n<u>{content}</u> Hᴀs Bᴇᴇɴ Mᴀʀᴋᴇᴅ Aᴅ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ...💔\n\n#Uɴᴀᴠᴀɪʟᴀʙʟᴇ ⚠️\n\n<small>Bʟᴏᴄᴋᴇᴅ? Uɴʙʟᴏᴄᴋ ᴛʜᴇ ʙᴏᴛ ᴛᴏ ʀᴇᴄᴇɪᴠᴇ ᴍᴇꜱꜱᴀɢᴇꜱ.</small></b>",
+                "btn_text": "âš ï¸ á´œÉ´á´€á´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ âš ï¸", "alert_key": "unalert", "answer": "Sá´‡á´› á´›á´ UÉ´á´€á´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ !",
+                "pm": "<b>Há´‡Ê {mention},</b>\n\n<u>{content}</u> Há´€s Bá´‡á´‡É´ Má´€Ê€á´‹á´‡á´… Aá´… á´œÉ´á´€á´ á´€ÉªÊŸá´€Ê™ÊŸá´‡...ðŸ’”\n\n#UÉ´á´€á´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ âš ï¸",
+                "sup": "<b>Há´‡Ê {mention},</b>\n\n<u>{content}</u> Há´€s Bá´‡á´‡É´ Má´€Ê€á´‹á´‡á´… Aá´… á´œÉ´á´€á´ á´€ÉªÊŸá´€Ê™ÊŸá´‡...ðŸ’”\n\n#UÉ´á´€á´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ âš ï¸\n\n<small>BÊŸá´á´„á´‹á´‡á´…? UÉ´Ê™ÊŸá´á´„á´‹ á´›Êœá´‡ Ê™á´á´› á´›á´ Ê€á´‡á´„á´‡Éªá´ á´‡ á´á´‡êœ±êœ±á´€É¢á´‡êœ±.</small></b>",
                 "search": False
             },
             "Not_Released": {
-                "btn_text": "📌 Not Released 📌", "alert_key": "nralert", "answer": "Sᴇᴛ ᴛᴏ Nᴏᴛ Rᴇʟᴇᴀꜱᴇᴅ !",
-                "pm": "<b>Hᴇʏ {mention}\n\n<code>{content}</code>, ʏᴏᴜʀ ʀᴇǫᴜᴇꜱᴛ ʜᴀꜱ ɴᴏᴛ ʙᴇᴇɴ ʀᴇʟᴇᴀꜱᴇᴅ ʏᴇᴛ\n\n#CᴏᴍɪɴɢSᴏᴏɴ...🕊️✌️</b>",
-                "sup": "<u>Hᴇʏ {mention}</u>\n\n<b><code>{content}</code>, ʏᴏᴜʀ ʀᴇǫᴜᴇꜱᴛ ʜᴀꜱ ɴᴏᴛ ʙᴇᴇɴ ʀᴇʟᴇᴀꜱᴇᴅ ʏᴇᴛ\n\n#CᴏᴍɪɴɢSᴏᴏɴ...🕊️✌️\n\n<small>Bʟᴏᴄᴋᴇᴅ? Uɴʙʟᴏᴄᴋ ᴛʜᴇ ʙᴏᴛ ᴛᴏ ʀᴇᴄᴇɪᴠᴇ ᴍᴇꜱꜱᴀɢᴇꜱ.</small></b>",
+                "btn_text": "ðŸ“Œ Not Released ðŸ“Œ", "alert_key": "nralert", "answer": "Sá´‡á´› á´›á´ Ná´á´› Rá´‡ÊŸá´‡á´€êœ±á´‡á´… !",
+                "pm": "<b>Há´‡Ê {mention}\n\n<code>{content}</code>, Êá´á´œÊ€ Ê€á´‡Ç«á´œá´‡êœ±á´› Êœá´€êœ± É´á´á´› Ê™á´‡á´‡É´ Ê€á´‡ÊŸá´‡á´€êœ±á´‡á´… Êá´‡á´›\n\n#Cá´á´ÉªÉ´É¢Sá´á´É´...ðŸ•Šï¸âœŒï¸</b>",
+                "sup": "<u>Há´‡Ê {mention}</u>\n\n<b><code>{content}</code>, Êá´á´œÊ€ Ê€á´‡Ç«á´œá´‡êœ±á´› Êœá´€êœ± É´á´á´› Ê™á´‡á´‡É´ Ê€á´‡ÊŸá´‡á´€êœ±á´‡á´… Êá´‡á´›\n\n#Cá´á´ÉªÉ´É¢Sá´á´É´...ðŸ•Šï¸âœŒï¸\n\n<small>BÊŸá´á´„á´‹á´‡á´…? UÉ´Ê™ÊŸá´á´„á´‹ á´›Êœá´‡ Ê™á´á´› á´›á´ Ê€á´‡á´„á´‡Éªá´ á´‡ á´á´‡êœ±êœ±á´€É¢á´‡êœ±.</small></b>",
                 "search": False
             },
             "Type_Correct_Spelling": {
-                "btn_text": "♨️ Type Correct Spelling ♨️", "alert_key": "wsalert", "answer": "Sᴇᴛ ᴛᴏ Cᴏʀʀᴇᴄᴛ Sᴘᴇʟʟɪɴɢ !",
-                "pm": "<b>Hᴇʏ {mention}\n\nWᴇ Dᴇᴄʟɪɴᴇᴅ Yᴏᴜʀ Rᴇǫᴜᴇsᴛ <code>{content}</code>, Bᴇᴄᴀᴜsᴇ Yᴏᴜʀ Sᴘᴇʟʟɪɴɢ Wᴀs Wʀᴏɴɢ 😢\n\n#Wʀᴏɴɢ_Sᴘᴇʟʟɪɴɢ 😑</b>",
-                "sup": "<u>Hᴇʏ {mention}</u>\n\n<b><code>{content}</code>, Bᴇᴄᴀᴜsᴇ Yᴏᴜʀ Sᴘᴇʟʟɪɴɢ Wᴀs Wʀᴏɴɢ 😢\n\n#Wʀᴏɴɢ_Sᴘᴇʟʟɪɴɢ 😑\n\n<small>Bʟᴏᴄᴋᴇᴅ? Uɴʙʟᴏᴄᴋ ᴛʜᴇ ʙᴏᴛ ᴛᴏ ʀᴇᴄᴇɪᴠᴇ ᴍᴇꜱꜱᴀɢᴇꜱ.</small></b>",
+                "btn_text": "â™¨ï¸ Type Correct Spelling â™¨ï¸", "alert_key": "wsalert", "answer": "Sá´‡á´› á´›á´ Cá´Ê€Ê€á´‡á´„á´› Sá´˜á´‡ÊŸÊŸÉªÉ´É¢ !",
+                "pm": "<b>Há´‡Ê {mention}\n\nWá´‡ Dá´‡á´„ÊŸÉªÉ´á´‡á´… Yá´á´œÊ€ Rá´‡Ç«á´œá´‡sá´› <code>{content}</code>, Bá´‡á´„á´€á´œsá´‡ Yá´á´œÊ€ Sá´˜á´‡ÊŸÊŸÉªÉ´É¢ Wá´€s WÊ€á´É´É¢ ðŸ˜¢\n\n#WÊ€á´É´É¢_Sá´˜á´‡ÊŸÊŸÉªÉ´É¢ ðŸ˜‘</b>",
+                "sup": "<u>Há´‡Ê {mention}</u>\n\n<b><code>{content}</code>, Bá´‡á´„á´€á´œsá´‡ Yá´á´œÊ€ Sá´˜á´‡ÊŸÊŸÉªÉ´É¢ Wá´€s WÊ€á´É´É¢ ðŸ˜¢\n\n#WÊ€á´É´É¢_Sá´˜á´‡ÊŸÊŸÉªÉ´É¢ ðŸ˜‘\n\n<small>BÊŸá´á´„á´‹á´‡á´…? UÉ´Ê™ÊŸá´á´„á´‹ á´›Êœá´‡ Ê™á´á´› á´›á´ Ê€á´‡á´„á´‡Éªá´ á´‡ á´á´‡êœ±êœ±á´€É¢á´‡êœ±.</small></b>",
                 "search": False
             },
             "Not_Available_In_The_Hindi": {
-                "btn_text": "⚜️ Not Available In The Hindi ⚜️", "alert_key": "hnalert", "answer": "Sᴇᴛ ᴛᴏ Nᴏᴛ Aᴠᴀɪʟᴀʙʟᴇ Iɴ Hɪɴᴅɪ !",
-                "pm": "<b>Hᴇʏ {mention}\n\nYᴏᴜʀ Rᴇǫᴜᴇsᴛ <code>{content}</code> ɪs Nᴏᴛ Aᴠᴀɪʟᴀʙʟᴇ ɪɴ Hɪɴᴅɪ ʀɪɢʜᴛ ɴᴏᴡ. Sᴏ ᴏᴜʀ ᴍᴏᴅᴇʀᴀᴛᴏʀs ᴄᴀɴ'ᴛ ᴜᴘʟᴏᴀᴅ ɪᴛ\n\n#Hɪɴᴅɪ_ɴᴏᴛ_ᴀᴠᴀɪʟᴀʙʟᴇ ❌</b>",
-                "sup": "<u>Hᴇʏ {mention}</u>\n\n<b><code>{content}</code> ɪs Nᴏᴛ Aᴠᴀɪʟᴀʙʟᴇ ɪɴ Hɪɴᴅɪ ʀɪɢʜᴛ ɴᴏᴡ. Sᴏ ᴏᴜʀ ᴍᴏᴅᴇʀᴀᴛᴏʀs ᴄᴀɴ'ᴛ ᴜᴘʟᴏᴀᴅ ɪᴛ\n\n#Hɪɴᴅɪ_ɴᴏᴛ_ᴀᴠᴀɪʟᴀʙʟᴇ ❌\n\n<small>Bʟᴏᴄᴋᴇᴅ? Uɴʙʟᴏᴄᴋ ᴛʜᴇ ʙᴏᴛ ᴛᴏ ʀᴇᴄᴇɪᴠᴇ ᴍᴇꜱꜱᴀɢᴇꜱ.</small></b>",
+                "btn_text": "âšœï¸ Not Available In The Hindi âšœï¸", "alert_key": "hnalert", "answer": "Sá´‡á´› á´›á´ Ná´á´› Aá´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ IÉ´ HÉªÉ´á´…Éª !",
+                "pm": "<b>Há´‡Ê {mention}\n\nYá´á´œÊ€ Rá´‡Ç«á´œá´‡sá´› <code>{content}</code> Éªs Ná´á´› Aá´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ ÉªÉ´ HÉªÉ´á´…Éª Ê€ÉªÉ¢Êœá´› É´á´á´¡. Sá´ á´á´œÊ€ á´á´á´…á´‡Ê€á´€á´›á´Ê€s á´„á´€É´'á´› á´œá´˜ÊŸá´á´€á´… Éªá´›\n\n#HÉªÉ´á´…Éª_É´á´á´›_á´€á´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ âŒ</b>",
+                "sup": "<u>Há´‡Ê {mention}</u>\n\n<b><code>{content}</code> Éªs Ná´á´› Aá´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ ÉªÉ´ HÉªÉ´á´…Éª Ê€ÉªÉ¢Êœá´› É´á´á´¡. Sá´ á´á´œÊ€ á´á´á´…á´‡Ê€á´€á´›á´Ê€s á´„á´€É´'á´› á´œá´˜ÊŸá´á´€á´… Éªá´›\n\n#HÉªÉ´á´…Éª_É´á´á´›_á´€á´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ âŒ\n\n<small>BÊŸá´á´„á´‹á´‡á´…? UÉ´Ê™ÊŸá´á´„á´‹ á´›Êœá´‡ Ê™á´á´› á´›á´ Ê€á´‡á´„á´‡Éªá´ á´‡ á´á´‡êœ±êœ±á´€É¢á´‡êœ±.</small></b>",
                 "search": False
             },
             "uploaded": {
-                "btn_text": "🟢 ᴜᴘʟᴏᴀᴅᴇᴅ 🟢", "alert_key": "upalert", "answer": "Sᴇᴛ ᴛᴏ Uᴘʟᴏᴀᴅᴇᴅ !",
-                "pm": "<b>Hᴇʏ {mention},\n\n<u>{content}</u> Yᴏᴜʀ ʀᴇǫᴜᴇꜱᴛ ʜᴀꜱ ʙᴇᴇɴ ᴜᴘʟᴏᴀᴅᴇᴅ ʙʏ ᴏᴜʀ ᴍᴏᴅᴇʀᴀᴛᴏʀs.\nKɪɴᴅʟʏ sᴇᴀʀᴄʜ ɪɴ ᴏᴜʀ Gʀᴏᴜᴘ.</b>\n\n#Uᴘʟᴏᴀᴅᴇᴅ✅",
-                "sup": "<u>{content}</u>\n\n<b>Hᴇʏ {mention}, Yᴏᴜʀ ʀᴇǫᴜᴇꜱᴛ ʜᴀꜱ ʙᴇᴇɴ ᴜᴘʟᴏᴀᴅᴇᴅ ʙʏ ᴏᴜʀ ᴍᴏᴅᴇʀᴀᴛᴏʀs.Kɪɴᴅʟʏ sᴇᴀʀᴄʜ ɪɴ ᴏᴜʀ Gʀᴏᴜᴘ.</b>\n\n#Uᴘʟᴏᴀᴅᴇᴅ✅\n\n<small>Bʟᴏᴄᴋᴇᴅ? Uɴʙʟᴏᴄᴋ ᴛʜᴇ ʙᴏᴛ ᴛᴏ ʀᴇᴄᴇɪᴠᴇ ᴍᴇꜱꜱᴀɢᴇꜱ.</small>",
+                "btn_text": "ðŸŸ¢ á´œá´˜ÊŸá´á´€á´…á´‡á´… ðŸŸ¢", "alert_key": "upalert", "answer": "Sá´‡á´› á´›á´ Uá´˜ÊŸá´á´€á´…á´‡á´… !",
+                "pm": "<b>Há´‡Ê {mention},\n\n<u>{content}</u> Yá´á´œÊ€ Ê€á´‡Ç«á´œá´‡êœ±á´› Êœá´€êœ± Ê™á´‡á´‡É´ á´œá´˜ÊŸá´á´€á´…á´‡á´… Ê™Ê á´á´œÊ€ á´á´á´…á´‡Ê€á´€á´›á´Ê€s.\nKÉªÉ´á´…ÊŸÊ sá´‡á´€Ê€á´„Êœ ÉªÉ´ á´á´œÊ€ GÊ€á´á´œá´˜.</b>\n\n#Uá´˜ÊŸá´á´€á´…á´‡á´…âœ…",
+                "sup": "<u>{content}</u>\n\n<b>Há´‡Ê {mention}, Yá´á´œÊ€ Ê€á´‡Ç«á´œá´‡êœ±á´› Êœá´€êœ± Ê™á´‡á´‡É´ á´œá´˜ÊŸá´á´€á´…á´‡á´… Ê™Ê á´á´œÊ€ á´á´á´…á´‡Ê€á´€á´›á´Ê€s.KÉªÉ´á´…ÊŸÊ sá´‡á´€Ê€á´„Êœ ÉªÉ´ á´á´œÊ€ GÊ€á´á´œá´˜.</b>\n\n#Uá´˜ÊŸá´á´€á´…á´‡á´…âœ…\n\n<small>BÊŸá´á´„á´‹á´‡á´…? UÉ´Ê™ÊŸá´á´„á´‹ á´›Êœá´‡ Ê™á´á´› á´›á´ Ê€á´‡á´„á´‡Éªá´ á´‡ á´á´‡êœ±êœ±á´€É¢á´‡êœ±.</small>",
                 "search": True
             },
             "already_available": {
-                "btn_text": "♻️ ᴀʟʀᴇᴀᴅʏ ᴀᴠᴀɪʟᴀʙʟᴇ ♻️", "alert_key": "alalert", "answer": "Sᴇᴛ ᴛᴏ Aʟʀᴇᴀᴅʏ Aᴠᴀɪʟᴀʙʟᴇ !",
-                "pm": "<b>Hᴇʏ {mention},\n\n<u>{content}</u> Yᴏᴜʀ ʀᴇǫᴜᴇꜱᴛ ɪꜱ ᴀʟʀᴇᴀᴅʏ ᴀᴠᴀɪʟᴀʙʟᴇ ɪɴ ᴏᴜʀ ʙᴏᴛ'ꜱ ᴅᴀᴛᴀʙᴀꜱᴇ.\nKɪɴᴅʟʏ sᴇᴀʀᴄʜ ɪɴ ᴏᴜʀ Gʀᴏᴜᴘ.</b>\n\n#Aᴠᴀɪʟᴀʙʟᴇ 💗",
-                "sup": "<b>Hᴇʏ {mention},\n\n<u>{content}</u> Yᴏᴜʀ ʀᴇǫᴜᴇꜱᴛ ɪꜱ ᴀʟʀᴇᴀᴅʏ ᴀᴠᴀɪʟᴀʙʟᴇ ɪɴ ᴏᴜʀ ʙᴏᴛ'ꜱ ᴅᴀᴛᴀʙᴀꜱᴇ.\nKɪɴᴅʟʏ sᴇᴀʀᴄʜ ɪɴ ᴏᴜʀ Gʀᴏᴜᴘ.</b>\n\n#Aᴠᴀɪʟᴀʙʟᴇ 💗\n<small>Bʟᴏᴄᴋᴇᴅ? Uɴʙʟᴏᴄᴋ ᴛʜᴇ ʙᴏᴛ ᴛᴏ ʀᴇᴄᴇɪᴠᴇ ᴍᴇꜱꜱᴀɢES.</small></i>",
+                "btn_text": "â™»ï¸ á´€ÊŸÊ€á´‡á´€á´…Ê á´€á´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ â™»ï¸", "alert_key": "alalert", "answer": "Sá´‡á´› á´›á´ AÊŸÊ€á´‡á´€á´…Ê Aá´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ !",
+                "pm": "<b>Há´‡Ê {mention},\n\n<u>{content}</u> Yá´á´œÊ€ Ê€á´‡Ç«á´œá´‡êœ±á´› Éªêœ± á´€ÊŸÊ€á´‡á´€á´…Ê á´€á´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ ÉªÉ´ á´á´œÊ€ Ê™á´á´›'êœ± á´…á´€á´›á´€Ê™á´€êœ±á´‡.\nKÉªÉ´á´…ÊŸÊ sá´‡á´€Ê€á´„Êœ ÉªÉ´ á´á´œÊ€ GÊ€á´á´œá´˜.</b>\n\n#Aá´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ ðŸ’—",
+                "sup": "<b>Há´‡Ê {mention},\n\n<u>{content}</u> Yá´á´œÊ€ Ê€á´‡Ç«á´œá´‡êœ±á´› Éªêœ± á´€ÊŸÊ€á´‡á´€á´…Ê á´€á´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ ÉªÉ´ á´á´œÊ€ Ê™á´á´›'êœ± á´…á´€á´›á´€Ê™á´€êœ±á´‡.\nKÉªÉ´á´…ÊŸÊ sá´‡á´€Ê€á´„Êœ ÉªÉ´ á´á´œÊ€ GÊ€á´á´œá´˜.</b>\n\n#Aá´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ ðŸ’—\n<small>BÊŸá´á´„á´‹á´‡á´…? UÉ´Ê™ÊŸá´á´„á´‹ á´›Êœá´‡ Ê™á´á´› á´›á´ Ê€á´‡á´„á´‡Éªá´ á´‡ á´á´‡êœ±êœ±á´€É¢ES.</small></i>",
                 "search": True
             }
         }
@@ -1103,11 +1103,11 @@ async def cb_handler(client: Client, query: CallbackQuery):
         user = await client.get_users(from_user)
         btn = [[InlineKeyboardButton(cfg["btn_text"], callback_data=f'{cfg["alert_key"]}#{from_user}')]]
         btn2 = [[
-            InlineKeyboardButton('ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ', url=UPDATE_CHNL_LNK, style=enums.ButtonStyle.PRIMARY),
-            InlineKeyboardButton("ᴠɪᴇᴡ ꜱᴛᴀᴛᴜꜱ", url=f"{query.message.link}", style=enums.ButtonStyle.PRIMARY)
+            InlineKeyboardButton('á´Šá´ÉªÉ´ á´„Êœá´€É´É´á´‡ÊŸ', url=UPDATE_CHNL_LNK, style=enums.ButtonStyle.PRIMARY),
+            InlineKeyboardButton("á´ Éªá´‡á´¡ êœ±á´›á´€á´›á´œêœ±", url=f"{query.message.link}", style=enums.ButtonStyle.PRIMARY)
         ]]
         if cfg["search"]:
-            btn2.append([InlineKeyboardButton("🔍 ꜱᴇᴀʀᴄʜ ʜᴇʀᴇ 🔎", url=GRP_LNK, style=enums.ButtonStyle.SUCCESS)])
+            btn2.append([InlineKeyboardButton("ðŸ” êœ±á´‡á´€Ê€á´„Êœ Êœá´‡Ê€á´‡ ðŸ”Ž", url=GRP_LNK, style=enums.ButtonStyle.SUCCESS)])
             
         content = query.message.text
         await query.message.edit_text(f"<b><strike>{content}</strike></b>")
@@ -1131,19 +1131,19 @@ async def cb_handler(client: Client, query: CallbackQuery):
     elif query.data.split("#")[0] in ["alalert", "upalert", "unalert", "hnalert", "nralert", "wsalert"]:
         ident, from_user = query.data.split("#")
         alerts = {
-            "alalert": "Hᴇʏ {name}, Yᴏᴜʀ ʀᴇǫᴜᴇꜱᴛ ɪꜱ Aʟʀᴇᴀᴅʏ Aᴠᴀɪʟᴀʙʟᴇ ✅",
-            "upalert": "Hᴇʏ {name}, Yᴏᴜʀ ʀᴇǫᴜESꜱᴛ ɪꜱ Uᴘʟᴏᴀᴅᴇᴅ 🔼",
-            "unalert": "Hᴇʏ {name}, Yᴏᴜʀ ʀᴇǫᴜᴇꜱᴛ ɪꜱ Uɴᴀᴠᴀɪʟᴀʙʟᴇ ⚠️",
-            "hnalert": "Hᴇʏ {name}, Tʜɪꜱ ɪꜱ Nᴏᴛ Aᴠᴀɪʟᴀʙʟᴇ ɪɴ Hɪɴᴅɪ ❌",
-            "nralert": "Hᴇʏ {name}, Tʜᴇ Mᴏᴠɪᴇ/ꜱʜᴏᴡ ɪꜱ Nᴏᴛ Rᴇʟᴇᴀꜱᴇᴅ Yᴇᴛ 🆕",
-            "wsalert": "Hᴇʏ {name}, Yᴏᴜʀ Rᴇǫᴜᴇꜱᴛ ᴡᴀꜱ ʀᴇᴊᴇᴄᴛᴇᴅ ᴅᴜᴇ ᴛᴏ ᴡʀᴏɴɢ sᴘᴇʟʟɪɴɢ ❗"
+            "alalert": "Há´‡Ê {name}, Yá´á´œÊ€ Ê€á´‡Ç«á´œá´‡êœ±á´› Éªêœ± AÊŸÊ€á´‡á´€á´…Ê Aá´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ âœ…",
+            "upalert": "Há´‡Ê {name}, Yá´á´œÊ€ Ê€á´‡Ç«á´œESêœ±á´› Éªêœ± Uá´˜ÊŸá´á´€á´…á´‡á´… ðŸ”¼",
+            "unalert": "Há´‡Ê {name}, Yá´á´œÊ€ Ê€á´‡Ç«á´œá´‡êœ±á´› Éªêœ± UÉ´á´€á´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ âš ï¸",
+            "hnalert": "Há´‡Ê {name}, TÊœÉªêœ± Éªêœ± Ná´á´› Aá´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ ÉªÉ´ HÉªÉ´á´…Éª âŒ",
+            "nralert": "Há´‡Ê {name}, TÊœá´‡ Má´á´ Éªá´‡/êœ±Êœá´á´¡ Éªêœ± Ná´á´› Rá´‡ÊŸá´‡á´€êœ±á´‡á´… Yá´‡á´› ðŸ†•",
+            "wsalert": "Há´‡Ê {name}, Yá´á´œÊ€ Rá´‡Ç«á´œá´‡êœ±á´› á´¡á´€êœ± Ê€á´‡á´Šá´‡á´„á´›á´‡á´… á´…á´œá´‡ á´›á´ á´¡Ê€á´É´É¢ sá´˜á´‡ÊŸÊŸÉªÉ´É¢ â—"
         }
         if int(query.from_user.id) == int(from_user):
             user = await client.get_users(from_user)
             msg_text = alerts[ident].format(name=user.first_name)
             await query.answer(msg_text, show_alert=True)
         else:
-            await query.answer("Yᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴘᴇʀᴍɪssɪᴏɴ ᴛᴏ sᴇᴇ ᴛʜɪꜱ ❌", show_alert=True)
+            await query.answer("Yá´á´œ á´…á´É´'á´› Êœá´€á´ á´‡ á´˜á´‡Ê€á´ÉªssÉªá´É´ á´›á´ sá´‡á´‡ á´›ÊœÉªêœ± âŒ", show_alert=True)
 
     elif DreamxData.startswith("generate_stream_link"):
         _, file_id = DreamxData.split(":")
@@ -1158,13 +1158,13 @@ async def cb_handler(client: Client, query: CallbackQuery):
                         await client.send_cached_media(
                             chat_id=query.from_user.id,
                             file_id=file_id,
-                            caption="✅ <b>Here is your file directly!</b>\n\n⚠️ <i>Admin Note: BIN_CHANNEL/LOG_CHANNEL is not set with -100 ID in .env.</i>"
+                            caption="âœ… <b>Here is your file directly!</b>\n\nâš ï¸ <i>Admin Note: BIN_CHANNEL/LOG_CHANNEL is not set with -100 ID in .env.</i>"
                         )
-                        await query.answer("✅ Sent file directly to your PM!\n(Stream requires valid channel setup)", show_alert=True)
+                        await query.answer("âœ… Sent file directly to your PM!\n(Stream requires valid channel setup)", show_alert=True)
                         return
                     except Exception as fallback_err:
                         logger.error("Direct send failed: %s", fallback_err)
-                        await query.answer("⚠️ BIN_CHANNEL / LOG_CHANNEL is not configured!\nAdd bot as Admin with -100 ID in .env.", show_alert=True)
+                        await query.answer("âš ï¸ BIN_CHANNEL / LOG_CHANNEL is not configured!\nAdd bot as Admin with -100 ID in .env.", show_alert=True)
                         return
 
             user_id = query.from_user.id
@@ -1190,13 +1190,13 @@ async def cb_handler(client: Client, query: CallbackQuery):
                     await client.send_cached_media(
                         chat_id=query.from_user.id,
                         file_id=file_id,
-                        caption="✅ <b>Here is your file directly!</b>\n\n⚠️ <i>Stream setup failed: Ensure bot is Admin in your channel and channel ID starts with -100.</i>"
+                        caption="âœ… <b>Here is your file directly!</b>\n\nâš ï¸ <i>Stream setup failed: Ensure bot is Admin in your channel and channel ID starts with -100.</i>"
                     )
-                    await query.answer("✅ Sent file directly to your PM!\n\nFix Channel: Ensure ID starts with -100 & Bot is Admin.", show_alert=True)
+                    await query.answer("âœ… Sent file directly to your PM!\n\nFix Channel: Ensure ID starts with -100 & Bot is Admin.", show_alert=True)
                     return
                 except Exception as dm_err:
                     logger.error("Direct PM send error: %s", dm_err)
-                    await query.answer("⚠️ [400 CHAT_ID_INVALID]\nBot is not an Admin in channel!\n\n1. Channel ID must start with -100\n2. Add bot as Admin with 'Post Messages' rights.", show_alert=True)
+                    await query.answer("âš ï¸ [400 CHAT_ID_INVALID]\nBot is not an Admin in channel!\n\n1. Channel ID must start with -100\n2. Add bot as Admin with 'Post Messages' rights.", show_alert=True)
                     return
 
             # 2. Extract safe filename and hash (never crashes if filename is None)
@@ -1247,17 +1247,17 @@ async def cb_handler(client: Client, query: CallbackQuery):
             log_btn = []
             if has_valid_url:
                 log_btn = [[
-                    InlineKeyboardButton("🚀 ꜰᴀꜱᴛ ᴅᴏᴡɴʟᴏᴀᴅ", url=dreamx_download),
-                    InlineKeyboardButton('🖥️ ᴡᴀᴛᴄʜ ᴏɴʟɪɴᴇ', url=dreamx_stream)
+                    InlineKeyboardButton("ðŸš€ êœ°á´€êœ±á´› á´…á´á´¡É´ÊŸá´á´€á´…", url=dreamx_download),
+                    InlineKeyboardButton('ðŸ–¥ï¸ á´¡á´€á´›á´„Êœ á´É´ÊŸÉªÉ´á´‡', url=dreamx_stream)
                 ]]
 
             log_text = (
-                f"•• ʟɪɴᴋ ɢᴇɴᴇʀᴀᴛᴇᴅ ꜰᴏʀ ɪᴅ #{user_id}\n"
-                f"•• ᴜꜱᴇʀɴᴀᴍᴇ : {username}\n\n"
-                f"•• ᖴᎥᒪᗴ Nᗩᗰᗴ : {file_name_clean}"
+                f"â€¢â€¢ ÊŸÉªÉ´á´‹ É¢á´‡É´á´‡Ê€á´€á´›á´‡á´… êœ°á´Ê€ Éªá´… #{user_id}\n"
+                f"â€¢â€¢ á´œêœ±á´‡Ê€É´á´€á´á´‡ : {username}\n\n"
+                f"â€¢â€¢ á–´áŽ¥á’ªá—´ Ná—©á—°á—´ : {file_name_clean}"
             )
             if not has_valid_url:
-                log_text += "\n\n⚠️ <i>Note: Streaming URL pending (set FQDN in .env)</i>"
+                log_text += "\n\nâš ï¸ <i>Note: Streaming URL pending (set FQDN in .env)</i>"
 
             # Send to channel (first try reply_to_message_id, then direct)
             try:
@@ -1288,11 +1288,11 @@ async def cb_handler(client: Client, query: CallbackQuery):
                     dreamcinezone = await query.edit_message_reply_markup(
                         reply_markup=InlineKeyboardMarkup([
                             [
-                                InlineKeyboardButton("🚀 ꜰᴀꜱᴛ ᴅᴏᴡɴʟᴏᴀᴅ ", url=dreamx_download, style=enums.ButtonStyle.PRIMARY),
-                                InlineKeyboardButton('🖥️ ᴡᴀᴛᴄʜ ᴏɴʟɪɴᴇ 🖥️', url=dreamx_stream, style=enums.ButtonStyle.SUCCESS)
+                                InlineKeyboardButton("ðŸš€ êœ°á´€êœ±á´› á´…á´á´¡É´ÊŸá´á´€á´… ", url=dreamx_download, style=enums.ButtonStyle.PRIMARY),
+                                InlineKeyboardButton('ðŸ–¥ï¸ á´¡á´€á´›á´„Êœ á´É´ÊŸÉªÉ´á´‡ ðŸ–¥ï¸', url=dreamx_stream, style=enums.ButtonStyle.SUCCESS)
                             ],
                             [
-                                InlineKeyboardButton('🌹 𝐉ᴏɪɴ 𝐔ᴩᴅᴀᴛᴇꜱ 𝐂ʜᴀɴɴᴇʟ 🌹', url=clean_update, style=enums.ButtonStyle.DANGER)
+                                InlineKeyboardButton('ðŸŒ¹ ð‰á´ÉªÉ´ ð”á´©á´…á´€á´›á´‡êœ± ð‚Êœá´€É´É´á´‡ÊŸ ðŸŒ¹', url=clean_update, style=enums.ButtonStyle.DANGER)
                             ]
                         ])
                     )
@@ -1313,8 +1313,8 @@ async def cb_handler(client: Client, query: CallbackQuery):
                     chat_id=query.from_user.id,
                     file_id=file_id,
                     caption=(
-                        f"✅ <b>{file_name_clean}</b>\n\n"
-                        f"⚠️ <b>Web Streaming Pending Configuration</b>\n"
+                        f"âœ… <b>{file_name_clean}</b>\n\n"
+                        f"âš ï¸ <b>Web Streaming Pending Configuration</b>\n"
                         f"<i>Web Stream & Fast Download buttons require a public bot domain. Set <code>FQDN=your-bot.onrender.com</code> in your .env file!</i>"
                     )
                 )
@@ -1325,7 +1325,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 await query.edit_message_reply_markup(
                     reply_markup=InlineKeyboardMarkup([
                         [
-                            InlineKeyboardButton('🌹 𝐉ᴏɪɴ 𝐔ᴩᴅᴀᴛᴇꜱ 𝐂ʜᴀɴɴᴇʟ 🌹', url=clean_update, style=enums.ButtonStyle.DANGER)
+                            InlineKeyboardButton('ðŸŒ¹ ð‰á´ÉªÉ´ ð”á´©á´…á´€á´›á´‡êœ± ð‚Êœá´€É´É´á´‡ÊŸ ðŸŒ¹', url=clean_update, style=enums.ButtonStyle.DANGER)
                         ]
                     ])
                 )
@@ -1333,7 +1333,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 pass
 
             await query.answer(
-                "⚠️ FQDN is not configured in .env!\n\n"
+                "âš ï¸ FQDN is not configured in .env!\n\n"
                 "1. Add FQDN=your-bot.onrender.com in your bot's environment variables (Render/VPS).\n"
                 "2. File has been sent directly to your PM!",
                 show_alert=True
@@ -1348,27 +1348,27 @@ async def cb_handler(client: Client, query: CallbackQuery):
                     await client.send_cached_media(
                         chat_id=query.from_user.id,
                         file_id=file_id,
-                        caption="✅ <b>Here is your file directly!</b>\n\n⚠️ <i>Fix BIN_CHANNEL: Add bot as Admin in your channel and ensure ID starts with -100!</i>"
+                        caption="âœ… <b>Here is your file directly!</b>\n\nâš ï¸ <i>Fix BIN_CHANNEL: Add bot as Admin in your channel and ensure ID starts with -100!</i>"
                     )
-                    await query.answer("✅ Sent file directly to your PM!\n(Fix BIN_CHANNEL: Add bot as Admin with -100)", show_alert=True)
+                    await query.answer("âœ… Sent file directly to your PM!\n(Fix BIN_CHANNEL: Add bot as Admin with -100)", show_alert=True)
                     return
                 except Exception:
                     pass
-                await query.answer("⚠️ Telegram: [400 CHAT_ID_INVALID]\nBot is not an Admin in channel!\n\n1. Channel ID must start with -100\n2. Add bot as Admin in that channel.", show_alert=True)
+                await query.answer("âš ï¸ Telegram: [400 CHAT_ID_INVALID]\nBot is not an Admin in channel!\n\n1. Channel ID must start with -100\n2. Add bot as Admin in that channel.", show_alert=True)
             elif "BUTTON_URL_INVALID" in err_msg:
                 try:
                     await client.send_cached_media(
                         chat_id=query.from_user.id,
                         file_id=file_id,
-                        caption="✅ <b>Here is your file directly!</b>\n\n⚠️ <i>BUTTON_URL_INVALID: Set FQDN=your-bot.onrender.com in .env so Telegram can build valid stream links!</i>"
+                        caption="âœ… <b>Here is your file directly!</b>\n\nâš ï¸ <i>BUTTON_URL_INVALID: Set FQDN=your-bot.onrender.com in .env so Telegram can build valid stream links!</i>"
                     )
-                    await query.answer("⚠️ Telegram: [400 BUTTON_URL_INVALID]\nSet FQDN in your .env!\nFile sent directly to your PM.", show_alert=True)
+                    await query.answer("âš ï¸ Telegram: [400 BUTTON_URL_INVALID]\nSet FQDN in your .env!\nFile sent directly to your PM.", show_alert=True)
                     return
                 except Exception:
                     pass
-                await query.answer("⚠️ [400 BUTTON_URL_INVALID]\nSet FQDN=your-bot.onrender.com in .env", show_alert=True)
+                await query.answer("âš ï¸ [400 BUTTON_URL_INVALID]\nSet FQDN=your-bot.onrender.com in .env", show_alert=True)
             else:
-                await query.answer(f"⚠️ Stream link issue:\n{e}", show_alert=True)
+                await query.answer(f"âš ï¸ Stream link issue:\n{e}", show_alert=True)
             return
 
 
@@ -1379,7 +1379,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             photo="https://i.ibb.co/whf8xF7j/photo-2025-07-26-10-42-46-7531339305176793100.jpg",
             caption=script.PRE_STREAM,
             reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("🚀 𝐁𝐔𝐘 𝐏𝐑𝐄𝐌𝐈𝐔𝐌 🚀", callback_data="premium_info", style=enums.ButtonStyle.DANGER)]
+                [InlineKeyboardButton("ðŸš€ ðð”ð˜ ðð‘ð„ðŒðˆð”ðŒ ðŸš€", callback_data="premium_info", style=enums.ButtonStyle.DANGER)]
             ])
         )
         await asyncio.sleep(DELETE_TIME)
@@ -1390,22 +1390,22 @@ async def cb_handler(client: Client, query: CallbackQuery):
 
     elif query.data == "start":
         buttons = [[
-                    InlineKeyboardButton('✧ ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ✧', url=f'http://telegram.me/{temp.U_NAME}?startgroup=true', style=enums.ButtonStyle.SUCCESS)
+                    InlineKeyboardButton('âœ§ á´€á´…á´… á´á´‡ á´›á´ Êá´á´œÊ€ É¢Ê€á´á´œá´˜ âœ§', url=f'http://telegram.me/{temp.U_NAME}?startgroup=true', style=enums.ButtonStyle.SUCCESS)
                 ],[
-                    InlineKeyboardButton('𖣠‌ ʜᴇʟᴘ 𖣠‌ ', callback_data="help", style=enums.ButtonStyle.PRIMARY),
-                     InlineKeyboardButton('᪥ ᴀʙᴏᴜᴛ ᪥', callback_data="about", style=enums.ButtonStyle.PRIMARY),
+                    InlineKeyboardButton('ð–£ â€Œ Êœá´‡ÊŸá´˜ ð–£ â€Œ ', callback_data="help", style=enums.ButtonStyle.PRIMARY),
+                     InlineKeyboardButton('áª¥ á´€Ê™á´á´œá´› áª¥', callback_data="about", style=enums.ButtonStyle.PRIMARY),
                 ]]
         reply_markup = InlineKeyboardMarkup(buttons)
         current_time = datetime.now(pytz.timezone(TIMEZONE))
         curr_time = current_time.hour
         if curr_time < 12:
-            gtxt = "ɢᴏᴏᴅ ᴍᴏʀɴɪɴɢ 🌞"
+            gtxt = "É¢á´á´á´… á´á´Ê€É´ÉªÉ´É¢ ðŸŒž"
         elif curr_time < 17:
-            gtxt = "ɢᴏᴏᴅ ᴀғᴛᴇʀɴᴏᴏɴ 🌓"
+            gtxt = "É¢á´á´á´… á´€Ò“á´›á´‡Ê€É´á´á´É´ ðŸŒ“"
         elif curr_time < 21:
-            gtxt = "ɢᴏᴏᴅ ᴇᴠᴇɴɪɴɢ 🌘"
+            gtxt = "É¢á´á´á´… á´‡á´ á´‡É´ÉªÉ´É¢ ðŸŒ˜"
         else:
-            gtxt = "ɢᴏᴏᴅ ɴɪɢʜᴛ 🌑"
+            gtxt = "É¢á´á´á´… É´ÉªÉ¢Êœá´› ðŸŒ‘"
         try:
             try:
                 PIC = f"{random.choice(PICS_URL)}?r={get_random_mix_id()}"
@@ -1427,14 +1427,14 @@ async def cb_handler(client: Client, query: CallbackQuery):
 
     elif query.data == "donation":
         buttons = [[
-                InlineKeyboardButton('🌲 Sᴇɴᴅ Dᴏɴᴀᴛᴇ Sᴄʀᴇᴇɴsʜᴏᴛ Hᴇʀᴇ', url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)
+                InlineKeyboardButton('ðŸŒ² Sá´‡É´á´… Dá´É´á´€á´›á´‡ Sá´„Ê€á´‡á´‡É´sÊœá´á´› Há´‡Ê€á´‡', url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)
             ],[
-                InlineKeyboardButton('⇍ ʙᴀᴄᴋ ⇏', callback_data='about', style=enums.ButtonStyle.DANGER)
+                InlineKeyboardButton('â‡ Ê™á´€á´„á´‹ â‡', callback_data='about', style=enums.ButtonStyle.DANGER)
             ]]
         reply_markup = InlineKeyboardMarkup(buttons)
-        await query.message.edit_text(text="● ◌ ◌")
-        await query.message.edit_text(text="● ● ◌")
-        await query.message.edit_text(text="● ● ●")
+        await query.message.edit_text(text="â— â—Œ â—Œ")
+        await query.message.edit_text(text="â— â— â—Œ")
+        await query.message.edit_text(text="â— â— â—")
         reply_markup = InlineKeyboardMarkup(buttons)
         await client.edit_message_media(
             query.message.chat.id,
@@ -1449,7 +1449,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
 
     elif query.data == "help":
         buttons = [[
-            InlineKeyboardButton('⇋ ʙᴀᴄᴋ ᴛᴏ ʜᴏᴍᴇ ⇋', callback_data='start', style=enums.ButtonStyle.DANGER)
+            InlineKeyboardButton('â‡‹ Ê™á´€á´„á´‹ á´›á´ Êœá´á´á´‡ â‡‹', callback_data='start', style=enums.ButtonStyle.DANGER)
         ]]
         reply_markup = InlineKeyboardMarkup(buttons)
         await query.message.edit_text(
@@ -1460,10 +1460,10 @@ async def cb_handler(client: Client, query: CallbackQuery):
 
     elif query.data == "about":
         buttons = [[
-            InlineKeyboardButton('❃ ɢʀᴏᴜᴘ ❃', url='https://t.me/movies_4uz', style=enums.ButtonStyle.SUCCESS),
-            InlineKeyboardButton (' ⫹⫺ ᴄʜᴀɴɴᴇʟ ⫹⫺ ', url='https://t.me/movies4u_backup', style=enums.ButtonStyle.SUCCESS),
+            InlineKeyboardButton('âƒ É¢Ê€á´á´œá´˜ âƒ', url='https://t.me/movies_4uz', style=enums.ButtonStyle.SUCCESS),
+            InlineKeyboardButton (' â«¹â«º á´„Êœá´€É´É´á´‡ÊŸ â«¹â«º ', url='https://t.me/movies4u_backup', style=enums.ButtonStyle.SUCCESS),
         ],[
-            InlineKeyboardButton('⇋ ʙᴀᴄᴋ ᴛᴏ ʜᴏᴍᴇ ⇋', callback_data='start', style=enums.ButtonStyle.DANGER)
+            InlineKeyboardButton('â‡‹ Ê™á´€á´„á´‹ á´›á´ Êœá´á´á´‡ â‡‹', callback_data='start', style=enums.ButtonStyle.DANGER)
         ]]
         reply_markup = InlineKeyboardMarkup(buttons)
         await query.message.edit_text(
@@ -1478,25 +1478,25 @@ async def cb_handler(client: Client, query: CallbackQuery):
             has_free_trial = await db.check_trial_status(user_id)
             if has_free_trial:
                 await query.answer(
-                    "🚸 ʏᴏᴜ'ᴠᴇ ᴀʟʀᴇᴀᴅʏ ᴄʟᴀɪᴍᴇᴅ ʏᴏᴜʀ ꜰʀᴇᴇ ᴛʀɪᴀʟ ᴏɴᴄᴇ !\n\n📌 ᴄʜᴇᴄᴋᴏᴜᴛ ᴏᴜʀ ᴘʟᴀɴꜱ ʙʏ : /plan",
+                    "ðŸš¸ Êá´á´œ'á´ á´‡ á´€ÊŸÊ€á´‡á´€á´…Ê á´„ÊŸá´€Éªá´á´‡á´… Êá´á´œÊ€ êœ°Ê€á´‡á´‡ á´›Ê€Éªá´€ÊŸ á´É´á´„á´‡ !\n\nðŸ“Œ á´„Êœá´‡á´„á´‹á´á´œá´› á´á´œÊ€ á´˜ÊŸá´€É´êœ± Ê™Ê : /plan",
                     show_alert=True
                 )
                 return
             else:
                 await db.give_free_trial(user_id)
-                await query.answer("✅ Trial activated!", show_alert=True)
+                await query.answer("âœ… Trial activated!", show_alert=True)
 
                 msg = await client.send_photo(
                     chat_id=query.message.chat.id,
                     photo="https://i.ibb.co/0jC8MSDZ/photo-2025-07-26-10-42-36-7531339283701956616.jpg",
                     caption=(
-                        "<b>🥳 ᴄᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴꜱ\n\n"
-                        "🎉 ʏᴏᴜ ᴄᴀɴ ᴜsᴇ ꜰʀᴇᴇ ᴛʀᴀɪʟ ꜰᴏʀ <u>5 ᴍɪɴᴜᴛᴇs</u> ꜰʀᴏᴍ ɴᴏᴡ !\n\n"
-                        "ɴᴇᴇᴅ ᴘʀᴇᴍɪᴜᴍ 👉🏻 /plan</b>"
+                        "<b>ðŸ¥³ á´„á´É´É¢Ê€á´€á´›á´œÊŸá´€á´›Éªá´É´êœ±\n\n"
+                        "ðŸŽ‰ Êá´á´œ á´„á´€É´ á´œsá´‡ êœ°Ê€á´‡á´‡ á´›Ê€á´€ÉªÊŸ êœ°á´Ê€ <u>5 á´ÉªÉ´á´œá´›á´‡s</u> êœ°Ê€á´á´ É´á´á´¡ !\n\n"
+                        "É´á´‡á´‡á´… á´˜Ê€á´‡á´Éªá´œá´ ðŸ‘‰ðŸ» /plan</b>"
                     ),
                     parse_mode=enums.ParseMode.HTML,
                     reply_markup=InlineKeyboardMarkup([[
-                        InlineKeyboardButton("🚀 𝐁𝐔𝐘 𝐏𝐑𝐄𝐌𝐈𝐔𝐌 🚀", callback_data="premium_info", style=enums.ButtonStyle.PRIMARY)
+                        InlineKeyboardButton("ðŸš€ ðð”ð˜ ðð‘ð„ðŒðˆð”ðŒ ðŸš€", callback_data="premium_info", style=enums.ButtonStyle.PRIMARY)
                     ]])
                 )
                 await asyncio.sleep(DELETE_TIME)
@@ -1508,8 +1508,8 @@ async def cb_handler(client: Client, query: CallbackQuery):
 
     elif query.data == "source":
         buttons = [[
-            InlineKeyboardButton('ᴩʀᴏᴠɪᴅᴇʀʙᴏᴛᴢ', url='https://tx.me/ProviderBotz', style=enums.ButtonStyle.PRIMARY),
-            InlineKeyboardButton('⇋ ʙᴀᴄᴋ ⇋', callback_data='about', style=enums.ButtonStyle.DANGER)
+            InlineKeyboardButton('á´©Ê€á´á´ Éªá´…á´‡Ê€Ê™á´á´›á´¢', url='https://tx.me/ProviderBotz', style=enums.ButtonStyle.PRIMARY),
+            InlineKeyboardButton('â‡‹ Ê™á´€á´„á´‹ â‡‹', callback_data='about', style=enums.ButtonStyle.DANGER)
         ]]
         reply_markup = InlineKeyboardMarkup(buttons)
         await query.message.edit_text(
@@ -1523,7 +1523,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
 
     elif query.data == "disclaimer":
             btn = [[
-                    InlineKeyboardButton("⇋ ʙᴀᴄᴋ ⇋", callback_data="about", style=enums.ButtonStyle.PRIMARY)
+                    InlineKeyboardButton("â‡‹ Ê™á´€á´„á´‹ â‡‹", callback_data="about", style=enums.ButtonStyle.PRIMARY)
                   ]]
             reply_markup = InlineKeyboardMarkup(btn)
             await query.message.edit_text(
@@ -1535,12 +1535,12 @@ async def cb_handler(client: Client, query: CallbackQuery):
     elif query.data == "premium_info":
         try:
             btn = [[
-                InlineKeyboardButton('• ʙᴜʏ ᴘʀᴇᴍɪᴜᴍ •', callback_data='buy_info', style=enums.ButtonStyle.PRIMARY),
+                InlineKeyboardButton('â€¢ Ê™á´œÊ á´˜Ê€á´‡á´Éªá´œá´ â€¢', callback_data='buy_info', style=enums.ButtonStyle.PRIMARY),
             ],[
-                InlineKeyboardButton('• ʀᴇꜰᴇʀ ꜰʀɪᴇɴᴅꜱ', callback_data='reffff', style=enums.ButtonStyle.SUCCESS),
-                InlineKeyboardButton('ꜰʀᴇᴇ ᴛʀɪᴀʟ •', callback_data='give_trial', style=enums.ButtonStyle.PRIMARY)
+                InlineKeyboardButton('â€¢ Ê€á´‡êœ°á´‡Ê€ êœ°Ê€Éªá´‡É´á´…êœ±', callback_data='reffff', style=enums.ButtonStyle.SUCCESS),
+                InlineKeyboardButton('êœ°Ê€á´‡á´‡ á´›Ê€Éªá´€ÊŸ â€¢', callback_data='give_trial', style=enums.ButtonStyle.PRIMARY)
             ],[
-                InlineKeyboardButton('⇋ ʙᴀᴄᴋ ᴛᴏ ʜᴏᴍᴇ ⇋', callback_data='start', style=enums.ButtonStyle.DANGER)
+                InlineKeyboardButton('â‡‹ Ê™á´€á´„á´‹ á´›á´ Êœá´á´á´‡ â‡‹', callback_data='start', style=enums.ButtonStyle.DANGER)
             ]]
             reply_markup = InlineKeyboardMarkup(btn)
             await client.edit_message_media(
@@ -1556,10 +1556,10 @@ async def cb_handler(client: Client, query: CallbackQuery):
     elif query.data == "buy_info":
         try:
             btn = [[
-                InlineKeyboardButton('ꜱᴛᴀʀ', callback_data='star_info', style=enums.ButtonStyle.PRIMARY),
-                InlineKeyboardButton('ᴜᴘɪ', callback_data='upi_info', style=enums.ButtonStyle.PRIMARY)
+                InlineKeyboardButton('êœ±á´›á´€Ê€', callback_data='star_info', style=enums.ButtonStyle.PRIMARY),
+                InlineKeyboardButton('á´œá´˜Éª', callback_data='upi_info', style=enums.ButtonStyle.PRIMARY)
             ],[
-                InlineKeyboardButton('⇋ ʙᴀᴄᴋ ᴛᴏ ᴘʀᴇᴍɪᴜᴍ ⇋', callback_data='premium_info', style=enums.ButtonStyle.DANGER)
+                InlineKeyboardButton('â‡‹ Ê™á´€á´„á´‹ á´›á´ á´˜Ê€á´‡á´Éªá´œá´ â‡‹', callback_data='premium_info', style=enums.ButtonStyle.DANGER)
             ]]
             reply_markup = InlineKeyboardMarkup(btn)
             await client.edit_message_media(
@@ -1574,9 +1574,9 @@ async def cb_handler(client: Client, query: CallbackQuery):
     elif query.data == "upi_info":
         try:
             btn = [[
-                InlineKeyboardButton('• ꜱᴇɴᴅ  ᴘᴀʏᴍᴇɴᴛ ꜱᴄʀᴇᴇɴꜱʜᴏᴛ •', url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY),
+                InlineKeyboardButton('â€¢ êœ±á´‡É´á´…  á´˜á´€Êá´á´‡É´á´› êœ±á´„Ê€á´‡á´‡É´êœ±Êœá´á´› â€¢', url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY),
             ],[
-                InlineKeyboardButton('⇋ ʙᴀᴄᴋ ⇋', callback_data='buy_info', style=enums.ButtonStyle.DANGER)
+                InlineKeyboardButton('â‡‹ Ê™á´€á´„á´‹ â‡‹', callback_data='buy_info', style=enums.ButtonStyle.DANGER)
             ]]
             reply_markup = InlineKeyboardMarkup(btn)
             await client.edit_message_media(
@@ -1591,11 +1591,11 @@ async def cb_handler(client: Client, query: CallbackQuery):
     elif query.data == "star_info":
         try:
             btn = [
-                InlineKeyboardButton(f"{stars}⭐", callback_data=f"buy_{stars}", style=enums.ButtonStyle.PRIMARY)
+                InlineKeyboardButton(f"{stars}â­", callback_data=f"buy_{stars}", style=enums.ButtonStyle.PRIMARY)
                 for stars, days in STAR_PREMIUM_PLANS.items()
             ]
             buttons = [btn[i:i + 2] for i in range(0, len(btn), 2)]
-            buttons.append([InlineKeyboardButton("⋞ ʙᴀᴄᴋ", callback_data="buy_info", style=enums.ButtonStyle.DANGER)])
+            buttons.append([InlineKeyboardButton("â‹ž Ê™á´€á´„á´‹", callback_data="buy_info", style=enums.ButtonStyle.DANGER)])
             reply_markup = InlineKeyboardMarkup(buttons)
             await client.edit_message_media(
                 chat_id=query.message.chat.id,
@@ -1627,7 +1627,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
         await query.answer("Group removed from your connections.", show_alert=True)
         connected_groups = await db.get_connected_grps(user_id)
         if not connected_groups:
-            await query.edit_message_text("Nᴏ Cᴏɴɴᴇᴄᴛᴇᴅ Gʀᴏᴜᴘs Fᴏᴜɴᴅ .")
+            await query.edit_message_text("Ná´ Cá´É´É´á´‡á´„á´›á´‡á´… GÊ€á´á´œá´˜s Fá´á´œÉ´á´… .")
             return
         group_list = []
         for group in connected_groups:
@@ -1640,9 +1640,9 @@ async def cb_handler(client: Client, query: CallbackQuery):
             except Exception:
                 pass
         await query.edit_message_text(
-            "⚠️ ꜱᴇʟᴇᴄᴛ ᴛʜᴇ ɢʀᴏᴜᴘ ᴡʜᴏꜱᴇ ꜱᴇᴛᴛɪɴɢꜱ ʏᴏᴜ ᴡᴀɴᴛ ᴛᴏ ᴄʜᴀɴɢᴇ.\n\n"
-            "ɪꜰ ʏᴏᴜʀ ɢʀᴏᴜᴘ ɪꜱ ɴᴏᴛ ꜱʜᴏᴡɪɴɢ ʜᴇʀᴇ,\n"
-            "ᴜꜱᴇ /reload ɪɴ ᴛʜᴀᴛ ɢʀᴏᴜᴘ ᴀɴᴅ ɪᴛ ᴡɪʟʟ ᴀᴘᴘᴇᴀʀ ʜᴇʀᴇ.",
+            "âš ï¸ êœ±á´‡ÊŸá´‡á´„á´› á´›Êœá´‡ É¢Ê€á´á´œá´˜ á´¡Êœá´êœ±á´‡ êœ±á´‡á´›á´›ÉªÉ´É¢êœ± Êá´á´œ á´¡á´€É´á´› á´›á´ á´„Êœá´€É´É¢á´‡.\n\n"
+            "Éªêœ° Êá´á´œÊ€ É¢Ê€á´á´œá´˜ Éªêœ± É´á´á´› êœ±Êœá´á´¡ÉªÉ´É¢ Êœá´‡Ê€á´‡,\n"
+            "á´œêœ±á´‡ /reload ÉªÉ´ á´›Êœá´€á´› É¢Ê€á´á´œá´˜ á´€É´á´… Éªá´› á´¡ÉªÊŸÊŸ á´€á´˜á´˜á´‡á´€Ê€ Êœá´‡Ê€á´‡.",
             reply_markup=InlineKeyboardMarkup(group_list)
         )
 
@@ -1654,10 +1654,10 @@ async def cb_handler(client: Client, query: CallbackQuery):
             return
         if status == "True":
             await save_group_settings(int(grp_id), set_type, False)
-            await query.answer("ᴏꜰꜰ ✗")
+            await query.answer("á´êœ°êœ° âœ—")
         else:
             await save_group_settings(int(grp_id), set_type, True)
-            await query.answer("ᴏɴ ✓")
+            await query.answer("á´É´ âœ“")
         settings = await get_settings(int(grp_id))
         if settings is not None:
             btn = await group_setting_buttons(int(grp_id))
@@ -1715,10 +1715,10 @@ async def auto_filter(client, msg, spoll=False):
                 settings = await get_settings(message.chat.id)
                 if not files:
                     if settings.get("spell_check"):
-                        ai_sts = await m.edit('🤖 ᴘʟᴇᴀꜱᴇ ᴡᴀɪᴛ, ᴀɪ ɪꜱ ᴄʜᴇᴄᴋɪɴɢ ʏᴏᴜʀ ꜱᴘᴇʟʟɪɴɢ...')
+                        ai_sts = await m.edit('ðŸ¤– á´˜ÊŸá´‡á´€êœ±á´‡ á´¡á´€Éªá´›, á´€Éª Éªêœ± á´„Êœá´‡á´„á´‹ÉªÉ´É¢ Êá´á´œÊ€ êœ±á´˜á´‡ÊŸÊŸÉªÉ´É¢...')
                         is_misspelled = await ai_spell_check(chat_id=message.chat.id, wrong_name=search)
                         if is_misspelled:
-                            await ai_sts.edit(f'✅ Aɪ Sᴜɢɢᴇsᴛᴇᴅ: <code>{is_misspelled}</code>\n🔍 Searching for it...')
+                            await ai_sts.edit(f'âœ… AÉª Sá´œÉ¢É¢á´‡sá´›á´‡á´…: <code>{is_misspelled}</code>\nðŸ” Searching for it...')
                             message.text = is_misspelled
                             await ai_sts.delete()
                             return await auto_filter(client, message)
@@ -1738,7 +1738,7 @@ async def auto_filter(client, msg, spoll=False):
         else:
             message = msg.message.reply_to_message
             search, files, offset, total_results = spoll
-            m = await message.reply_text(f'🔎 sᴇᴀʀᴄʜɪɴɢ {search}')
+            m = await message.reply_text(f'ðŸ”Ž sá´‡á´€Ê€á´„ÊœÉªÉ´É¢ {search}')
             settings = await get_settings(message.chat.id)
             await msg.message.delete()
         key = f"{message.chat.id}-{message.id}"
@@ -1747,13 +1747,13 @@ async def auto_filter(client, msg, spoll=False):
         req = message.from_user.id if message.from_user else 0
         temp.SHORT[message.from_user.id] = message.chat.id
         try:
-            await client.send_reaction(chat_id=message.chat.id, message_id=message.id, emoji="🍿")
+            await client.send_reaction(chat_id=message.chat.id, message_id=message.id, emoji="ðŸ¿")
         except Exception:
             pass
         if settings.get('button'):
             btn = [
                 [
-                    InlineKeyboardButton(text=f"{get_size(file.file_size)} ≽ " + clean_filename(
+                    InlineKeyboardButton(text=f"{get_size(file.file_size)} â‰½ " + clean_filename(
                         file.file_name), callback_data=f'file#{file.file_id}'),
                 ]
                 for file in files
@@ -1761,16 +1761,16 @@ async def auto_filter(client, msg, spoll=False):
             btn.insert(0,
                        [
                            InlineKeyboardButton(
-                               '𝐐ᴜᴀʟɪᴛʏ', callback_data=f"qualities#{req}#{key}", style=enums.ButtonStyle.DANGER),
+                               'ðá´œá´€ÊŸÉªá´›Ê', callback_data=f"qualities#{req}#{key}", style=enums.ButtonStyle.DANGER),
                            InlineKeyboardButton(
-                               "𝐋ᴀɴɢᴜᴀɢᴇ", callback_data=f"languages#{req}#{key}", style=enums.ButtonStyle.PRIMARY),
+                               "ð‹á´€É´É¢á´œá´€É¢á´‡", callback_data=f"languages#{req}#{key}", style=enums.ButtonStyle.PRIMARY),
                            InlineKeyboardButton(
-                               "𝐒ᴇᴀsᴏɴ",  callback_data=f"seasons#{req}#{key}", style=enums.ButtonStyle.DANGER)
+                               "ð’á´‡á´€sá´É´",  callback_data=f"seasons#{req}#{key}", style=enums.ButtonStyle.DANGER)
                        ]
                        )
             [
     InlineKeyboardButton(
-        "🗃️ Sᴇɴᴅ Aʟʟ 🗃️",
+        "ðŸ—ƒï¸ Sá´‡É´á´… AÊŸÊŸ ðŸ—ƒï¸",
         callback_data=...,
         style=enums.ButtonStyle.SUCCESS
     )
@@ -1780,16 +1780,16 @@ async def auto_filter(client, msg, spoll=False):
             btn.insert(0,
                        [
                            InlineKeyboardButton(
-                               '𝐐ᴜᴀʟɪᴛʏ', callback_data=f"qualities#{req}#{key}", style=enums.ButtonStyle.DANGER),
+                               'ðá´œá´€ÊŸÉªá´›Ê', callback_data=f"qualities#{req}#{key}", style=enums.ButtonStyle.DANGER),
                            InlineKeyboardButton(
-                               "𝐋ᴀɴɢᴜᴀɢᴇ", callback_data=f"languages#{req}#{key}", style=enums.ButtonStyle.PRIMARY),
+                               "ð‹á´€É´É¢á´œá´€É¢á´‡", callback_data=f"languages#{req}#{key}", style=enums.ButtonStyle.PRIMARY),
                            InlineKeyboardButton(
-                               "𝐒ᴇᴀsᴏɴ",  callback_data=f"seasons#{req}#{key}", style=enums.ButtonStyle.DANGER)
+                               "ð’á´‡á´€sá´É´",  callback_data=f"seasons#{req}#{key}", style=enums.ButtonStyle.DANGER)
                        ]
                        )
             [
     InlineKeyboardButton(
-        "🗃️ Sᴇɴᴅ Aʟʟ 🗃️",
+        "ðŸ—ƒï¸ Sá´‡É´á´… AÊŸÊŸ ðŸ—ƒï¸",
         callback_data=...,
         style=enums.ButtonStyle.SUCCESS
     )
@@ -1799,30 +1799,30 @@ async def auto_filter(client, msg, spoll=False):
             req = message.from_user.id if message.from_user else 0
             if ULTRA_FAST_MODE:
                 btn.append(
-                    [InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
-                        text="1", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)]
+                    [InlineKeyboardButton("á´˜á´€É¢á´‡", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
+                        text="1", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(text="É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)]
                 )
             else:
                 try:
                     if settings['max_btn']:
                         btn.append(
-                            [InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
-                                text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)]
+                            [InlineKeyboardButton("á´˜á´€É¢á´‡", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
+                                text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(text="É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)]
                         )
                     else:
                         btn.append(
-                            [InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
-                                text=f"1/{math.ceil(int(total_results)/int(MAX_B_TN))}", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)]
+                            [InlineKeyboardButton("á´˜á´€É¢á´‡", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
+                                text=f"1/{math.ceil(int(total_results)/int(MAX_B_TN))}", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(text="É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)]
                         )
                 except KeyError:
                     await save_group_settings(message.chat.id, 'max_btn', True)
                     btn.append(
-                        [InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
-                            text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)]
+                        [InlineKeyboardButton("á´˜á´€É¢á´‡", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
+                            text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(text="É´á´‡xá´› â‹Ÿ", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)]
                     )
         else:
             btn.append([InlineKeyboardButton(
-                text="↭ ɴᴏ ᴍᴏʀᴇ ᴘᴀɢᴇꜱ ᴀᴠᴀɪʟᴀʙʟᴇ ↭", callback_data="pages")])
+                text="â†­ É´á´ á´á´Ê€á´‡ á´˜á´€É¢á´‡êœ± á´€á´ á´€ÉªÊŸá´€Ê™ÊŸá´‡ â†­", callback_data="pages")])
 
         if settings.get('imdb'):
             imdb = await get_posterx(search, file=(files[0]).file_name) if TMDB_POSTER else await get_poster(search, file=(files[0]).file_name)
@@ -1878,16 +1878,16 @@ async def auto_filter(client, msg, spoll=False):
             temp.IMDB_CAP[message.from_user.id] = None
             if ULTRA_FAST_MODE:
                 if settings.get('button'):
-                    cap = f"<b>🏷 ᴛɪᴛʟᴇ : <code>{search}</code>\n⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n\n📝 ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ : {message.from_user.mention}\n⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : ⚡ {message.chat.title or temp.B_LINK or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'} \n\n<u>Your Requested Files Are Here</u> \n\n</b>"
+                    cap = f"<b>ðŸ· á´›Éªá´›ÊŸá´‡ : <code>{search}</code>\nâ° Ê€á´‡sá´œÊŸá´› ÉªÉ´ : <code>{remaining_seconds} Sá´‡á´„á´É´á´…s</code>\n\nðŸ“ Ê€á´‡Ç«á´œá´‡sá´›á´‡á´… Ê™Ê : {message.from_user.mention}\nâšœï¸ á´˜á´á´¡á´‡Ê€á´‡á´… Ê™Ê : âš¡ {message.chat.title or temp.B_LINK or 'á´…Ê€á´‡á´€á´xÊ™á´á´›á´¢'} \n\n<u>Your Requested Files Are Here</u> \n\n</b>"
                 else:
-                    cap = f"<b>🏷 ᴛɪᴛʟᴇ : <code>{search}</code>\n⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n\n📝 ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ : {message.from_user.mention}\n⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : ⚡ {message.chat.title or temp.B_LINK or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'} \n\n<u>Your Requested Files Are Here</u> \n\n</b>"
+                    cap = f"<b>ðŸ· á´›Éªá´›ÊŸá´‡ : <code>{search}</code>\nâ° Ê€á´‡sá´œÊŸá´› ÉªÉ´ : <code>{remaining_seconds} Sá´‡á´„á´É´á´…s</code>\n\nðŸ“ Ê€á´‡Ç«á´œá´‡sá´›á´‡á´… Ê™Ê : {message.from_user.mention}\nâšœï¸ á´˜á´á´¡á´‡Ê€á´‡á´… Ê™Ê : âš¡ {message.chat.title or temp.B_LINK or 'á´…Ê€á´‡á´€á´xÊ™á´á´›á´¢'} \n\n<u>Your Requested Files Are Here</u> \n\n</b>"
                     for idx, file in enumerate(files, start=1):
                         cap += f"<b>\n{idx}. <a href='https://telegram.me/{temp.U_NAME}?start=file_{message.chat.id}_{file.file_id}'>[{get_size(file.file_size)}] {clean_filename(file.file_name)}\n</a></b>"
             else:
                 if settings.get('button'):
-                    cap = f"<b>🏷 ᴛɪᴛʟᴇ : <code>{search}</code>\n🧱 ᴛᴏᴛᴀʟ ꜰɪʟᴇꜱ : <code>{total_results}</code>\n⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n\n📝 ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ : {message.from_user.mention}\n⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : ⚡ {message.chat.title or temp.B_LINK or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'} \n\n<u>Your Requested Files Are Here</u> \n\n</b>"
+                    cap = f"<b>ðŸ· á´›Éªá´›ÊŸá´‡ : <code>{search}</code>\nðŸ§± á´›á´á´›á´€ÊŸ êœ°ÉªÊŸá´‡êœ± : <code>{total_results}</code>\nâ° Ê€á´‡sá´œÊŸá´› ÉªÉ´ : <code>{remaining_seconds} Sá´‡á´„á´É´á´…s</code>\n\nðŸ“ Ê€á´‡Ç«á´œá´‡sá´›á´‡á´… Ê™Ê : {message.from_user.mention}\nâšœï¸ á´˜á´á´¡á´‡Ê€á´‡á´… Ê™Ê : âš¡ {message.chat.title or temp.B_LINK or 'á´…Ê€á´‡á´€á´xÊ™á´á´›á´¢'} \n\n<u>Your Requested Files Are Here</u> \n\n</b>"
                 else:
-                    cap = f"<b>🏷 ᴛɪᴛʟᴇ : <code>{search}</code>\n🧱 ᴛᴏᴛᴀʟ ꜰɪʟᴇꜱ : <code>{total_results}</code>\n⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n\n📝 ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ : {message.from_user.mention}\n⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : ⚡ {message.chat.title or temp.B_LINK or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'} \n\n<u>Your Requested Files Are Here</u> \n\n</b>"
+                    cap = f"<b>ðŸ· á´›Éªá´›ÊŸá´‡ : <code>{search}</code>\nðŸ§± á´›á´á´›á´€ÊŸ êœ°ÉªÊŸá´‡êœ± : <code>{total_results}</code>\nâ° Ê€á´‡sá´œÊŸá´› ÉªÉ´ : <code>{remaining_seconds} Sá´‡á´„á´É´á´…s</code>\n\nðŸ“ Ê€á´‡Ç«á´œá´‡sá´›á´‡á´… Ê™Ê : {message.from_user.mention}\nâšœï¸ á´˜á´á´¡á´‡Ê€á´‡á´… Ê™Ê : âš¡ {message.chat.title or temp.B_LINK or 'á´…Ê€á´‡á´€á´xÊ™á´á´›á´¢'} \n\n<u>Your Requested Files Are Here</u> \n\n</b>"
 
                     for idx, file in enumerate(files, start=1):
                         cap += f"<b>\n{idx}. <a href='https://telegram.me/{temp.U_NAME}?start=file_{message.chat.id}_{file.file_id}'>[{get_size(file.file_size)}] {clean_filename(file.file_name)}\n</a></b>"
@@ -1979,7 +1979,7 @@ async def advantage_spell_chok(client, message):
     if not movies:
         google = quote_plus(search)
         button = [[InlineKeyboardButton(
-            "ʀᴇǫᴜᴇsᴛ 📝 ᴀᴅᴍɪɴ", url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)]]
+            "Ê€á´‡Ç«á´œá´‡sá´› ðŸ“ á´€á´…á´ÉªÉ´", url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)]]
         k = await message.reply_text(text=script.I_CUDNT.format(search), reply_markup=InlineKeyboardMarkup(button))
         await asyncio.sleep(60)
         await k.delete()
@@ -1994,7 +1994,7 @@ async def advantage_spell_chok(client, message):
          ] for movie in movies]
 
     buttons.append([InlineKeyboardButton(
-        text="🚫 ᴄʟᴏsᴇ 🚫", callback_data='close_data', style=enums.ButtonStyle.DANGER)])
+        text="ðŸš« á´„ÊŸá´sá´‡ ðŸš«", callback_data='close_data', style=enums.ButtonStyle.DANGER)])
     d = await message.reply_text(text=script.CUDNT_FND.format(message.from_user.mention), reply_markup=InlineKeyboardMarkup(buttons))
     await asyncio.sleep(60)
     await d.delete()
