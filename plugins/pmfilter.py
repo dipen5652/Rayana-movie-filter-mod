@@ -379,76 +379,31 @@ async def next_page(bot, query):
 
 @Client.on_callback_query(filters.regex(r"^spol"))
 async def advantage_spoll_choker(bot, query):
-    # FIX 2: Get title directly from button text - NO TMDB API dependency
-    movie_title = None
-    try:
-        # Most reliable - get from button text
-        if query.message and query.message.reply_markup:
-            for row in query.message.reply_markup.inline_keyboard:
-                for btn in row:
-                    if btn.callback_data == query.data:
-                        movie_title = btn.text
-                        break
-                if movie_title:
-                    break
-    except Exception:
-        pass
-    
-    # Fallback - parse from callback_data
-    if not movie_title:
-        try:
-            parts = query.data.split('#')
-            if len(parts) >= 3:
-                movie_title = "#".join(parts[1:-1])
-        except Exception:
-            pass
-    
-    if not movie_title:
-        movie_title = "Movie"
-    
-    # Check user
-    try:
-        parts = query.data.split('#')
-        user_id = parts[-1] if len(parts) >= 2 else "0"
-        if int(user_id) != 0 and query.from_user.id != int(user_id):
-            return await query.answer(script.ALRT_TXT.format(query.from_user.first_name), show_alert=True)
-    except Exception:
-        pass
-    
-    movie_title = re.sub(r"[:-]", " ", movie_title)
-    movie_title = re.sub(r"\s+", " ", movie_title).strip()
-    
-    await query.answer(f"Searching for {movie_title}...", show_alert=False)
-    
-    # Direct DB search - same as manual search which works!
-    files, offset, total_results = await get_search_results(query.message.chat.id, movie_title, offset=0, filter=True)
-    
-    if not files:
-        # Try lowercase - manual search uses lowercase and works
-        files, offset, total_results = await get_search_results(query.message.chat.id, movie_title.lower(), offset=0, filter=True)
-    
+    _, id, user = query.data.split('#')
+    if int(user) != 0 and query.from_user.id != int(user):
+        return await query.answer(script.ALRT_TXT.format(query.from_user.first_name), show_alert=True)
+    movies = await get_posterx(id, id=True) if TMDB_ON_SEARCH else await get_poster(id, id=True)
+    movie = movies.get('title')
+    movie = re.sub(r"[:-]", " ", movie)
+    movie = re.sub(r"\s+", " ", movie).strip()
+    await query.answer(script.TOP_ALRT_MSG)
+    files, offset, total_results = await get_search_results(query.message.chat.id, movie, offset=0, filter=True)
     if files:
-        k = (movie_title, files, offset, total_results)
+        k = (movie, files, offset, total_results)
         await auto_filter(bot, query, k)
     else:
         reqstr1 = query.from_user.id if query.from_user else 0
-        try:
-            reqstr = await bot.get_users(reqstr1)
-        except Exception:
-            reqstr = query.from_user
+        reqstr = await bot.get_users(reqstr1)
         if NO_RESULTS_MSG:
             try:
-                await bot.send_message(chat_id=BIN_CHANNEL, text=script.NORSLTS.format(reqstr.id, reqstr.mention, movie_title))
+                await bot.send_message(chat_id=BIN_CHANNEL, text=script.NORSLTS.format(reqstr.id, reqstr.mention, movie))
             except Exception as e:
                 logger.error("Error In Spol: %s — Make Sure Bot Admin BIN CHANNEL", e)
         btn = InlineKeyboardMarkup(
             [[InlineKeyboardButton("ʀᴇǫᴜᴇsᴛ 📝 ᴀᴅᴍɪɴ", url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)]])
-        try:
-            k = await query.message.edit_text(text=script.MVE_NT_FND.format(movie_title), reply_markup=btn)
-            await asyncio.sleep(10)
-            await k.delete()
-        except Exception:
-            pass
+        k = await query.message.edit(script.MVE_NT_FND, reply_markup=btn)
+        await asyncio.sleep(10)
+        await k.delete()
 
 # Qualities
 @Client.on_callback_query(filters.regex(r"^qualities#"))
@@ -767,7 +722,7 @@ async def seasons_cb_handler(client: Client, query: CallbackQuery):
     try:
         if int(req) not in [query.from_user.id, 0]:
             return await query.answer(
-                f"⚠️ ʜᴇʟʟᴏ {query.from_user.first_name},\nᴛʜɪꜱ ɪꜱ ɴᴏᴛ ʏᴏᴜʀ ᴍᴏᴠɪᴇ ʀᴇǫᴜᴇꜱᴛ,\nʀᴇǫᴜᴇꜱᴛ ʏᴏᴜʀ'ꜱ…",
+                f"⚠️ ʜᴇʟʟᴏ {query.from_user.first_name},\nᴛʜɪꜱ ɪꜱ ɴᴏᴛ ʏᴏᴜʀ ᴍᴏᴠɪᴇ ʀᴇǫᴜᴇꜱᴛ,\nʀᴇǫᴜᴇꜱᴛ ʏᴏᴜʀ'ꜱ…",
                 show_alert=True,
             )
     except Exception:
@@ -784,7 +739,7 @@ async def seasons_cb_handler(client: Client, query: CallbackQuery):
 
     btn.insert(
         0,
-        [InlineKeyboardButton("⇊ ꜱᴇʟᴇᴄᴛ ꜱᴇᴀꜱᴏɴ ⇊", callback_data="ident", style=enums.ButtonStyle.SUCCESS)],
+        [InlineKeyboardButton("⇊ ꜱᴇʟᴇᴄᴛ ꜱᴇᴀꜱᴏɴ ⇊", callback_data="ident", style=enums.ButtonStyle.SUCCESS)],
     )
     btn.append([InlineKeyboardButton(text="↭ ʙᴀᴄᴋ ᴛᴏ ꜰɪʟᴇs ​↭",
                callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.PRIMARY)])
@@ -2034,13 +1989,9 @@ async def advantage_spell_chok(client, message):
             pass
         return
     user = message.from_user.id if message.from_user else 0
-    # FIX 1: Title direct store, not imdb_id - so button click doesn't need TMDB API
-    buttons = []
-    for movie in movies:
-        safe_title = movie.title.replace("#", "").replace("\n", " ").strip()[:40]
-        if not safe_title:
-            safe_title = movie.title[:40]
-        buttons.append([InlineKeyboardButton(text=movie.title, callback_data=f"spol#{safe_title}#{user}")])
+    buttons = [
+        [InlineKeyboardButton(text=movie.title, callback_data=f"spol#{movie.imdb_id}#{user}")
+         ] for movie in movies]
 
     buttons.append([InlineKeyboardButton(
         text="🚫 ᴄʟᴏsᴇ 🚫", callback_data='close_data', style=enums.ButtonStyle.DANGER)])
@@ -2051,4 +2002,3 @@ async def advantage_spell_chok(client, message):
         await message.delete()
     except Exception:
         pass
-    
