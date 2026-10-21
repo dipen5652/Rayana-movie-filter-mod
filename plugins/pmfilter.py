@@ -379,31 +379,63 @@ async def next_page(bot, query):
 
 @Client.on_callback_query(filters.regex(r"^spol"))
 async def advantage_spoll_choker(bot, query):
-    _, id, user = query.data.split('#')
-    if int(user) != 0 and query.from_user.id != int(user):
-        return await query.answer(script.ALRT_TXT.format(query.from_user.first_name), show_alert=True)
-    movies = await get_posterx(id, id=True) if TMDB_ON_SEARCH else await get_poster(id, id=True)
-    movie = movies.get('title')
-    movie = re.sub(r"[:-]", " ", movie)
-    movie = re.sub(r"\s+", " ", movie).strip()
-    await query.answer(script.TOP_ALRT_MSG)
-    files, offset, total_results = await get_search_results(query.message.chat.id, movie, offset=0, filter=True)
+    # FIX 2: Get title directly from button text - NO TMDB API dependency
+    movie_title = None
+    try:
+        if query.message and query.message.reply_markup:
+            for row in query.message.reply_markup.inline_keyboard:
+                for btn in row:
+                    if btn.callback_data == query.data:
+                        movie_title = btn.text
+                        break
+                if movie_title:
+                    break
+    except Exception:
+        pass
+    if not movie_title:
+        try:
+            parts = query.data.split('#')
+            if len(parts) >= 3:
+                movie_title = "#".join(parts[1:-1])
+        except Exception:
+            pass
+    if not movie_title:
+        movie_title = "Movie"
+    try:
+        parts = query.data.split('#')
+        user_id = parts[-1] if len(parts) >= 2 else "0"
+        if int(user_id) != 0 and query.from_user.id != int(user_id):
+            return await query.answer(script.ALRT_TXT.format(query.from_user.first_name), show_alert=True)
+    except Exception:
+        pass
+    movie_title = re.sub(r"[:-]", " ", movie_title)
+    movie_title = re.sub(r"\s+", " ", movie_title).strip()
+    await query.answer(f"Searching for {movie_title}...", show_alert=False)
+    files, offset, total_results = await get_search_results(query.message.chat.id, movie_title, offset=0, filter=True)
+    if not files:
+        files, offset, total_results = await get_search_results(query.message.chat.id, movie_title.lower(), offset=0, filter=True)
     if files:
-        k = (movie, files, offset, total_results)
+        k = (movie_title, files, offset, total_results)
         await auto_filter(bot, query, k)
     else:
         reqstr1 = query.from_user.id if query.from_user else 0
-        reqstr = await bot.get_users(reqstr1)
+        try:
+            reqstr = await bot.get_users(reqstr1)
+        except Exception:
+            reqstr = query.from_user
         if NO_RESULTS_MSG:
             try:
-                await bot.send_message(chat_id=BIN_CHANNEL, text=script.NORSLTS.format(reqstr.id, reqstr.mention, movie))
+                await bot.send_message(chat_id=BIN_CHANNEL, text=script.NORSLTS.format(reqstr.id, reqstr.mention, movie_title))
             except Exception as e:
                 logger.error("Error In Spol: %s — Make Sure Bot Admin BIN CHANNEL", e)
         btn = InlineKeyboardMarkup(
             [[InlineKeyboardButton("ʀᴇǫᴜᴇsᴛ 📝 ᴀᴅᴍɪɴ", url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)]])
-        k = await query.message.edit(script.MVE_NT_FND, reply_markup=btn)
-        await asyncio.sleep(10)
-        await k.delete()
+        try:
+            k = await query.message.edit_text(text=script.MVE_NT_FND.format(movie_title), reply_markup=btn)
+            await asyncio.sleep(10)
+            await k.delete()
+        except Exception:
+            pass
 
 # Qualities
 @Client.on_callback_query(filters.regex(r"^qualities#"))
@@ -722,7 +754,7 @@ async def seasons_cb_handler(client: Client, query: CallbackQuery):
     try:
         if int(req) not in [query.from_user.id, 0]:
             return await query.answer(
-                f"⚠️ ʜᴇʟʟᴏ {query.from_user.first_name},\nᴛʜɪꜱ ɪꜱ ɴᴏᴛ ʏᴏᴜʀ ᴍᴏᴠɪᴇ ʀᴇǫᴜᴇꜱᴛ,\nʀᴇǫᴜᴇꜱᴛ ʏᴏᴜʀ'ꜱ…",
+                f"⚠️ ʜᴇʟʟᴏ {query.from_user.first_name},\nᴛʜɪꜱ ɪꜱ ɴᴏᴛ ʏᴏᴜʀ ᴍᴏᴠɪᴇ ʀᴇǫᴜᴇꜱᴛ,\nʀᴇǫᴜᴇꜱᴛ ʏᴏᴜʀ'ꜱ…",
                 show_alert=True,
             )
     except Exception:
@@ -739,7 +771,7 @@ async def seasons_cb_handler(client: Client, query: CallbackQuery):
 
     btn.insert(
         0,
-        [InlineKeyboardButton("⇊ ꜱᴇʟᴇᴄᴛ ꜱᴇᴀꜱᴏɴ ⇊", callback_data="ident", style=enums.ButtonStyle.SUCCESS)],
+        [InlineKeyboardButton("⇊ ꜱᴇʟᴇᴄᴛ ꜱᴇᴀꜱᴏɴ ⇊", callback_data="ident", style=enums.ButtonStyle.SUCCESS)],
     )
     btn.append([InlineKeyboardButton(text="↭ ʙᴀᴄᴋ ᴛᴏ ꜰɪʟᴇs ​↭",
                callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.PRIMARY)])
@@ -1736,16 +1768,16 @@ async def auto_filter(client, msg, spoll=False):
             else:
                 return
         else:
-            # FIX: NoneType crash - reply_to_message can be None
+            # FIX 3: NoneType crash - reply_to_message can be None (your Render error line 1741)
             try:
                 message = msg.message.reply_to_message
                 if message is None:
                     message = msg.message
                 search, files, offset, total_results = spoll
                 try:
-                    m = await message.reply_text(f'🔎 SEARCHING {search}')
+                    m = await message.reply_text(f'🔎 sᴇᴀʀᴄʜɪɴɢ {search}')
                 except AttributeError:
-                    m = await msg.message.reply_text(f'🔎 SEARCHING {search}')
+                    m = await msg.message.reply_text(f'🔎 sᴇᴀʀᴄʜɪɴɢ {search}')
                 settings = await get_settings(message.chat.id)
                 try:
                     await msg.message.delete()
@@ -1756,28 +1788,28 @@ async def auto_filter(client, msg, spoll=False):
                 try:
                     message = msg.message
                     search, files, offset, total_results = spoll
-                    m = await message.reply_text(f'🔎 SEARCHING {search}')
+                    m = await message.reply_text(f'🔎 sᴇᴀʀᴄʜɪɴɢ {search}')
                     settings = await get_settings(message.chat.id)
                 except Exception as e2:
                     logger.error(f"Fallback also failed: {e2}")
                     return
-            key = f"{message.chat.id}-{message.id}"
-            FRESH[key] = search
-            temp.GETALL[key] = files
-            req = message.from_user.id if message.from_user else 0
-            temp.SHORT[message.from_user.id] = message.chat.id
-            try:
-                await client.send_reaction(chat_id=message.chat.id, message_id=message.id, emoji="🍿")
-            except Exception:
-                pass
-            if settings.get('button'):
-                btn = [
-                    [
-                        InlineKeyboardButton(text=f"{get_size(file.file_size)} ≽ " + clean_filename(
-                            file.file_name), callback_data=f'file#{file.file_id}'),
-                    ]
-                    for file in files
+        key = f"{message.chat.id}-{message.id}"
+        FRESH[key] = search
+        temp.GETALL[key] = files
+        req = message.from_user.id if message.from_user else 0
+        temp.SHORT[message.from_user.id] = message.chat.id
+        try:
+            await client.send_reaction(chat_id=message.chat.id, message_id=message.id, emoji="🍿")
+        except Exception:
+            pass
+        if settings.get('button'):
+            btn = [
+                [
+                    InlineKeyboardButton(text=f"{get_size(file.file_size)} ≽ " + clean_filename(
+                        file.file_name), callback_data=f'file#{file.file_id}'),
                 ]
+                for file in files
+            ]
             btn.insert(0,
                        [
                            InlineKeyboardButton(
@@ -2009,9 +2041,13 @@ async def advantage_spell_chok(client, message):
             pass
         return
     user = message.from_user.id if message.from_user else 0
-    buttons = [
-        [InlineKeyboardButton(text=movie.title, callback_data=f"spol#{movie.imdb_id}#{user}")
-         ] for movie in movies]
+    # FIX 1: Title direct store, not imdb_id - button click won't need TMDB API
+    buttons = []
+    for movie in movies:
+        safe_title = movie.title.replace("#", "").replace("\n", " ").strip()[:40]
+        if not safe_title:
+            safe_title = movie.title[:40]
+        buttons.append([InlineKeyboardButton(text=movie.title, callback_data=f"spol#{safe_title}#{user}")])
 
     buttons.append([InlineKeyboardButton(
         text="🚫 ᴄʟᴏsᴇ 🚫", callback_data='close_data', style=enums.ButtonStyle.DANGER)])
@@ -2022,3 +2058,4 @@ async def advantage_spell_chok(client, message):
         await message.delete()
     except Exception:
         pass
+    
