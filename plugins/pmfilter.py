@@ -1735,29 +1735,51 @@ async def auto_filter(client, msg, spoll=False):
                         return result
             else:
                 return
+                else:
+            return
         else:
-            message = msg.message.reply_to_message
-            search, files, offset, total_results = spoll
-            m = await message.reply_text(f'🔎 sᴇᴀʀᴄʜɪɴɢ {search}')
-            settings = await get_settings(message.chat.id)
-            await msg.message.delete()
-        key = f"{message.chat.id}-{message.id}"
-        FRESH[key] = search
-        temp.GETALL[key] = files
-        req = message.from_user.id if message.from_user else 0
-        temp.SHORT[message.from_user.id] = message.chat.id
-        try:
-            await client.send_reaction(chat_id=message.chat.id, message_id=message.id, emoji="🍿")
-        except Exception:
-            pass
-        if settings.get('button'):
-            btn = [
-                [
-                    InlineKeyboardButton(text=f"{get_size(file.file_size)} ≽ " + clean_filename(
-                        file.file_name), callback_data=f'file#{file.file_id}'),
+            # FIX for NoneType error - your Render error line 1741
+            try:
+                message = msg.message.reply_to_message
+                if message is None:
+                    message = msg.message
+                search, files, offset, total_results = spoll
+                try:
+                    m = await message.reply_text(f'🔎 SEARCHING {search}')
+                except AttributeError:
+                    m = await msg.message.reply_text(f'🔎 SEARCHING {search}')
+                settings = await get_settings(message.chat.id)
+                try:
+                    await msg.message.delete()
+                except Exception:
+                    pass
+            except Exception as e:
+                logger.error(f"Error in spoll path: {e}", exc_info=True)
+                try:
+                    message = msg.message
+                    search, files, offset, total_results = spoll
+                    m = await message.reply_text(f'🔎 SEARCHING {search}')
+                    settings = await get_settings(message.chat.id)
+                except Exception as e2:
+                    logger.error(f"Fallback also failed: {e2}")
+                    return
+            key = f"{message.chat.id}-{message.id}"
+            FRESH[key] = search
+            temp.GETALL[key] = files
+            req = message.from_user.id if message.from_user else 0
+            temp.SHORT[message.from_user.id] = message.chat.id
+            try:
+                await client.send_reaction(chat_id=message.chat.id, message_id=message.id, emoji="🍿")
+            except Exception:
+                pass
+            if settings.get('button'):
+                btn = [
+                    [
+                        InlineKeyboardButton(text=f"{get_size(file.file_size)} ≽ " + clean_filename(
+                            file.file_name), callback_data=f'file#{file.file_id}'),
+                    ]
+                    for file in files
                 ]
-                for file in files
-            ]
             btn.insert(0,
                        [
                            InlineKeyboardButton(
