@@ -1735,10 +1735,8 @@ async def auto_filter(client, msg, spoll=False):
                         return result
             else:
                 return
-                else:
-            return
         else:
-            # FIX for NoneType error - your Render error line 1741
+            # FIX: NoneType crash - reply_to_message can be None
             try:
                 message = msg.message.reply_to_message
                 if message is None:
