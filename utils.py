@@ -1003,131 +1003,22 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                 cap = IMDB_CAP
                 cap += "\n\n"
                 for idx, file in enumerate(files, start=offset + 1):
-                        cap += (
-                            f"<b>{idx}. "
-                            f"<a href='https://telegram.me/{temp.U_NAME}"
-                            f"?start=file_{query.message.chat.id}_{file.file_id}'>"
-                            f"[{get_size(file.file_size)}] "
-                            f"{clean_filename(file.file_name)}\n\n"
-                            f"</a></b>"
-                        )
+                    cap += f"<b>{idx}. <a href='https://telegram.me/{temp.U_NAME}?start=file_{query.message.chat.id}_{file.file_id}'>[{get_size(file.file_size)}] {clean_filename(file.file_name)}</a></b>\n\n"
             else:
-                if settings["imdb"]:
-                    imdb = await get_posterx(search, file=(files[0]).file_name) if TMDB_ON_SEARCH else await get_poster(search, file=(files[0]).file_name)
+                if ULTRA_FAST_MODE:
+                    cap = f"<b>🏷 ᴛɪᴛʟᴇ - {search}\n🗳 ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ - {query.from_user.mention}\n╭──────────────────.★..─╮\n       𝐘𝐨𝐮𝐫 𝐑𝐞𝐪𝐮𝐞𝐬𝐭𝐞𝐝 𝐅𝐢𝐥𝐞𝐬 𝐚𝐫𝐞 𝐡𝐞𝐫𝐞\n╰─..★.──────────────────╯\n\n</b>"
                 else:
-                    imdb = None
-                if imdb:
-                    TEMPLATE = script.IMDB_TEMPLATE_TXT
-                    cap = TEMPLATE.format(
-                        query=search, 
-                        title=imdb['title'],
-                        votes=imdb['votes'],
-                        aka=imdb["aka"],
-                        seasons=imdb["seasons"],
-                        box_office=imdb['box_office'],
-                        localized_title=imdb['localized_title'],
-                        kind=imdb['kind'],
-                        imdb_id=imdb["imdb_id"],
-                        cast=imdb["cast"],
-                        runtime=imdb["runtime"],
-                        countries=imdb["countries"],
-                        certificates=imdb["certificates"],
-                        languages=imdb["languages"],
-                        director=imdb["director"],
-                        writer=imdb["writer"],
-                        producer=imdb["producer"],
-                        composer=imdb["composer"],
-                        cinematographer=imdb["cinematographer"],
-                        music_team=imdb["music_team"],
-                        distributors=imdb["distributors"],
-                        release_date=imdb['release_date'],
-                        year=imdb['year'],
-                        genres=imdb['genres'],
-                        poster=imdb['poster'],
-                        plot=imdb['plot'],
-                        rating=imdb['rating'],
-                        url=imdb['url'],
-                        **locals()
-                    )
-                    
-                    for idx, file in enumerate(files, start=offset+1):
-                        cap += (
-                            f"<b>{idx}. "
-                            f"<a href='https://telegram.me/{temp.U_NAME}"
-                            f"?start=file_{query.message.chat.id}_{file.file_id}'>"
-                            f"[{get_size(file.file_size)}] "
-                            f"{clean_filename(file.file_name)}\n\n"
-                            f"</a></b>"
-                        )
-                else:
-                    if ULTRA_FAST_MODE:
-                        cap = f"""<b>🏷 ᴛɪᴛʟᴇ - {imdb['title']}
-🎵 ᴀᴜᴅɪᴏ - {imdb['languages']}
-🔮 ɢᴇɴʀᴇ - {imdb['genres']}
-🗳 ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ - {message.from_user.mention}
-╭──────────────────.★..─╮
-       𝐘𝐨𝐮𝐫 𝐑𝐞𝐪𝐮𝐞𝐬𝐭𝐞𝐝 𝐅𝐢𝐥𝐞𝐬 𝐚𝐫𝐞 𝐡𝐞𝐫𝐞
-╰─..★.──────────────────╯
-
-</b>"""
-                        )
-                    else:
-                        cap = f"""<b>🏷 ᴛɪᴛʟᴇ - {imdb['title']}
-🎵 ᴀᴜᴅɪᴏ - {imdb['languages']}
-🔮 ɢᴇɴʀᴇ - {imdb['genres']}
-🗳 ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ - {message.from_user.mention}
-╭──────────────────.★..─╮
-       𝐘𝐨𝐮𝐫 𝐑𝐞𝐪𝐮𝐞𝐬𝐭𝐞𝐝 𝐅𝐢𝐥𝐞𝐬 𝐚𝐫𝐞 𝐡𝐞𝐫𝐞
-╰─..★.──────────────────╯
-
-</b>"""
-                        )
-                    cap += "\n\n"
-                    for idx, file in enumerate(files, start=offset + 1):
-                        cap += (
-                            f"<b>{idx}. "
-                            f"<a href='https://telegram.me/{temp.U_NAME}"
-                            f"?start=file_{query.message.chat.id}_{file.file_id}'>"
-                            f"[{get_size(file.file_size)}] "
-                            f"{clean_filename(file.file_name)}\n\n"
-                            f"</a></b>"
-                        )
-
+                    cap = f"<b>🏷 ᴛɪᴛʟᴇ - {search}\n🔮 ᴛᴏᴛᴀʟ ꜰɪʟᴇꜱ - {total_results}\n🗳 ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ - {query.from_user.mention}\n╭──────────────────.★..─╮\n       𝐘𝐨𝐮𝐫 𝐑𝐞𝐪𝐮𝐞𝐬𝐭𝐞𝐝 𝐅𝐢𝐥𝐞𝐬 𝐚𝐫𝐞 𝐡𝐞𝐫𝐞\n╰─..★.──────────────────╯\n\n</b>"
+                for idx, file in enumerate(files, start=offset + 1):
+                    cap += f"<b>{idx}. <a href='https://telegram.me/{temp.U_NAME}?start=file_{query.message.chat.id}_{file.file_id}'>[{get_size(file.file_size)}] {clean_filename(file.file_name)}</a></b>\n\n"
         else:
             if ULTRA_FAST_MODE:
-                cap = f"""<b>🏷 ᴛɪᴛʟᴇ - {imdb['title']}
-🎵 ᴀᴜᴅɪᴏ - {imdb['languages']}
-🔮 ɢᴇɴʀᴇ - {imdb['genres']}
-🗳 ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ - {message.from_user.mention}
-╭──────────────────.★..─╮
-       𝐘𝐨𝐮𝐫 𝐑𝐞𝐪𝐮𝐞𝐬𝐭𝐞𝐝 𝐅𝐢𝐥𝐞𝐬 𝐚𝐫𝐞 𝐡𝐞𝐫𝐞
-╰─..★.──────────────────╯
-
-</b>"""
-                )
+                cap = f"<b>🏷 ᴛɪᴛʟᴇ - {search}\n🗳 ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ - {query.from_user.mention}\n╭──────────────────.★..─╮\n       𝐘𝐨𝐮𝐫 𝐑𝐞𝐪𝐮𝐞𝐬𝐭𝐞𝐝 𝐅𝐢𝐥𝐞𝐬 𝐚𝐫𝐞 𝐡𝐞𝐫𝐞\n╰─..★.──────────────────╯\n\n</b>"
             else:
-                cap = f"""<b>🏷 ᴛɪᴛʟᴇ - {imdb['title']}
-🎵 ᴀᴜᴅɪᴏ - {imdb['languages']}
-🔮 ɢᴇɴʀᴇ - {imdb['genres']}
-🗳 ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ - {message.from_user.mention}
-╭──────────────────.★..─╮
-       𝐘𝐨𝐮𝐫 𝐑𝐞𝐪𝐮𝐞𝐬𝐭𝐞𝐝 𝐅𝐢𝐥𝐞𝐬 𝐚𝐫𝐞 𝐡𝐞𝐫𝐞
-╰─..★.──────────────────╯
-
-</b>"""
-                )
-
-            cap += "\n\n"
+                cap = f"<b>🏷 ᴛɪᴛʟᴇ - {search}\n🔮 ᴛᴏᴛᴀʟ ꜰɪʟᴇꜱ - {total_results}\n🗳 ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ - {query.from_user.mention}\n╭──────────────────.★..─╮\n       𝐘𝐨𝐮𝐫 𝐑𝐞𝐪𝐮𝐞𝐬𝐭𝐞𝐝 𝐅𝐢𝐥𝐞𝐬 𝐚𝐫𝐞 𝐡𝐞𝐫𝐞\n╰─..★.──────────────────╯\n\n</b>"
             for idx, file in enumerate(files, start=offset + 1):
-                        cap += (
-                            f"<b>{idx}. "
-                            f"<a href='https://telegram.me/{temp.U_NAME}"
-                            f"?start=file_{query.message.chat.id}_{file.file_id}'>"
-                            f"[{get_size(file.file_size)}] "
-                            f"{clean_filename(file.file_name)}\n\n"
-                            f"</a></b>"
-                        )
+                cap += f"<b>{idx}. <a href='https://telegram.me/{temp.U_NAME}?start=file_{query.message.chat.id}_{file.file_id}'>[{get_size(file.file_size)}] {clean_filename(file.file_name)}</a></b>\n\n"
         return cap
     except Exception as e:
         logger.error(f"Error in get_cap: {e}")
-        pass
+        return f"<b>🏷 ᴛɪᴛʟᴇ - {search}</b>\n\n"
