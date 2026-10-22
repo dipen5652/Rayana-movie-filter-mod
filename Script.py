@@ -291,8 +291,8 @@ Mᴇꜱꜱᴀɢᴇ : <b>{}</b>"""
 """
 
 
-    IMDB_TEMPLATE_TXT = """<b>🏷 ᴛɪᴛʟᴇ - {title}
-🎵 ᴀᴜᴅɪᴏ - {languages}
+    IMDB_TEMPLATE_TXT = """<b>🎖 ᴛɪᴛʟᴇ - {title}
+🎧 ᴀᴜᴅɪᴏ - {languages}
 🔮 ɢᴇɴʀᴇ - {genres}
 🗳 ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ - {message.from_user.mention}
 ╭──────────────────.★..─╮
