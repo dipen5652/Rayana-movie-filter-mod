@@ -1925,7 +1925,7 @@ async def auto_filter(client, msg, spoll=False):
             if not settings.get('button'):
                 cap += "\n\n<b><u>Your Requested Files Are Here</u></b>\n\n"
                 for idx, file in enumerate(files, start=1):
-                    cap += f"\n<emoji id=5312542162474034226>📁</emoji> <a href='https://telegram.me/{temp.U_NAME}?start=file_{message.chat.id}_{file.file_id}'>{clean_filename(file.file_name)}</a>\n╰⌯⌲ <emoji id=5454426575880444171>📀</emoji> <code>{get_size(file.file_size)}</code>\n"
+                    cap += f"\n<emoji id=4996959217832167470📁</emoji> <a href='https://telegram.me/{temp.U_NAME}?start=file_{message.chat.id}_{file.file_id}'>{clean_filename(file.file_name)}</a>\n╰⌯⌲ <emoji id=5454426575880444171>📀</emoji> <code>{get_size(file.file_size)}</code>\n"
         else:
             temp.IMDB_CAP[message.from_user.id] = None
             if ULTRA_FAST_MODE:
