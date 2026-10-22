@@ -941,6 +941,7 @@ def generate_season_variations(search_raw: str, season_number: int):
 
 
 
+async def get_seconds(time_string):
     def extract_value_and_unit(ts):
         value = ""
         unit = ""
