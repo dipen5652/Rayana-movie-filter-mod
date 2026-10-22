@@ -1061,21 +1061,28 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                         )
                 else:
                     if ULTRA_FAST_MODE:
-                        cap = (
-                            f"<b>🏷 ᴛɪᴛʟᴇ : <code>{search}</code>\n"
-                            f"⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n\n"
-                            f"📝 ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ : {query.from_user.mention}\n"
-                            f"⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : {query.message.chat.title or temp.B_LINK or 'ᴩʀᴏᴠɪᴅᴇʀʙᴏᴛᴢ'}\n</b>"
+                        cap = f"""<b>🏷 ᴛɪᴛʟᴇ - {imdb['title']}
+🎵 ᴀᴜᴅɪᴏ - {imdb['languages']}
+🔮 ɢᴇɴʀᴇ - {imdb['genres']}
+🗳 ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ - {message.from_user.mention}
+╭──────────────────.★..─╮
+       𝐘𝐨𝐮𝐫 𝐑𝐞𝐪𝐮𝐞𝐬𝐭𝐞𝐝 𝐅𝐢𝐥𝐞𝐬 𝐚𝐫𝐞 𝐡𝐞𝐫𝐞
+╰─..★.──────────────────╯
+
+</b>"""
                         )
                     else:
-                        cap = (
-                            f"<b>🏷 ᴛɪᴛʟᴇ : <code>{search}</code>\n"
-                            f"🧱 ᴛᴏᴛᴀʟ ꜰɪʟᴇꜱ : <code>{total_results}</code>\n"
-                            f"⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n\n"
-                            f"📝 ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ : {query.from_user.mention}\n"
-                            f"⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : {query.message.chat.title or temp.B_LINK or 'ᴩʀᴏᴠɪᴅᴇʀʙᴏᴛᴢ'}\n</b>"
+                        cap = f"""<b>🏷 ᴛɪᴛʟᴇ - {imdb['title']}
+🎵 ᴀᴜᴅɪᴏ - {imdb['languages']}
+🔮 ɢᴇɴʀᴇ - {imdb['genres']}
+🗳 ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ - {message.from_user.mention}
+╭──────────────────.★..─╮
+       𝐘𝐨𝐮𝐫 𝐑𝐞𝐪𝐮𝐞𝐬𝐭𝐞𝐝 𝐅𝐢𝐥𝐞𝐬 𝐚𝐫𝐞 𝐡𝐞𝐫𝐞
+╰─..★.──────────────────╯
+
+</b>"""
                         )
-                    cap += "\n\n<u>Your Requested Files Are Here</u> \n\n</b>"
+                    cap += "\n\n"
                     for idx, file in enumerate(files, start=offset + 1):
                         cap += (
                             f"<b>{idx}. "
@@ -1088,21 +1095,29 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
 
         else:
             if ULTRA_FAST_MODE:
-                cap = (
-                    f"<b>🏷 ᴛɪᴛʟᴇ : <code>{search}</code>\n"
-                    f"⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n\n"
-                    f"⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : ⚡ {query.message.chat.title or temp.B_LINK or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'}\n</b>"
+                cap = f"""<b>🏷 ᴛɪᴛʟᴇ - {imdb['title']}
+🎵 ᴀᴜᴅɪᴏ - {imdb['languages']}
+🔮 ɢᴇɴʀᴇ - {imdb['genres']}
+🗳 ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ - {message.from_user.mention}
+╭──────────────────.★..─╮
+       𝐘𝐨𝐮𝐫 𝐑𝐞𝐪𝐮𝐞𝐬𝐭𝐞𝐝 𝐅𝐢𝐥𝐞𝐬 𝐚𝐫𝐞 𝐡𝐞𝐫𝐞
+╰─..★.──────────────────╯
+
+</b>"""
                 )
             else:
-                cap = (
-                    f"<b>🏷 ᴛɪᴛʟᴇ : <code>{search}</code>\n"
-                    f"🧱 ᴛᴏᴛᴀʟ ꜰɪʟᴇꜱ : <code>{total_results}</code>\n"
-                    f"⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n\n"
-                    f"📝 ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ : {query.from_user.mention}\n"
-                    f"⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : {query.message.chat.title or temp.B_LINK or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'}\n</b>"
+                cap = f"""<b>🏷 ᴛɪᴛʟᴇ - {imdb['title']}
+🎵 ᴀᴜᴅɪᴏ - {imdb['languages']}
+🔮 ɢᴇɴʀᴇ - {imdb['genres']}
+🗳 ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ - {message.from_user.mention}
+╭──────────────────.★..─╮
+       𝐘𝐨𝐮𝐫 𝐑𝐞𝐪𝐮𝐞𝐬𝐭𝐞𝐝 𝐅𝐢𝐥𝐞𝐬 𝐚𝐫𝐞 𝐡𝐞𝐫𝐞
+╰─..★.──────────────────╯
+
+</b>"""
                 )
 
-            cap += "\n\n<u>Your Requested Files Are Here</u>\n\n</b>"
+            cap += "\n\n"
             for idx, file in enumerate(files, start=offset + 1):
                         cap += (
                             f"<b>{idx}. "
