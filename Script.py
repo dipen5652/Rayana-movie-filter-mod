@@ -291,14 +291,13 @@ Mᴇꜱꜱᴀɢᴇ : <b>{}</b>"""
 """
 
 
-    IMDB_TEMPLATE_TXT = """<b><a href={url}>{title} (<a href={url}/releaseinfo>{year}</a>)
-
-ʀᴀᴛɪɴɢ : <a href={url}/ratings>{rating}</a>
-ɢᴇɴʀᴇ : {genres}
-ᴀᴜᴅɪᴏ : {languages}
-
-sʜᴏᴡɴ ɪɴ : {remaining_seconds} <i>sᴇᴄ</i>⚡️
-<b>ʀᴇǫ ʙʏ : {message.from_user.mention}</b>"""
+     IMDB_TEMPLATE_TXT = """<b>🏷 ᴛɪᴛʟᴇ - {title}
+🎵 ᴀᴜᴅɪᴏ - {languages}
+🔮 ɢᴇɴʀᴇ - {genres}
+🗳 ʀᴇǫᴜᴇꜱᴛᴇᴅ ʙʏ - {message.from_user.mention}
+╭──────────────────.★..─╮
+       𝐘𝐨𝐮𝐫 𝐑𝐞𝐪𝐮𝐞𝐬𝐭𝐞𝐝 𝐅𝐢𝐥𝐞𝐬 𝐚𝐫𝐞 𝐡𝐞𝐫𝐞
+╰─..★.──────────────────╯</b>"""
 
     LOGO = r"""
     █▀█ █▀█ █▀█ █░█ █ █▀▄ █▀▀ █▀█ █▄▄ █▀█ ▀█▀ ▀█
