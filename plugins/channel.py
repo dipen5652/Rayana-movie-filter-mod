@@ -255,44 +255,48 @@ async def media_handler(bot, message):
     if not success:
         return
 
-        # ----------------- AUTO NOTIFY PENDING REQUESTS ----------------- #
+            # ----------------- AUTO NOTIFY PENDING REQUESTS ----------------- #
     try:
         raw_file_title = getattr(media, 'file_name', None) or getattr(message, 'caption', None) or ""
         if raw_file_title:
-            matched_requests = await mdb.get_and_delete_pending(str(raw_file_title))
-            for req in matched_requests:
-                q_title = req.get("query", "movie").title()
+            media_info = extract_media_info(raw_file_title, message.caption or "")
+            base_name = media_info.get("base_name") or raw_file_title
+            
+            # Lock use karne se ek hi movie ki multiple files ek sath spam nahi karengi
+            async with locks[f"notify_{base_name}"]:
+                matched_requests = await mdb.get_and_delete_pending(str(raw_file_title))
+                for req in matched_requests:
+                    q_title = req.get("query", "movie").title()
 
-                # Update channel jaisa direct getfile link
-                clean_link_title = re.sub(r"[_\.\-\s]+", "-", q_title.strip())
-                download_url = f"https://t.me/{temp.U_NAME}?start=getfile-{clean_link_title}"
+                    clean_link_title = re.sub(r"[_\.\-\s]+", "-", base_name.strip())
+                    download_url = f"https://t.me/{temp.U_NAME}?start=getfile-{clean_link_title}"
 
-                cool_text = (
-                    f"✨ <b>ʏᴏᴜʀ ʀᴇǫᴜᴇꜱᴛ ɪꜱ ɴᴏᴡ ᴀᴠᴀɪʟᴀʙʟᴇ!</b> 🎉\n\n"
-                    f"🎬 <b>ᴛɪᴛʟᴇ :</b> <code>{q_title}</code>\n"
-                    f"📁 <b>ꜰɪʟᴇ :</b> <code>{raw_file_title}</code>\n\n"
-                    f"⚡ <i>ʏᴏᴜʀ ᴡᴀɪᴛ ɪꜱ ᴏᴠᴇʀ! ᴄʟɪᴄᴋ ʙᴇʟᴏᴡ ᴛᴏ ɢᴇᴛ ʏᴏᴜʀ ꜰɪʟᴇꜱ ɪɴꜱᴛᴀɴᴛʟʏ.</i> 👇"
-                )
+                    cool_text = (
+                        f"✨ <b>ʏᴏᴜʀ ʀᴇǫᴜᴇꜱᴛ ɪꜱ ɴᴏᴡ ᴀᴠᴀɪʟᴀʙʟᴇ!</b> 🎉\n\n"
+                        f"🎬 <b>ᴛɪᴛʟᴇ :</b> <code>{q_title}</code>\n"
+                        f"📁 <b>ꜰɪʟᴇ :</b> <code>{base_name}</code>\n\n"
+                        f"⚡ <i>ʏᴏᴜʀ ᴡᴀɪᴛ ɪꜱ ᴏᴠᴇʀ! ᴄʟɪᴄᴋ ʙᴇʟᴏᴡ ᴛᴏ ɢᴇᴛ ʏᴏᴜʀ ꜰɪʟᴇꜱ ɪɴꜱᴛᴀɴᴛʟʏ.</i> 👇"
+                    )
 
-                buttons = InlineKeyboardMarkup([
-                    [InlineKeyboardButton("✦ 𝗖𝗹𝗶𝗰𝗸 𝗛𝗲𝗿𝗲 𝗧𝗼 𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱 ✦", url=download_url, style=enums.ButtonStyle.SUCCESS)]
-                ])
+                    buttons = InlineKeyboardMarkup([
+                        [InlineKeyboardButton("✦ 𝗖𝗹𝗶𝗰𝗸 𝗛𝗲𝗿𝗲 𝗧𝗼 𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱 ✦", url=download_url, style=enums.ButtonStyle.SUCCESS)]
+                    ])
 
-                for uid in req.get("user_ids", []):
-                    try:
-                        await bot.send_message(
-                            chat_id=int(uid),
-                            text=cool_text,
-                            reply_markup=buttons,
-                            parse_mode=enums.ParseMode.HTML
-                        )
-                        await asyncio.sleep(0.3)  # Telegram FloodWait Protection
-                    except (UserIsBlocked, PeerIdInvalid):
-                        pass
-                    except FloodWait as fw:
-                        await asyncio.sleep(fw.value + 1)
-                    except Exception as err:
-                        logger.warning(f"Could not notify user {uid}: {err}")
+                    for uid in req.get("user_ids", []):
+                        try:
+                            await bot.send_message(
+                                chat_id=int(uid),
+                                text=cool_text,
+                                reply_markup=buttons,
+                                parse_mode=enums.ParseMode.HTML
+                            )
+                            await asyncio.sleep(0.3)
+                        except (UserIsBlocked, PeerIdInvalid):
+                            pass
+                        except FloodWait as fw:
+                            await asyncio.sleep(fw.value + 1)
+                        except Exception as err:
+                            logger.warning(f"Could not notify user {uid}: {err}")
     except Exception as e:
         logger.error(f"Auto-notify error in channel.py: {e}")
     # ----------------- ORIGINAL MOVIE UPDATE CHANNEL ----------------- #
