@@ -4,7 +4,7 @@ import os
 import random
 import string
 from info import ULTRA_FAST_MODE, MAX_LIST_ELM, BAD_WORDS, LONG_IMDB_DESCRIPTION, IS_VERIFY, MAX_B_TN, TUTORIAL, TUTORIAL_2, TUTORIAL_3, LOG_CHANNEL, TMDB_ON_SEARCH
-from imdbkit import IMDBKit # pyrefly: ignore 
+from imdbkit import IMDBKit  # pyrefly: ignore
 import asyncio
 from pyrogram.types import Message, InlineKeyboardButton
 from pyrogram.errors import InputUserDeactivated, UserNotParticipant, FloodWait, UserIsBlocked, PeerIdInvalid, ChatAdminRequired
@@ -18,7 +18,6 @@ import aiohttp
 from shortzy import Shortzy
 from plugins.Dreamxfutures.Imdbposter import get_movie_detailsx
 
-
 logger = logging.getLogger(__name__)
 
 def get_random_mix_id():
@@ -26,7 +25,7 @@ def get_random_mix_id():
     return ''.join(random.choices(chars, k=6))
 
 BTN_URL_REGEX = re.compile(
-    r"(\[([^\[]+?)\]\((buttonurl\vert{}buttonalert):(?:/{0,2})(.+?)(:same)?\))"
+    r"(\[([^\[]+?)\]\((buttonurl|buttonalert):(?:/{0,2})(.+?)(:same)?\))"
 )
 
 imdb = IMDBKit()
@@ -37,14 +36,14 @@ SMART_CLOSE = '”'
 START_CHAR = ('\'', '"', SMART_OPEN)
 
 
-class temp(object):   
+class temp(object):
     BANNED_USERS = []
     BANNED_CHATS = []
     ME = None
     CURRENT = int(os.environ.get("SKIP", 2))
     CANCEL = False
     B_USERS_CANCEL = False
-    B_GROUPS_CANCEL = False 
+    B_GROUPS_CANCEL = False
     MELCOW = {}
     U_NAME = None
     B_NAME = None
@@ -102,9 +101,10 @@ async def is_req_subscribed(bot, user_id, rqfsub_channels):
 
     return btn
 
+
 async def is_subscribed(bot, user_id, fsub_channels):
     btn = []
-    
+
     async def check_channel(channel_id):
         try:
             await bot.get_chat_member(channel_id, user_id)
@@ -125,8 +125,9 @@ async def is_subscribed(bot, user_id, fsub_channels):
     for button in results:
         if button:
             btn.append([button])
-            
+
     return btn
+
 
 async def is_check_admin(bot, chat_id, user_id):
     try:
@@ -134,7 +135,8 @@ async def is_check_admin(bot, chat_id, user_id):
         return member.status in [enums.ChatMemberStatus.ADMINISTRATOR, enums.ChatMemberStatus.OWNER]
     except Exception:
         return False
-    
+
+
 async def users_broadcast(user_id, message, is_pin):
     try:
         m = await message.copy(chat_id=user_id)
@@ -176,6 +178,7 @@ async def groups_broadcast(chat_id, message, is_pin):
         await db.delete_chat(chat_id)
         return "Error"
 
+
 async def junk_group(chat_id, message):
     try:
         kk = await message.copy(chat_id=chat_id)
@@ -185,10 +188,10 @@ async def junk_group(chat_id, message):
         await asyncio.sleep(e.value)
         return await junk_group(chat_id, message)
     except Exception as e:
-        await db.delete_chat(int(chat_id))       
+        await db.delete_chat(int(chat_id))
         logger.info(f"{chat_id} - PeerIdInvalid")
         return False, "deleted", f'{e}\n\n'
-    
+
 
 async def clear_junk(user_id, message):
     try:
@@ -211,79 +214,74 @@ async def clear_junk(user_id, message):
         return False, "Error"
     except Exception:
         return False, "Error"
-     
+
+
 async def get_status(bot_id):
     try:
-        return await db.movie_update_status(bot_id) or False  
+        return await db.movie_update_status(bot_id) or False
     except Exception as e:
         logger.error(f"Error in get_movie_update_status: {e}")
-        return False  
+        return False
+
 
 async def add_name_to_db(filename):
-    """
-    Helper function to add a filename to the database.
-    """
-    return await db.add_name(filename) 
+    return await db.add_name(filename)
 
 
 def listx_to_str(k):
     if k is None or k == "":
         return "N/A"
-    
     if not hasattr(k, '__iter__') or isinstance(k, (str, int, float)):
         return str(k)
-    
     result = []
     for elem in k:
         if elem and str(elem).strip():
             result.append(str(elem).strip())
-    
     if MAX_LIST_ELM and len(result) > MAX_LIST_ELM:
         result = result[:int(MAX_LIST_ELM)]
-    
     return ', '.join(result) if result else "N/A"
-    
+
+
 async def get_poster(query, bulk=False, id=False, file=None):
-    async def _fetch_imdb_data():
+    async def _fetch():
         if not id:
-            clean_query = (query.strip()).lower()
-            title = clean_query
+            clean_q = (query.strip()).lower()
+            title = clean_q
             year_val = None
-            
-            year_list = re.findall(r'[1-2]\d{3}$', clean_query, re.IGNORECASE)
+
+            year_list = re.findall(r'[1-2]\d{3}$', clean_q, re.IGNORECASE)
             if year_list:
                 year_val = year_list[0]
-                title = (clean_query.replace(year_val, "")).strip()
+                title = (clean_q.replace(year_val, "")).strip()
             elif file is not None:
                 year_list = re.findall(r'[1-2]\d{3}', file, re.IGNORECASE)
                 if year_list:
                     year_val = year_list[0]
-            
+
             search_result = await asyncio.to_thread(imdb.search_movie, title.lower())
             if not search_result or not search_result.titles:
                 return None
-            
+
             movie_list = search_result.titles[:MAX_LIST_ELM]
-            
+
             if year_val:
                 filtered = [m for m in movie_list if m.year and str(m.year) == str(year_val)]
                 if not filtered:
                     filtered = movie_list
             else:
                 filtered = movie_list
-                
+
             kind_filter = ['movie', 'tv series', 'tvSeries', 'tvMiniSeries', 'tvMovie']
             filtered_kind = [m for m in filtered if m.kind and m.kind in kind_filter]
-            
             if not filtered_kind:
                 filtered_kind = filtered
-            
+
             if bulk:
                 return filtered_kind[:MAX_LIST_ELM]
             if not filtered_kind:
-                return None   
+                return None
             movie_brief = filtered_kind[0]
-            movieid_str = movie_brief.imdb_id 
+            movieid_str = movie_brief.imdb_id
         else:
             movieid_str = query
 
@@ -297,13 +295,14 @@ async def get_poster(query, bulk=False, id=False, file=None):
             date = str(movie.year)
         else:
             date = "N/A"
-            
+
         plot = movie.plot[0] if isinstance(movie.plot, list) else movie.plot or ""
         if len(plot) > 800:
             plot = plot[:800] + "..."
         imdb_id = movie.imdb_id
         if not imdb_id.startswith("tt"):
             imdb_id = f"tt{imdb_id}"
+
         return {
             'title': movie.title,
             'votes': movie.votes,
@@ -329,7 +328,7 @@ async def get_poster(query, bulk=False, id=False, file=None):
             "composer": listx_to_str([p.name for p in movie.composers]),
             "cinematographer": listx_to_str([p.name for p in movie.cinematographers]),
             "music_team": listx_to_str([p.name for p in movie.music_team]),
-            "distributors": listx_to_str([c.name for c in movie.distributors]),        
+            "distributors": listx_to_str([c.name for c in movie.distributors]),
             'release_date': date,
             'year': movie.year,
             'genres': listx_to_str(movie.genres),
@@ -340,23 +339,20 @@ async def get_poster(query, bulk=False, id=False, file=None):
         }
 
     try:
-        return await asyncio.wait_for(_fetch_imdb_data(), timeout=4.5)
+        return await asyncio.wait_for(_fetch(), timeout=4.5)
     except asyncio.TimeoutError:
-        logger.warning(f"IMDb request timed out for '{query}', continuing without IMDb metadata.")
+        logger.warning(f"IMDb fetch timed out for '{query}'.")
         return None
     except Exception as e:
         logger.error(f"Error in get_poster: {e}")
         return None
-    
-# Backward-compatibility fallback (Safe alias to get_poster)
+
+
 async def old_get_poster(query, bulk=False, id=False, file=None):
     return await get_poster(query, bulk=bulk, id=id, file=file)
-    
+
+
 async def get_posterx(query, bulk=False, id=False, file=None):
-    """
-    Fetches movie details from TMDB using the get_movie_detailsx helper
-    and formats the output to be compatible with the original get_poster function.
-    """
     if not id:
         details = await get_movie_detailsx(query, file=file)
     else:
@@ -364,7 +360,7 @@ async def get_posterx(query, bulk=False, id=False, file=None):
 
     if not details or details.get("error"):
         return None
-    
+
     plot = ""
     if not LONG_IMDB_DESCRIPTION:
         plot = details.get('plot')
@@ -375,7 +371,7 @@ async def get_posterx(query, bulk=False, id=False, file=None):
     if plot and len(plot) > 800:
         plot = plot[0:800] + "..."
 
-    def list_to_str_internal(val):
+    def _join_list(val):
         if isinstance(val, list):
             return ", ".join(str(x) for x in val if x)
         return str(val) if val else ""
@@ -389,32 +385,32 @@ async def get_posterx(query, bulk=False, id=False, file=None):
         'localized_title': details.get('localized_title'),
         'kind': 'movie' if 'movie' in details.get('tmdb_url', '') else 'tv series',
         "imdb_id": details.get('imdb_id'),
-        "cast": list_to_str_internal(details.get("cast")),
-        "runtime": list_to_str_internal(details.get("runtime")),
-        "countries": list_to_str_internal(details.get("countries")),
-        "certificates": list_to_str_internal(details.get("certificates")),
-        "languages": list_to_str_internal(details.get("languages")),
-        "director": list_to_str_internal(details.get("director")),
-        "writer": list_to_str_internal(details.get("writer")),
-        "producer": list_to_str_internal(details.get("producer")),
-        "composer": list_to_str_internal(details.get("composer")),
-        "cinematographer": list_to_str_internal(details.get("cinematographer")),
+        "cast": _join_list(details.get("cast")),
+        "runtime": _join_list(details.get("runtime")),
+        "countries": _join_list(details.get("countries")),
+        "certificates": _join_list(details.get("certificates")),
+        "languages": _join_list(details.get("languages")),
+        "director": _join_list(details.get("director")),
+        "writer": _join_list(details.get("writer")),
+        "producer": _join_list(details.get("producer")),
+        "composer": _join_list(details.get("composer")),
+        "cinematographer": _join_list(details.get("cinematographer")),
         "music_team": None,
-        "distributors": list_to_str_internal(details.get("distributors")),
+        "distributors": _join_list(details.get("distributors")),
         'release_date': details.get('release_date'),
         'year': details.get('year'),
-        'genres': list_to_str_internal(details.get("genres")),
+        'genres': _join_list(details.get("genres")),
         'poster': details.get('poster_url'),
         'backdrop': details.get('backdrop_url'),
         'plot': plot,
         'rating': str(details.get("rating", "N/A")),
         'url': details.get('tmdb_url')
     }
-    
+
+
 async def search_gagala(text):
     usr_agent = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-        'Chrome/61.0.3163.100 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'
     }
     text = text.replace(" ", "+")
     url = f"https://www.google.com/search?q={text}"
@@ -432,9 +428,10 @@ async def search_gagala(text):
         logger.warning(f"search_gagala error: {e}")
         return []
 
+
 async def get_shortlink(link, grp_id, is_second_shortener=False, is_third_shortener=False):
     settings = await get_settings(grp_id)
-    if is_third_shortener:             
+    if is_third_shortener:
         api, site = settings['api_three'], settings['shortner_three']
     else:
         if is_second_shortener:
@@ -448,6 +445,7 @@ async def get_shortlink(link, grp_id, is_second_shortener=False, is_third_shorte
         link = await shortzy.get_quick_link(link)
     return link
 
+
 async def get_settings(group_id):
     group_id = int(group_id)
     settings = temp.SETTINGS.get(group_id)
@@ -455,7 +453,8 @@ async def get_settings(group_id):
         settings = await db.get_settings(group_id)
         temp.SETTINGS[group_id] = settings.copy()
     return settings
-    
+
+
 async def save_group_settings(group_id, key, value):
     group_id = int(group_id)
     current = await get_settings(group_id)
@@ -463,6 +462,7 @@ async def save_group_settings(group_id, key, value):
     current.update({key: value})
     temp.SETTINGS[group_id] = current
     await db.update_settings(group_id, current)
+
 
 async def delete_group_setting(group_id, key):
     group_id = int(group_id)
@@ -473,15 +473,16 @@ async def delete_group_setting(group_id, key):
         temp.SETTINGS[group_id] = current
         await db.update_settings(group_id, current)
 
+
 def clean_filename(file_name):
     prefixes = ('[', '@', 'www.')
     unwanted = {word.lower() for word in BAD_WORDS}
-    
     file_name = ' '.join(
         word for word in file_name.split()
         if not (word.startswith(prefixes) or word.lower() in unwanted)
     )
     return file_name
+
 
 def get_size(size):
     units = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB"]
@@ -492,9 +493,11 @@ def get_size(size):
         size /= 1024.0
     return "%.2f %s" % (size, units[i])
 
+
 def split_list(lst, n):
     for i in range(0, len(lst), n):
-        yield lst[i:i + n]  
+        yield lst[i:i + n]
+
 
 def extract_request_content(message_text):
     match = re.search(r"<u>(.*?)</u>", message_text)
@@ -505,40 +508,545 @@ def extract_request_content(message_text):
         return match.group(1).strip()
     return message_text.strip()
 
-def generate_settings_text(settings, title, reset_done=False):
-    note = "\n<b>📌 ɴᴏᴛᴇ :- ʀᴇꜱᴇᴛ ꜱᴜᴄᴄᴇꜱꜱғᴜʟʟʏ ✅</b>" if reset_done else ""
-    s_short = settings.get("shortner", "N/A")
-    s_api = settings.get("api", "N/A")
-    s_short2 = settings.get("shortner_two", "N/A")
-    s_api2 = settings.get("api_two", "N/A")
-    s_short3 = settings.get("shortner_three", "N/A")
-    s_api3 = settings.get("api_three", "N/A")
-    v_time = settings.get("verify_time", "N/A")
-    v_time3 = settings.get("third_verify_time", "N/A")
-    tut1 = settings.get("tutorial", TUTORIAL)
-    tut2 = settings.get("tutorial_2", TUTORIAL_2)
-    tut3 = settings.get("tutorial_3", TUTORIAL_3)
-    s_log = settings.get("log", "N/A")
-    s_fsub = settings.get("fsub") or settings.get("fsub_id", "N/A")
-    s_tmpl = settings.get("template", "N/A")
-    s_cap = settings.get("caption", "N/A")
 
-    out = (
-        f"<b>⚙️ ʏᴏᴜʀ sᴇᴛᴛɪɴɢs ꜰᴏʀ - {title}</b>\n\n"
-        f"✅️ <b><u>1sᴛ ᴠᴇʀɪꜰʏ sʜᴏʀᴛɴᴇʀ</u></b>\n"
-        f"<b>ɴᴀᴍᴇ</b> - <code>{s_short}</code>\n"
-        f"<b>ᴀᴘɪ</b> - <code>{s_api}</code>\n\n"
-        f"✅️ <b><u>2ɴᴅ ᴠᴇʀɪꜰʏ sʜᴏʀᴛɴᴇʀ</u></b>\n"
-        f"<b>ɴᴀᴍᴇ</b> - <code>{s_short2}</code>\n"
-        f"<b>ᴀᴘɪ</b> - <code>{s_api2}</code>\n\n"
-        f"✅️ <b><u>𝟹ʀᴅ ᴠᴇʀɪꜰʏ sʜᴏʀᴛɴᴇʀ</u></b>\n"
-        f"<b>ɴᴀᴍᴇ</b> - <code>{s_short3}</code>\n"
-        f"<b>ᴀᴘɪ</b> - <code>{s_api3}</code>\n\n"
-        f"⏰ <b>2ɴᴅ ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ᴛɪᴍᴇ</b> - <code>{v_time}</code>\n"
-        f"⏰ <b>𝟹ʀᴅ ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ᴛɪᴍᴇ</b> - <code>{v_time3}</code>\n\n"
-        f"1️⃣ <b>ᴛᴜᴛᴏʀɪᴀʟ ʟɪɴᴋ 1</b> - {tut1}\n"
-        f"2️⃣ <b>ᴛᴜᴛᴏʀɪᴀʟ ʟɪɴᴋ 2</b> - {tut2}\n"
-        f"3️⃣ <b>ᴛᴜᴛᴏʀɪᴀʟ ʟɪɴᴋ 3</b> - {tut3}\n\n"
-        f"📝 <b>ʟᴏɢ ᴄʜᴀɴɴᴇʟ ɪᴅ</b> - <code>{s_log}</code>\n"
-        f"🚫 <b>ꜰꜱᴜʙ ᴄʜᴀɴɴᴇʟ ɪᴅ</b> - <code>{s_fsub}</code>\n\n"
-        f"🎯 <b>ɪᴍᴅʙ ᴛᴇᴍᴘʟᴀᴛᴇ</b> - <code>{s_tmpl}
+def generate_settings_text(settings, title, reset_done=False):
+    note = "\n<b>📌 NOTE: RESET SUCCESSFUL</b>" if reset_done else ""
+    tmpl = (
+        "<b>Settings for {title}</b>\n\n"
+        "<b>1st Shortener:</b> {s1} (API: {a1})\n"
+        "<b>2nd Shortener:</b> {s2} (API: {a2})\n"
+        "<b>3rd Shortener:</b> {s3} (API: {a3})\n"
+        "<b>2nd Verify Gap:</b> {v2}\n"
+        "<b>3rd Verify Gap:</b> {v3}\n"
+        "<b>Tutorial 1:</b> {t1}\n"
+        "<b>Tutorial 2:</b> {t2}\n"
+        "<b>Tutorial 3:</b> {t3}\n"
+        "<b>Log Channel:</b> {log}\n"
+        "<b>FSub Channel:</b> {fsub}\n"
+        "<b>Template:</b> {temp}\n"
+        "<b>Caption:</b> {cap}{note}"
+    )
+    return tmpl.format(
+        title=title,
+        s1=settings.get("shortner", "N/A"),
+        a1=settings.get("api", "N/A"),
+        s2=settings.get("shortner_two", "N/A"),
+        a2=settings.get("api_two", "N/A"),
+        s3=settings.get("shortner_three", "N/A"),
+        a3=settings.get("api_three", "N/A"),
+        v2=settings.get("verify_time", "N/A"),
+        v3=settings.get("third_verify_time", "N/A"),
+        t1=settings.get("tutorial", TUTORIAL),
+        t2=settings.get("tutorial_2", TUTORIAL_2),
+        t3=settings.get("tutorial_3", TUTORIAL_3),
+        log=settings.get("log", "N/A"),
+        fsub=settings.get("fsub") or settings.get("fsub_id", "N/A"),
+        temp=settings.get("template", "N/A"),
+        cap=settings.get("caption", "N/A"),
+        note=note
+    )
+
+
+async def get_settings_text(grp_id, title):
+    settings = await get_settings(grp_id)
+    verify_status = settings.get('is_verify', IS_VERIFY)
+    verify_text = "ON" if verify_status else "OFF"
+    log_channel = settings.get('log')
+    log_text = f"<code>{log_channel}</code>" if log_channel else "NOT SET"
+    fsub_ids = settings.get('fsub') or settings.get('fsub_id')
+    if fsub_ids:
+        if isinstance(fsub_ids, list):
+            fsub_text = ", ".join([f"<code>{id}</code>" for id in fsub_ids])
+        else:
+            fsub_text = f"<code>{fsub_ids}</code>"
+    else:
+        fsub_text = "NOT SET"
+    text = (
+        f"<b>Settings for {title}</b>\n\n"
+        f"Verification: {verify_text}\n"
+        f"Log Channel: {log_text}\n"
+        f"FSub Channel: {fsub_text}"
+    )
+    return text
+
+
+async def group_setting_buttons(grp_id):
+    settings = await get_settings(grp_id)
+    buttons = [[
+        InlineKeyboardButton('Result Page', callback_data=f'setgs#button#{settings.get("button")}#{grp_id}'),
+        InlineKeyboardButton('Button' if settings.get("button") else 'Text', callback_data=f'setgs#button#{settings.get("button")}#{grp_id}'),
+    ], [
+        InlineKeyboardButton('File Secure', callback_data=f'setgs#file_secure#{settings["file_secure"]}#{grp_id}'),
+        InlineKeyboardButton('ON' if settings["file_secure"] else 'OFF', callback_data=f'setgs#file_secure#{settings["file_secure"]}#{grp_id}'),
+    ], [
+        InlineKeyboardButton('IMDb Poster', callback_data=f'setgs#imdb#{settings["imdb"]}#{grp_id}'),
+        InlineKeyboardButton('ON' if settings["imdb"] else 'OFF', callback_data=f'setgs#imdb#{settings["imdb"]}#{grp_id}'),
+    ], [
+        InlineKeyboardButton('Welcome Msg', callback_data=f'setgs#welcome#{settings["welcome"]}#{grp_id}'),
+        InlineKeyboardButton('ON' if settings["welcome"] else 'OFF', callback_data=f'setgs#welcome#{settings["welcome"]}#{grp_id}'),
+    ], [
+        InlineKeyboardButton('Auto Delete', callback_data=f'setgs#auto_delete#{settings["auto_delete"]}#{grp_id}'),
+        InlineKeyboardButton('ON' if settings["auto_delete"] else 'OFF', callback_data=f'setgs#auto_delete#{settings["auto_delete"]}#{grp_id}'),
+    ], [
+        InlineKeyboardButton('Max Buttons', callback_data=f'setgs#max_btn#{settings["max_btn"]}#{grp_id}'),
+        InlineKeyboardButton('10' if settings["max_btn"] else f'{MAX_B_TN}', callback_data=f'setgs#max_btn#{settings["max_btn"]}#{grp_id}'),
+    ], [
+        InlineKeyboardButton('Spell Check', callback_data=f'setgs#spell_check#{settings["spell_check"]}#{str(grp_id)}'),
+        InlineKeyboardButton('ON' if settings["spell_check"] else 'OFF', callback_data=f'setgs#spell_check#{settings["spell_check"]}#{str(grp_id)}')
+    ], [
+        InlineKeyboardButton('Verify', callback_data=f'setgs#is_verify#{settings.get("is_verify", IS_VERIFY)}#{grp_id}'),
+        InlineKeyboardButton('ON' if settings.get("is_verify", IS_VERIFY) else 'OFF', callback_data=f'setgs#is_verify#{settings.get("is_verify", IS_VERIFY)}#{grp_id}'),
+    ], [
+        InlineKeyboardButton('Verification', callback_data=f'verification_setgs#{grp_id}'),
+        InlineKeyboardButton('Log Channel', callback_data=f'log_setgs#{grp_id}'),
+    ], [
+        InlineKeyboardButton('Set Caption', callback_data=f'caption_setgs#{grp_id}'),
+        InlineKeyboardButton('Custom FSub', callback_data=f'fsub_setgs#{grp_id}'),
+    ], [
+        InlineKeyboardButton("Delete Group", callback_data=f"delete_group_check#{grp_id}", style=enums.ButtonStyle.DANGER)
+    ], [
+        InlineKeyboardButton("Remove Connection", callback_data=f"removegrp#{grp_id}", style=enums.ButtonStyle.DANGER)
+    ], [
+        InlineKeyboardButton('Close Menu', callback_data='close_data', style=enums.ButtonStyle.DANGER)
+    ]]
+    return buttons
+
+
+def get_file_id(msg: Message):
+    if msg.media:
+        for message_type in (
+            "photo",
+            "animation",
+            "audio",
+            "document",
+            "video",
+            "video_note",
+            "voice",
+            "sticker"
+        ):
+            obj = getattr(msg, message_type)
+            if obj:
+                setattr(obj, "message_type", message_type)
+                return obj
+
+
+def extract_user(message: Message) -> Union[int, str]:
+    user_id = None
+    user_first_name = None
+    if message.reply_to_message:
+        user_id = message.reply_to_message.from_user.id
+        user_first_name = message.reply_to_message.from_user.first_name
+    elif len(message.command) > 1:
+        if (
+            len(message.entities) > 1 and
+            message.entities[1].type == enums.MessageEntityType.TEXT_MENTION
+        ):
+            required_entity = message.entities[1]
+            user_id = required_entity.user.id
+            user_first_name = required_entity.user.first_name
+        else:
+            user_id = message.command[1]
+            user_first_name = user_id
+        try:
+            user_id = int(user_id)
+        except ValueError:
+            pass
+    else:
+        user_id = message.from_user.id
+        user_first_name = message.from_user.first_name
+    return (user_id, user_first_name)
+
+
+def list_to_str(k):
+    if not k:
+        return "N/A"
+    elif len(k) == 1:
+        return str(k[0])
+    elif MAX_LIST_ELM:
+        k = k[:int(MAX_LIST_ELM)]
+        return ' '.join(f'{elem}, ' for elem in k)
+    else:
+        return ' '.join(f'{elem}, ' for elem in k)
+
+
+def last_online(from_user):
+    time = ""
+    if from_user.is_bot:
+        time += "Bot :("
+    elif from_user.status == enums.UserStatus.RECENTLY:
+        time += "Recently"
+    elif from_user.status == enums.UserStatus.LAST_WEEK:
+        time += "Within the last week"
+    elif from_user.status == enums.UserStatus.LAST_MONTH:
+        time += "Within the last month"
+    elif from_user.status == enums.UserStatus.LONG_AGO:
+        time += "A long time ago :("
+    elif from_user.status == enums.UserStatus.ONLINE:
+        time += "Currently Online"
+    elif from_user.status == enums.UserStatus.OFFLINE:
+        time += from_user.last_online_date.strftime("%a, %d %b %Y, %H:%M:%S")
+    return time
+
+
+def split_quotes(text: str) -> List:
+    if not any(text.startswith(char) for char in START_CHAR):
+        return text.split(None, 1)
+    counter = 1
+    while counter < len(text):
+        if text[counter] == "\\":
+            counter += 1
+        elif text[counter] == text[0] or (text[0] == SMART_OPEN and text[counter] == SMART_CLOSE):
+            break
+        counter += 1
+    else:
+        return text.split(None, 1)
+    key = remove_escapes(text[1:counter].strip())
+    rest = text[counter + 1:].strip()
+    if not key:
+        key = text[0] + text[0]
+    return list(filter(None, [key, rest]))
+
+
+def gfilterparser(text, keyword):
+    if "buttonalert" in text:
+        text = (text.replace("\n", "\\n").replace("\t", "\\t"))
+    buttons = []
+    note_data = ""
+    prev = 0
+    i = 0
+    alerts = []
+    for match in BTN_URL_REGEX.finditer(text):
+        n_escapes = 0
+        to_check = match.start(1) - 1
+        while to_check > 0 and text[to_check] == "\\":
+            n_escapes += 1
+            to_check -= 1
+        if n_escapes % 2 == 0:
+            note_data += text[prev:match.start(1)]
+            prev = match.end(1)
+            if match.group(3) == "buttonalert":
+                if bool(match.group(5)) and buttons:
+                    buttons[-1].append(InlineKeyboardButton(
+                        text=match.group(2),
+                        callback_data=f"gfilteralert:{i}:{keyword}"
+                    ))
+                else:
+                    buttons.append([InlineKeyboardButton(
+                        text=match.group(2),
+                        callback_data=f"gfilteralert:{i}:{keyword}"
+                    )])
+                i += 1
+                alerts.append(match.group(4))
+            elif bool(match.group(5)) and buttons:
+                buttons[-1].append(InlineKeyboardButton(
+                    text=match.group(2),
+                    url=match.group(4).replace(" ", "")
+                ))
+            else:
+                buttons.append([InlineKeyboardButton(
+                    text=match.group(2),
+                    url=match.group(4).replace(" ", "")
+                )])
+        else:
+            note_data += text[prev:to_check]
+            prev = match.start(1) - 1
+    else:
+        note_data += text[prev:]
+
+    try:
+        return note_data, buttons, alerts
+    except Exception:
+        return note_data, buttons, None
+
+
+def parser(text, keyword):
+    if "buttonalert" in text:
+        text = (text.replace("\n", "\\n").replace("\t", "\\t"))
+    buttons = []
+    note_data = ""
+    prev = 0
+    i = 0
+    alerts = []
+    for match in BTN_URL_REGEX.finditer(text):
+        n_escapes = 0
+        to_check = match.start(1) - 1
+        while to_check > 0 and text[to_check] == "\\":
+            n_escapes += 1
+            to_check -= 1
+        if n_escapes % 2 == 0:
+            note_data += text[prev:match.start(1)]
+            prev = match.end(1)
+            if match.group(3) == "buttonalert":
+                if bool(match.group(5)) and buttons:
+                    buttons[-1].append(InlineKeyboardButton(
+                        text=match.group(2),
+                        callback_data=f"alertmessage:{i}:{keyword}"
+                    ))
+                else:
+                    buttons.append([InlineKeyboardButton(
+                        text=match.group(2),
+                        callback_data=f"alertmessage:{i}:{keyword}"
+                    )])
+                i += 1
+                alerts.append(match.group(4))
+            elif bool(match.group(5)) and buttons:
+                buttons[-1].append(InlineKeyboardButton(
+                    text=match.group(2),
+                    url=match.group(4).replace(" ", "")
+                ))
+            else:
+                buttons.append([InlineKeyboardButton(
+                    text=match.group(2),
+                    url=match.group(4).replace(" ", "")
+                )])
+        else:
+            note_data += text[prev:to_check]
+            prev = match.start(1) - 1
+    else:
+        note_data += text[prev:]
+
+    try:
+        return note_data, buttons, alerts
+    except Exception:
+        return note_data, buttons, None
+
+
+def remove_escapes(text: str) -> str:
+    res = ""
+    is_escaped = False
+    for counter in range(len(text)):
+        if is_escaped:
+            res += text[counter]
+            is_escaped = False
+        elif text[counter] == "\\":
+            is_escaped = True
+        else:
+            res += text[counter]
+    return res
+
+
+async def log_error(client, error_message):
+    try:
+        await client.send_message(
+            chat_id=LOG_CHANNEL,
+            text=f"<b>Error Log:</b>\n<code>{error_message}</code>"
+        )
+    except Exception as e:
+        logger.error("Failed to log error: %s", e)
+
+
+def get_time(seconds):
+    periods = [(' days', 86400), (' hour', 3600), (' minute', 60), (' second', 1)]
+    result = ''
+    for period_name, period_seconds in periods:
+        if seconds >= period_seconds:
+            period_value, seconds = divmod(seconds, period_seconds)
+            result += f'{int(period_value)}{period_name}'
+    return result
+
+
+def humanbytes(size):
+    if not size:
+        return ""
+    power = 2**10
+    n = 0
+    Dic_powerN = {0: ' ', 1: 'Ki', 2: 'Mi', 3: 'Gi', 4: 'Ti'}
+    while size > power:
+        size /= power
+        n += 1
+    return str(round(size, 2)) + " " + Dic_powerN[n] + 'B'
+
+
+def get_readable_time(seconds):
+    periods = [('d', 86400), ('h', 3600), ('m', 60), ('s', 1)]
+    result = []
+    for period_name, period_seconds in periods:
+        if seconds >= period_seconds:
+            period_value, seconds = divmod(seconds, period_seconds)
+            result.append(f'{int(period_value)}{period_name}')
+    return ' '.join(result)
+
+
+def generate_season_variations(search_raw: str, season_number: int):
+    return [
+        f"{search_raw} s{season_number:02}",
+        f"{search_raw} season {season_number}",
+        f"{search_raw} season {season_number:02}",
+    ]
+
+
+async def get_seconds(time_string):
+    def extract_value_and_unit(ts):
+        value = ""
+        unit = ""
+        index = 0
+        while index < len(ts) and ts[index].isdigit():
+            value += ts[index]
+            index += 1
+        unit = ts[index:].lstrip()
+        if value:
+            value = int(value)
+        return value, unit
+    value, unit = extract_value_and_unit(time_string)
+    if unit == 's':
+        return value
+    elif unit == 'min':
+        return value * 60
+    elif unit == 'hour':
+        return value * 3600
+    elif unit == 'day':
+        return value * 86400
+    elif unit == 'month':
+        return value * 86400 * 30
+    elif unit == 'year':
+        return value * 86400 * 365
+    else:
+        return 0
+
+
+def clean_search_text(search_raw: str) -> str:
+    search_lower = search_raw.lower()
+    phrases = re.split(r'\s{2,}', search_lower.strip())
+    lang_pattern = r'\b(hin(di)?|eng(lish)?|mal(ayalam)?|tam(il)?|tel(ugu)?|kan(nada)?|ben(gali)?|mar(athi)?|urdu|guj(arat)?|punj(abi)?)\b'
+    season_pattern = r's(eason)?\s*0*\d+'
+    quality_pattern = r'\b(360p|480p|720p|1080p|1440p|2160p|4k)\b'
+    cleaned_phrases = []
+    for phrase in phrases:
+        phrase = re.sub(season_pattern, '', phrase, flags=re.IGNORECASE)
+        phrase = re.sub(lang_pattern, '', phrase, flags=re.IGNORECASE)
+        phrase = re.sub(quality_pattern, '', phrase, flags=re.IGNORECASE)
+        phrase = re.sub(r'\s+', ' ', phrase).strip()
+        if phrase:
+            cleaned_phrases.append(phrase)
+    unique_phrases = []
+    seen = set()
+    for cp in cleaned_phrases:
+        if cp not in seen:
+            unique_phrases.append(cp)
+            seen.add(cp)
+    if unique_phrases:
+        return unique_phrases[0].title()
+    else:
+        return ""
+
+
+async def get_cap(settings, remaining_seconds, files, query, total_results, search, offset=0):
+    try:
+        if settings["imdb"]:
+            IMDB_CAP = temp.IMDB_CAP.get(query.from_user.id)
+            if IMDB_CAP:
+                cap = IMDB_CAP
+                cap += "\n\n<u>Your Requested Files Are Here</u>\n\n</b>"
+                for idx, file in enumerate(files, start=offset + 1):
+                    cap += (
+                        f"<b>{idx}. "
+                        f"<a href='https://telegram.me/{temp.U_NAME}"
+                        f"?start=file_{query.message.chat.id}_{file.file_id}'>"
+                        f"[{get_size(file.file_size)}] "
+                        f"{clean_filename(file.file_name)}\n\n"
+                        f"</a></b>"
+                    )
+            else:
+                if settings["imdb"]:
+                    imdb_data = await get_posterx(search, file=(files[0]).file_name) if TMDB_ON_SEARCH else await get_poster(search, file=(files[0]).file_name)
+                else:
+                    imdb_data = None
+                if imdb_data:
+                    TEMPLATE = script.IMDB_TEMPLATE_TXT
+                    cap = TEMPLATE.format(
+                        query=search,
+                        title=imdb_data['title'],
+                        votes=imdb_data['votes'],
+                        aka=imdb_data["aka"],
+                        seasons=imdb_data["seasons"],
+                        box_office=imdb_data['box_office'],
+                        localized_title=imdb_data['localized_title'],
+                        kind=imdb_data['kind'],
+                        imdb_id=imdb_data["imdb_id"],
+                        cast=imdb_data["cast"],
+                        runtime=imdb_data["runtime"],
+                        countries=imdb_data["countries"],
+                        certificates=imdb_data["certificates"],
+                        languages=imdb_data["languages"],
+                        director=imdb_data["director"],
+                        writer=imdb_data["writer"],
+                        producer=imdb_data["producer"],
+                        composer=imdb_data["composer"],
+                        cinematographer=imdb_data["cinematographer"],
+                        music_team=imdb_data["music_team"],
+                        distributors=imdb_data["distributors"],
+                        release_date=imdb_data['release_date'],
+                        year=imdb_data['year'],
+                        genres=imdb_data['genres'],
+                        poster=imdb_data['poster'],
+                        plot=imdb_data['plot'],
+                        rating=imdb_data['rating'],
+                        url=imdb_data['url'],
+                        **locals()
+                    )
+
+                    for idx, file in enumerate(files, start=offset + 1):
+                        cap += (
+                            f"<b>{idx}. "
+                            f"<a href='https://telegram.me/{temp.U_NAME}"
+                            f"?start=file_{query.message.chat.id}_{file.file_id}'>"
+                            f"[{get_size(file.file_size)}] "
+                            f"{clean_filename(file.file_name)}\n\n"
+                            f"</a></b>"
+                        )
+                else:
+                    if ULTRA_FAST_MODE:
+                        cap = (
+                            f"<b>Title: <code>{search}</code>\n"
+                            f"Result in: <code>{remaining_seconds}s</code>\n\n"
+                            f"Requested by: {query.from_user.mention}\n"
+                            f"Powered by: {query.message.chat.title or temp.B_LINK or 'ProviderBotz'}\n</b>"
+                        )
+                    else:
+                        cap = (
+                            f"<b>Title: <code>{search}</code>\n"
+                            f"Total Files: <code>{total_results}</code>\n"
+                            f"Result in: <code>{remaining_seconds}s</code>\n\n"
+                            f"Requested by: {query.from_user.mention}\n"
+                            f"Powered by: {query.message.chat.title or temp.B_LINK or 'ProviderBotz'}\n</b>"
+                        )
+                    cap += "\n\n<u>Your Requested Files Are Here</u> \n\n</b>"
+                    for idx, file in enumerate(files, start=offset + 1):
+                        cap += (
+                            f"<b>{idx}. "
+                            f"<a href='https://telegram.me/{temp.U_NAME}"
+                            f"?start=file_{query.message.chat.id}_{file.file_id}'>"
+                            f"[{get_size(file.file_size)}] "
+                            f"{clean_filename(file.file_name)}\n\n"
+                            f"</a></b>"
+                        )
+        else:
+            if ULTRA_FAST_MODE:
+                cap = (
+                    f"<b>Title: <code>{search}</code>\n"
+                    f"Result in: <code>{remaining_seconds}s</code>\n\n"
+                    f"Powered by: {query.message.chat.title or temp.B_LINK or 'DreamXBotz'}\n</b>"
+                )
+            else:
+                cap = (
+                    f"<b>Title: <code>{search}</code>\n"
+                    f"Total Files: <code>{total_results}</code>\n"
+                    f"Result in: <code>{remaining_seconds}s</code>\n\n"
+                    f"Requested by: {query.from_user.mention}\n"
+                    f"Powered by: {query.message.chat.title or temp.B_LINK or 'DreamXBotz'}\n</b>"
+                )
+
+            cap += "\n\n<u>Your Requested Files Are Here</u>\n\n</b>"
+            for idx, file in enumerate(files, start=offset + 1):
+                cap += (
+                    f"<b>{idx}. "
+                    f"<a href='https://telegram.me/{temp.U_NAME}"
+                    f"?start=file_{query.message.chat.id}_{file.file_id}'>"
+                    f"[{get_size(file.file_size)}] "
+                    f"{clean_filename(file.file_name)}\n\n"
+                    f"</a></b>"
+                )
+        return cap
+    except Exception as e:
+        logger.error(f"Error in get_cap: {e}")
+        pass
