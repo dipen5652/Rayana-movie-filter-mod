@@ -348,67 +348,197 @@ async def get_poster(query, bulk=False, id=False, file=None):
         logger.error(f"Error in get_poster: {e}")
         return None
     
-#Remove Nahi Kiya Hu.....Agar Tujha Remove Karna Hai To Kar Dena
+# Backward-compatibility fallback (Safe alias to get_poster)
 async def old_get_poster(query, bulk=False, id=False, file=None):
-    try:
-        if not id:
-            query = (query.strip()).lower()
-            title = query
-            year = re.findall(r'[1-2]\d{3}$', query, re.IGNORECASE)
-            if year:
-                year = list_to_str(year[:1])
-                title = (query.replace(year, "")).strip()
-            elif file is not None:
-                year = re.findall(r'[1-2]\d{3}', file, re.IGNORECASE)
-                if year:
-                    year = list_to_str(year[:1]) 
-            else:
-                year = None
-            movieid = await asyncio.to_thread(imdb.search_movie, title.lower(), results=10)
-            if not movieid:
-                return None
-            if year:
-                filtered = list(filter(lambda k: str(k.get('year')) == str(year), movieid))
-                if not filtered:
-                    filtered = movieid
-            else:
-                filtered = movieid
-            movieid = list(filter(lambda k: k.get('kind') in ['movie', 'tv series'], filtered))
-            if not movieid:
-                movieid = filtered
-            if bulk:
-                return movieid
-            movieid = movieid[0].movieID
-        else:
-            movieid = query
+    return await get_poster(query, bulk=bulk, id=id, file=file)
+    
+async def get_posterx(query, bulk=False, id=False, file=None):
+    """
+    Fetches movie details from TMDB using the get_movie_detailsx helper
+    and formats the output to be compatible with the original get_poster function.
+    """
+    if not id:
+        details = await get_movie_detailsx(query, file=file)
+    else:
+        details = await get_movie_detailsx(query, id=True)
 
-        movie = await asyncio.to_thread(imdb.get_movie, movieid)
-        if not movie:
-            return None
-        await asyncio.to_thread(imdb.update, movie, info=['main', 'vote details'])
-        if movie.get("original air date"):
-            date = movie["original air date"]
-        elif movie.get("year"):
-            date = movie.get("year")
+    if not details or details.get("error"):
+        return None
+    
+    plot = ""
+    if not LONG_IMDB_DESCRIPTION:
+        plot = details.get('plot')
+        if plot and len(plot) > 0:
+            plot = plot[0]
+    else:
+        plot = details.get('plot outline')
+    if plot and len(plot) > 800:
+        plot = plot[0:800] + "..."
+
+    def list_to_str_internal(val):
+        if isinstance(val, list):
+            return ", ".join(str(x) for x in val if x)
+        return str(val) if val else ""
+
+    return {
+        'title': details.get('title'),
+        'votes': details.get('votes'),
+        "aka": None,
+        "seasons": details.get('seasons'),
+        "box_office": details.get('box_office'),
+        'localized_title': details.get('localized_title'),
+        'kind': 'movie' if 'movie' in details.get('tmdb_url', '') else 'tv series',
+        "imdb_id": details.get('imdb_id'),
+        "cast": list_to_str_internal(details.get("cast")),
+        "runtime": list_to_str_internal(details.get("runtime")),
+        "countries": list_to_str_internal(details.get("countries")),
+        "certificates": list_to_str_internal(details.get("certificates")),
+        "languages": list_to_str_internal(details.get("languages")),
+        "director": list_to_str_internal(details.get("director")),
+        "writer": list_to_str_internal(details.get("writer")),
+        "producer": list_to_str_internal(details.get("producer")),
+        "composer": list_to_str_internal(details.get("composer")),
+        "cinematographer": list_to_str_internal(details.get("cinematographer")),
+        "music_team": None,
+        "distributors": list_to_str_internal(details.get("distributors")),
+        'release_date': details.get('release_date'),
+        'year': details.get('year'),
+        'genres': list_to_str_internal(details.get("genres")),
+        'poster': details.get('poster_url'),
+        'backdrop': details.get('backdrop_url'),
+        'plot': plot,
+        'rating': str(details.get("rating", "N/A")),
+        'url': details.get('tmdb_url')
+    }
+    
+async def search_gagala(text):
+    usr_agent = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+        'Chrome/61.0.3163.100 Safari/537.36'
+    }
+    text = text.replace(" ", "+")
+    url = f"https://www.google.com/search?q={text}"
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=usr_agent, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                response.raise_for_status()
+                html = await response.text()
+
+        soup = await asyncio.to_thread(BeautifulSoup, html, 'html.parser')
+        titles = soup.find_all('h3')
+        return [title.get_text() for title in titles if title.get_text().strip()]
+    except Exception as e:
+        logger.warning(f"search_gagala error: {e}")
+        return []
+
+async def get_shortlink(link, grp_id, is_second_shortener=False, is_third_shortener=False):
+    settings = await get_settings(grp_id)
+    if is_third_shortener:             
+        api, site = settings['api_three'], settings['shortner_three']
+    else:
+        if is_second_shortener:
+            api, site = settings['api_two'], settings['shortner_two']
         else:
-            date = "N/A"
-        plot = ""
-        if not LONG_IMDB_DESCRIPTION:
-            plot = movie.get('plot')
-            if plot and len(plot) > 0:
-                plot = plot[0]
-        else:
-            plot = movie.get('plot outline')
-        if plot and len(plot) > 800:
-            plot = plot[0:800] + "..."
-        STANDARD_GENRES = {
-            'Action', 'Adventure', 'Animation', 'Biography', 'Comedy', 'Crime', 'Documentary',
-            'Drama', 'Family', 'Fantasy', 'Film-Noir', 'History', 'Horror', 'Music',
-            'Musical', 'Mystery', 'Romance', 'Sci-Fi', 'Sport', 'Thriller', 'War', 'Western'
-        }
-        raw_genres = movie.get("genres", "N/A")
-        if isinstance(raw_genres, str):
-            genre_list = [g.strip() for g in raw_genres.split(",")]
-            genres = ", ".join(g for g in genre_list if g in STANDARD_GENRES) or "N/A"
-        else:
-            genres = ", ".join(g for g in raw_genres if
+            api, site = settings['api'], settings['shortner']
+    shortzy = Shortzy(api, site)
+    try:
+        link = await shortzy.convert(link)
+    except Exception:
+        link = await shortzy.get_quick_link(link)
+    return link
+
+async def get_settings(group_id):
+    group_id = int(group_id)
+    settings = temp.SETTINGS.get(group_id)
+    if not settings:
+        settings = await db.get_settings(group_id)
+        temp.SETTINGS[group_id] = settings.copy()
+    return settings
+    
+async def save_group_settings(group_id, key, value):
+    group_id = int(group_id)
+    current = await get_settings(group_id)
+    current = current.copy()
+    current.update({key: value})
+    temp.SETTINGS[group_id] = current
+    await db.update_settings(group_id, current)
+
+async def delete_group_setting(group_id, key):
+    group_id = int(group_id)
+    current = await get_settings(group_id)
+    current = current.copy()
+    if key in current:
+        current.pop(key)
+        temp.SETTINGS[group_id] = current
+        await db.update_settings(group_id, current)
+
+def clean_filename(file_name):
+    prefixes = ('[', '@', 'www.')
+    unwanted = {word.lower() for word in BAD_WORDS}
+    
+    file_name = ' '.join(
+        word for word in file_name.split()
+        if not (word.startswith(prefixes) or word.lower() in unwanted)
+    )
+    return file_name
+
+def get_size(size):
+    units = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB"]
+    size = float(size)
+    i = 0
+    while size >= 1024.0 and i < len(units):
+        i += 1
+        size /= 1024.0
+    return "%.2f %s" % (size, units[i])
+
+def split_list(lst, n):
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]  
+
+def extract_request_content(message_text):
+    match = re.search(r"<u>(.*?)</u>", message_text)
+    if match:
+        return match.group(1).strip()
+    match = re.search(r"📝 ʀᴇǫᴜᴇꜱᴛ ?: ?(.*?)(?:\n|$)", message_text)
+    if match:
+        return match.group(1).strip()
+    return message_text.strip()
+
+def generate_settings_text(settings, title, reset_done=False):
+    note = "\n<b>📌 ɴᴏᴛᴇ :- ʀᴇꜱᴇᴛ ꜱᴜᴄᴄᴇꜱꜱғᴜʟʟʏ ✅</b>" if reset_done else ""
+    s_short = settings.get("shortner", "N/A")
+    s_api = settings.get("api", "N/A")
+    s_short2 = settings.get("shortner_two", "N/A")
+    s_api2 = settings.get("api_two", "N/A")
+    s_short3 = settings.get("shortner_three", "N/A")
+    s_api3 = settings.get("api_three", "N/A")
+    v_time = settings.get("verify_time", "N/A")
+    v_time3 = settings.get("third_verify_time", "N/A")
+    tut1 = settings.get("tutorial", TUTORIAL)
+    tut2 = settings.get("tutorial_2", TUTORIAL_2)
+    tut3 = settings.get("tutorial_3", TUTORIAL_3)
+    s_log = settings.get("log", "N/A")
+    s_fsub = settings.get("fsub") or settings.get("fsub_id", "N/A")
+    s_tmpl = settings.get("template", "N/A")
+    s_cap = settings.get("caption", "N/A")
+
+    out = (
+        f"<b>⚙️ ʏᴏᴜʀ sᴇᴛᴛɪɴɢs ꜰᴏʀ - {title}</b>\n\n"
+        f"✅️ <b><u>1sᴛ ᴠᴇʀɪꜰʏ sʜᴏʀᴛɴᴇʀ</u></b>\n"
+        f"<b>ɴᴀᴍᴇ</b> - <code>{s_short}</code>\n"
+        f"<b>ᴀᴘɪ</b> - <code>{s_api}</code>\n\n"
+        f"✅️ <b><u>2ɴᴅ ᴠᴇʀɪꜰʏ sʜᴏʀᴛɴᴇʀ</u></b>\n"
+        f"<b>ɴᴀᴍᴇ</b> - <code>{s_short2}</code>\n"
+        f"<b>ᴀᴘɪ</b> - <code>{s_api2}</code>\n\n"
+        f"✅️ <b><u>𝟹ʀᴅ ᴠᴇʀɪꜰʏ sʜᴏʀᴛɴᴇʀ</u></b>\n"
+        f"<b>ɴᴀᴍᴇ</b> - <code>{s_short3}</code>\n"
+        f"<b>ᴀᴘɪ</b> - <code>{s_api3}</code>\n\n"
+        f"⏰ <b>2ɴᴅ ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ᴛɪᴍᴇ</b> - <code>{v_time}</code>\n"
+        f"⏰ <b>𝟹ʀᴅ ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ᴛɪᴍᴇ</b> - <code>{v_time3}</code>\n\n"
+        f"1️⃣ <b>ᴛᴜᴛᴏʀɪᴀʟ ʟɪɴᴋ 1</b> - {tut1}\n"
+        f"2️⃣ <b>ᴛᴜᴛᴏʀɪᴀʟ ʟɪɴᴋ 2</b> - {tut2}\n"
+        f"3️⃣ <b>ᴛᴜᴛᴏʀɪᴀʟ ʟɪɴᴋ 3</b> - {tut3}\n\n"
+        f"📝 <b>ʟᴏɢ ᴄʜᴀɴɴᴇʟ ɪᴅ</b> - <code>{s_log}</code>\n"
+        f"🚫 <b>ꜰꜱᴜʙ ᴄʜᴀɴɴᴇʟ ɪᴅ</b> - <code>{s_fsub}</code>\n\n"
+        f"🎯 <b>ɪᴍᴅʙ ᴛᴇᴍᴘʟᴀᴛᴇ</b> - <code>{s_tmpl}
