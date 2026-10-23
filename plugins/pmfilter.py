@@ -816,7 +816,7 @@ async def filter_seasons_cb_handler(client: Client, query: CallbackQuery):
             await save_group_settings(query.message.chat.id, 'max_btn', True)
             btn.append([
                 InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER),
-                InlineKeyboardButton(text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.PRIMARY),
+                InlineKeyboardButton(text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.SUCCESS),
                 InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)
             ])
     else:
@@ -1822,6 +1822,16 @@ async def ai_spell_check(chat_id, wrong_name):
 
 async def advantage_spell_chok(client, message):
     search = message.text
+    user = message.from_user.id if message.from_user else 0
+
+    # ----------------- AUTO-SAVE PENDING REQUEST ----------------- #
+    try:
+        save_q = clean_search_text(search) if 'clean_search_text' in globals() else search.strip().lower()
+        if len(save_q) >= 3 and user != 0:
+            await mdb.add_pending_request(save_q, user)
+    except Exception as err:
+        logger.error(f"Error saving pending request: {err}")
+
     query = re.sub(
         r"\b(pl(i|e)*?(s|z+|ease|se|ese|(e+)s(e)?)|((send|snd|giv(e)?|gib)(\sme)?)|movie(s)?|new|latest|br((o|u)h?)*|^h(e|a)?(l)*(o)*|mal(ayalam)?|t(h)?amil|file|that|find|und(o)*|kit(t(i|y)?)?o(w)?|thar(u)?(o)*w?|kittum(o)*|aya(k)*(um(o)*)?|full\smovie|any(one)|with\ssubtitle(s)?)",
         "", message.text, flags=re.IGNORECASE)
@@ -1860,7 +1870,6 @@ async def advantage_spell_chok(client, message):
             pass
         return
 
-    user = message.from_user.id if message.from_user else 0
     buttons = []
     for movie in movies:
         safe_title = movie.title.replace("#", "").replace("\n", " ").strip()[:40]
