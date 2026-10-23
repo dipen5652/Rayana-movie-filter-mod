@@ -809,18 +809,18 @@ async def filter_seasons_cb_handler(client: Client, query: CallbackQuery):
                 max_b = int(MAX_B_TN)
                 btn.append([
                     InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER),
-                    InlineKeyboardButton(text=f"1/{math.ceil(int(total_results)/max_b)}", callback_data="pages", style=enums.ButtonStyle.PRIMARY),
+                    InlineKeyboardButton(text=f"1/{math.ceil(int(total_results)/max_b)}", callback_data="pages", style=enums.ButtonStyle.SUCCESS),
                     InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)
                 ])
         except KeyError:
             await save_group_settings(query.message.chat.id, 'max_btn', True)
             btn.append([
                 InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER),
-                InlineKeyboardButton(text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.SUCCESS),
+                InlineKeyboardButton(text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.PRIMARY),
                 InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)
             ])
     else:
-        btn.append([InlineKeyboardButton("↭  ɴᴏ ᴍᴏʀᴇ ᴘᴀɢᴇꜱ ᴀᴠᴀɪʟᴀʙʟᴇ ↭", callback_data="pages", style=enums.ButtonStyle.PRIMARY)])
+        btn.append([InlineKeyboardButton(text="↭  ɴᴏ ᴍᴏʀᴇ ᴘᴀɢᴇꜱ ᴀᴠᴀɪʟᴀʙʟᴇ ↭", callback_data="pages", style=enums.ButtonStyle.PRIMARY)])
 
     if not settings.get("button"):
         time_difference = datetime.now(pytz.timezone("Asia/Kolkata")) - start_t
