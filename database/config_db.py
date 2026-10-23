@@ -67,7 +67,7 @@ class Database:
             logger.error(f"Error saving pending request: {e}")
             return False
 
-        async def get_and_delete_pending(self, file_name: str):
+    async def get_and_delete_pending(self, file_name: str):
         if not file_name or not isinstance(file_name, str):
             return []
 
