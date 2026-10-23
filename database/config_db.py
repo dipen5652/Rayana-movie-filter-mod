@@ -67,7 +67,7 @@ class Database:
             logger.error(f"Error saving pending request: {e}")
             return False
 
-    async def get_and_delete_pending(self, file_name: str):
+        async def get_and_delete_pending(self, file_name: str):
         if not file_name or not isinstance(file_name, str):
             return []
 
@@ -93,11 +93,10 @@ class Database:
 
                 all_words_matched = all(re.search(r"\b" + re.escape(w) + r"\b", clean_file_no_tags) for w in q_words)
                 if all_words_matched:
-                    matched_docs.append(doc)
-
-            if matched_docs:
-                delete_ids = [doc["_id"] for doc in matched_docs]
-                await self.pending_col.delete_many({"_id": {"$in": delete_ids}})
+                    # find_one_and_delete use karne se duplicate parallel calls me doosri file ko ye doc nahi milega
+                    deleted_doc = await self.pending_col.find_one_and_delete({"_id": doc["_id"]})
+                    if deleted_doc:
+                        matched_docs.append(deleted_doc)
 
         except Exception as e:
             logger.error(f"Error checking pending requests: {e}")
