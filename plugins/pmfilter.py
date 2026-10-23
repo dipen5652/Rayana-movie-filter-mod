@@ -3,6 +3,7 @@ from rapidfuzz import process
 from dreamxbotz.util.file_properties import get_name, get_hash
 from urllib.parse import quote_plus
 import logging
+import hashlib
 from database.ia_filterdb import Media, Media2, get_search_results, get_bad_files
 from database.config_db import mdb
 from pyrogram.errors import MessageIdInvalid, UserIsBlocked, MessageNotModified, PeerIdInvalid
@@ -182,13 +183,33 @@ async def next_page(bot, query):
         offset = int(offset)
     except Exception:
         offset = 0
+
     if BUTTONS.get(key) is not None:
         search = BUTTONS.get(key)
     else:
         search = FRESH.get(key)
+
+    # RESTART RESILIENCE FIX: Agar bot restart ho chuka ho aur memory khali ho
+    if not search:
+        raw_text = query.message.caption or query.message.text or ""
+        match = re.search(r"🏷\s*(?:ᴛɪᴛʟᴇ|TITLE)\s*:\s*<code>(.*?)</code>", raw_text, re.IGNORECASE)
+        if match:
+            search = match.group(1).strip()
+            FRESH[key] = search
+        else:
+            # Fallback agar user title header me kisi aur layout se aaya ho
+            for line in raw_text.splitlines():
+                if "🏷" in line and ":" in line:
+                    search = line.split(":", 1)[1].strip()
+                    search = re.sub(r"<.*?>", "", search).strip()
+                    if search:
+                        FRESH[key] = search
+                        break
+
     if not search:
         await query.answer(script.OLD_ALRT_TXT.format(query.from_user.first_name), show_alert=True)
         return
+
     files, n_offset, total = await get_search_results(query.message.chat.id, search, offset=offset, filter=True)
     try:
         n_offset = int(n_offset)
@@ -296,11 +317,11 @@ async def next_page(bot, query):
                 else:
                     off_set = offset - int(MAX_B_TN)
                 if n_offset == 0:
-                    btn.append([InlineKeyboardButton("⋞ ʙᴀᴄᴋ", callback_data=f"next_{req}_{key}_{off_set}, style=enums.ButtonStyle.DANGER"), InlineKeyboardButton(
+                    btn.append([InlineKeyboardButton("⋞ ʙᴀᴄᴋ", callback_data=f"next_{req}_{key}_{off_set}", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
                         f"{math.ceil(int(offset)/int(MAX_B_TN))+1} / {math.ceil(total/int(MAX_B_TN))}", callback_data="pages", style=enums.ButtonStyle.SUCCESS)])
                 elif off_set is None:
                     btn.append([InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(
-                        f"{math.ceil(int(offset)/int(MAX_B_TN))+1} / {math.ceil(total/int(MAX_B_TN))}", callback_data="pages, style=enums.ButtonStyle.PRIMARY"), InlineKeyboardButton("ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)])
+                        f"{math.ceil(int(offset)/int(MAX_B_TN))+1} / {math.ceil(total/int(MAX_B_TN))}", callback_data="pages", style=enums.ButtonStyle.PRIMARY), InlineKeyboardButton("ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)])
                 else:
                     btn.append(
                         [
@@ -452,6 +473,14 @@ async def qualities_cb_handler(client: Client, query: CallbackQuery):
         pass
 
     search = FRESH.get(key)
+    if not search:
+        raw_text = query.message.caption or query.message.text or ""
+        match = re.search(r"🏷\s*(?:ᴛɪᴛʟᴇ|TITLE)\s*:\s*<code>(.*?)</code>", raw_text, re.IGNORECASE)
+        search = match.group(1).strip() if match else ""
+
+    if not search:
+        return await query.answer(script.OLD_ALRT_TXT.format(query.from_user.first_name), show_alert=True)
+
     search = search.replace(' ', '_')
 
     btn = []
@@ -481,6 +510,13 @@ async def filter_qualities_cb_handler(client: Client, query: CallbackQuery):
     _, qual, req, key = query.data.split("#")
     curr_time = datetime.now(pytz.timezone('Asia/Kolkata')).time()
     search = FRESH.get(key)
+    if not search:
+        raw_text = query.message.caption or query.message.text or ""
+        match = re.search(r"🏷\s*(?:ᴛɪᴛʟᴇ|TITLE)\s*:\s*<code>(.*?)</code>", raw_text, re.IGNORECASE)
+        search = match.group(1).strip() if match else ""
+    if not search:
+        return await query.answer(script.OLD_ALRT_TXT.format(query.from_user.first_name), show_alert=True)
+
     search = search.replace("_", " ")
     baal = qual in search
     if baal:
@@ -610,6 +646,13 @@ async def languages_cb_handler(client: Client, query: CallbackQuery):
         pass
 
     search = FRESH.get(key)
+    if not search:
+        raw_text = query.message.caption or query.message.text or ""
+        match = re.search(r"🏷\s*(?:ᴛɪᴛʟᴇ|TITLE)\s*:\s*<code>(.*?)</code>", raw_text, re.IGNORECASE)
+        search = match.group(1).strip() if match else ""
+    if not search:
+        return await query.answer(script.OLD_ALRT_TXT.format(query.from_user.first_name), show_alert=True)
+
     search = search.replace(' ', '_')
 
     items = list(LANGUAGES.items())
@@ -638,6 +681,13 @@ async def filter_languages_cb_handler(client: Client, query: CallbackQuery):
     _, lang, req, key = query.data.split("#")
     curr_time = datetime.now(pytz.timezone('Asia/Kolkata')).time()
     search = FRESH.get(key)
+    if not search:
+        raw_text = query.message.caption or query.message.text or ""
+        match = re.search(r"🏷\s*(?:ᴛɪᴛʟᴇ|TITLE)\s*:\s*<code>(.*?)</code>", raw_text, re.IGNORECASE)
+        search = match.group(1).strip() if match else ""
+    if not search:
+        return await query.answer(script.OLD_ALRT_TXT.format(query.from_user.first_name), show_alert=True)
+
     search = search.replace("_", " ")
     baal = lang in search
     if baal:
@@ -783,7 +833,15 @@ async def seasons_cb_handler(client: Client, query: CallbackQuery):
 async def filter_seasons_cb_handler(client: Client, query: CallbackQuery):
     start_t = datetime.now(pytz.timezone("Asia/Kolkata"))
     _, season_tag, req, key = query.data.split("#")
-    search = FRESH.get(key).replace("_", " ")
+    search = FRESH.get(key)
+    if not search:
+        raw_text = query.message.caption or query.message.text or ""
+        match = re.search(r"🏷\s*(?:ᴛɪᴛʟᴇ|TITLE)\s*:\s*<code>(.*?)</code>", raw_text, re.IGNORECASE)
+        search = match.group(1).strip() if match else ""
+    if not search:
+        return await query.answer(script.OLD_ALRT_TXT.format(query.from_user.first_name), show_alert=True)
+
+    search = search.replace("_", " ")
     season_tag = season_tag.lower()
     if season_tag == "homepage":
         search_final = search
@@ -1203,857 +1261,4 @@ async def cb_handler(client: Client, query: CallbackQuery):
             username = query.from_user.mention if query.from_user else f"User {user_id}"
             log_msg = None
 
-            # 1. Attempt to send cached media to target_channel (with fallback to LOG_CHANNEL)
-            try:
-                log_msg = await client.send_cached_media(chat_id=target_channel, file_id=file_id)
-            except Exception as channel_err:
-                logger.warning("Failed sending to channel %s: %s", target_channel, channel_err)
-                if target_channel != LOG_CHANNEL and LOG_CHANNEL and LOG_CHANNEL != -100:
-                    logger.info("Attempting fallback to LOG_CHANNEL: %s", LOG_CHANNEL)
-                    try:
-                        log_msg = await client.send_cached_media(chat_id=LOG_CHANNEL, file_id=file_id)
-                        target_channel = LOG_CHANNEL
-                    except Exception as log_err:
-                        logger.error("Fallback to LOG_CHANNEL also failed: %s", log_err)
-
-            # If sending to channel failed completely, send directly to user PM
-            if not log_msg:
-                try:
-                    await client.send_cached_media(
-                        chat_id=query.from_user.id,
-                        file_id=file_id,
-                        caption="✅ <b>Here is your file directly!</b>\n\n⚠️ <i>Stream setup failed: Ensure bot is Admin in your channel and channel ID starts with -100.</i>"
-                    )
-                    await query.answer("✅ Sent file directly to your PM!\n\nFix Channel: Ensure ID starts with -100 & Bot is Admin.", show_alert=True)
-                    return
-                except Exception as dm_err:
-                    logger.error("Direct PM send error: %s", dm_err)
-                    await query.answer("⚠️ [400 CHAT_ID_INVALID]\nBot is not an Admin in channel!\n\n1. Channel ID must start with -100\n2. Add bot as Admin with 'Post Messages' rights.", show_alert=True)
-                    return
-
-            # 2. Extract safe filename and hash (never crashes if filename is None)
-            raw_file_name = get_name(log_msg) or getattr(log_msg, 'caption', None) or 'file'
-            file_name_clean = str(raw_file_name).strip() if raw_file_name else 'file'
-            fileName = quote_plus(file_name_clean)
-            file_hash = get_hash(log_msg) if hasattr(log_msg, 'id') else ''
-
-            # 3. URL Validator: Telegram buttons strictly require valid http/https schemes with valid hosts (no localhost/0.0.0.0)
-            def _is_valid_url(u: str) -> bool:
-                if not u or not isinstance(u, str):
-                    return False
-                val = u.strip()
-                if not (val.startswith("https://") or val.startswith("http://") or val.startswith("tg://")):
-                    return False
-                low = val.lower()
-                for bad in ["localhost", "0.0.0.0", "127.0.0.1", "http://:/", "https://:/"]:
-                    if bad in low:
-                        return False
-                host = re.sub(r'^https?://', '', val).split('/')[0].split(':')[0]
-                return bool(host and '.' in host)
-
-            stream_base_url = URL.strip() if (URL and _is_valid_url(URL)) else ""
-            if not stream_base_url and FQDN and _is_valid_url(f"https://{FQDN}/"):
-                stream_base_url = f"https://{FQDN}/"
-
-            has_valid_url = bool(stream_base_url and _is_valid_url(stream_base_url))
-
-            if has_valid_url:
-                if not stream_base_url.endswith("/"):
-                    stream_base_url += "/"
-                dreamx_stream = f"{stream_base_url}watch/{str(log_msg.id)}/{fileName}?hash={file_hash}"
-                dreamx_download = f"{stream_base_url}{str(log_msg.id)}/{fileName}?hash={file_hash}"
-            else:
-                dreamx_stream = ""
-                dreamx_download = ""
-
-            # Clean UPDATE_CHNL_LNK
-            clean_update = str(UPDATE_CHNL_LNK).strip() if UPDATE_CHNL_LNK else ""
-            if clean_update.startswith("@"):
-                clean_update = f"https://t.me/{clean_update[1:]}"
-            elif clean_update and not clean_update.startswith("http"):
-                clean_update = f"https://t.me/{clean_update}"
-            if not clean_update or not _is_valid_url(clean_update):
-                clean_update = "https://t.me/telegram"
-
-            # 4. Post log notification to the channel (target_channel)
-            log_btn = []
-            if has_valid_url:
-                log_btn = [[
-                    InlineKeyboardButton("🚀 ꜰᴀꜱᴛ ᴅᴏᴡɴʟᴏᴀᴅ", url=dreamx_download),
-                    InlineKeyboardButton('🖥️ ᴡᴀᴛᴄʜ ᴏɴʟɪɴᴇ', url=dreamx_stream)
-                ]]
-
-            log_text = (
-                f"•• ʟɪɴᴋ ɢᴇɴᴇʀᴀᴛᴇᴅ ꜰᴏʀ ɪᴅ #{user_id}\n"
-                f"•• ᴜꜱᴇʀɴᴀᴍᴇ : {username}\n\n"
-                f"•• ᖴᎥᒪᗴ Nᗩᗰᗴ : {file_name_clean}"
-            )
-            if not has_valid_url:
-                log_text += "\n\n⚠️ <i>Note: Streaming URL pending (set FQDN in .env)</i>"
-
-            # Send to channel (first try reply_to_message_id, then direct)
-            try:
-                await client.send_message(
-                    chat_id=target_channel,
-                    text=log_text,
-                    reply_to_message_id=log_msg.id,
-                    reply_markup=InlineKeyboardMarkup(log_btn) if log_btn else None
-                )
-            except Exception as reply_err:
-                try:
-                    await client.send_message(
-                        chat_id=target_channel,
-                        text=log_text,
-                        reply_markup=InlineKeyboardMarkup(log_btn) if log_btn else None
-                    )
-                except Exception as send_err:
-                    logger.warning("Could not send link log to channel: %s", send_err)
-
-            # 5. Update user message buttons or provide fallback
-            if has_valid_url:
-                try:
-                    await query.answer(MSG_ALRT)
-                except Exception:
-                    pass
-
-                try:
-                    dreamcinezone = await query.edit_message_reply_markup(
-                        reply_markup=InlineKeyboardMarkup([
-                            [
-                                InlineKeyboardButton("🚀 ꜰᴀꜱᴛ ᴅᴏᴡɴʟᴏᴀᴅ ", url=dreamx_download, style=enums.ButtonStyle.PRIMARY),
-                                InlineKeyboardButton('🖥️ ᴡᴀᴛᴄʜ ᴏɴʟɪɴᴇ 🖥️', url=dreamx_stream, style=enums.ButtonStyle.SUCCESS)
-                            ],
-                            [
-                                InlineKeyboardButton('🌹 𝐉ᴏɪɴ 𝐔ᴩᴅᴀᴛᴇꜱ 𝐂ʜᴀɴɴᴇʟ 🌹', url=clean_update, style=enums.ButtonStyle.DANGER)
-                            ]
-                        ])
-                    )
-                    if DELETE_TIME:
-                        await asyncio.sleep(DELETE_TIME)
-                        try:
-                            await dreamcinezone.delete()
-                        except Exception:
-                            pass
-                    return
-                except Exception as edit_err:
-                    logger.error("Failed to edit reply markup with stream URLs: %s", edit_err)
-
-            # If no valid streaming URL (e.g. FQDN not configured in .env):
-            # Send file directly to user PM so user is never left without the movie!
-            try:
-                await client.send_cached_media(
-                    chat_id=query.from_user.id,
-                    file_id=file_id,
-                    caption=(
-                        f"✅ <b>{file_name_clean}</b>\n\n"
-                        f"⚠️ <b>Web Streaming Pending Configuration</b>\n"
-                        f"<i>Web Stream & Fast Download buttons require a public bot domain. Set <code>FQDN=your-bot.onrender.com</code> in your .env file!</i>"
-                    )
-                )
-            except Exception as direct_err:
-                logger.warning("Direct send to user PM failed: %s", direct_err)
-
-            try:
-                await query.edit_message_reply_markup(
-                    reply_markup=InlineKeyboardMarkup([
-                        [
-                            InlineKeyboardButton('🌹 𝐉ᴏɪɴ 𝐔ᴩᴅᴀᴛᴇꜱ 𝐂ʜᴀɴɴᴇʟ 🌹', url=clean_update, style=enums.ButtonStyle.DANGER)
-                        ]
-                    ])
-                )
-            except Exception:
-                pass
-
-            await query.answer(
-                "⚠️ FQDN is not configured in .env!\n\n"
-                "1. Add FQDN=your-bot.onrender.com in your bot's environment variables (Render/VPS).\n"
-                "2. File has been sent directly to your PM!",
-                show_alert=True
-            )
-            return
-
-        except Exception as e:
-            logger.error("Callback error in generate_stream_link: %s", e)
-            err_msg = str(e)
-            if "CHAT_ID_INVALID" in err_msg:
-                try:
-                    await client.send_cached_media(
-                        chat_id=query.from_user.id,
-                        file_id=file_id,
-                        caption="✅ <b>Here is your file directly!</b>\n\n⚠️ <i>Fix BIN_CHANNEL: Add bot as Admin in your channel and ensure ID starts with -100!</i>"
-                    )
-                    await query.answer("✅ Sent file directly to your PM!\n(Fix BIN_CHANNEL: Add bot as Admin with -100)", show_alert=True)
-                    return
-                except Exception:
-                    pass
-                await query.answer("⚠️ Telegram: [400 CHAT_ID_INVALID]\nBot is not an Admin in channel!\n\n1. Channel ID must start with -100\n2. Add bot as Admin in that channel.", show_alert=True)
-            elif "BUTTON_URL_INVALID" in err_msg:
-                try:
-                    await client.send_cached_media(
-                        chat_id=query.from_user.id,
-                        file_id=file_id,
-                        caption="✅ <b>Here is your file directly!</b>\n\n⚠️ <i>BUTTON_URL_INVALID: Set FQDN=your-bot.onrender.com in .env so Telegram can build valid stream links!</i>"
-                    )
-                    await query.answer("⚠️ Telegram: [400 BUTTON_URL_INVALID]\nSet FQDN in your .env!\nFile sent directly to your PM.", show_alert=True)
-                    return
-                except Exception:
-                    pass
-                await query.answer("⚠️ [400 BUTTON_URL_INVALID]\nSet FQDN=your-bot.onrender.com in .env", show_alert=True)
-            else:
-                await query.answer(f"⚠️ Stream link issue:\n{e}", show_alert=True)
-            return
-
-
-    elif query.data == "prestream":
-        await query.answer(text=script.PRE_STREAM_ALERT, show_alert=True)
-        dreamcinezone = await client.send_photo(
-            chat_id=query.message.chat.id,
-            photo="https://i.ibb.co/whf8xF7j/photo-2025-07-26-10-42-46-7531339305176793100.jpg",
-            caption=script.PRE_STREAM,
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("🚀 𝐁𝐔𝐘 𝐏𝐑𝐄𝐌𝐈𝐔𝐌 🚀", callback_data="premium_info", style=enums.ButtonStyle.DANGER)]
-            ])
-        )
-        await asyncio.sleep(DELETE_TIME)
-        await dreamcinezone.delete()
-
-
-
-
-    elif query.data == "start":
-        buttons = [[
-                    InlineKeyboardButton('✧ ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ✧', url=f'http://telegram.me/{temp.U_NAME}?startgroup=true', style=enums.ButtonStyle.SUCCESS)
-                ],[
-                    InlineKeyboardButton('𖣠‌ ʜᴇʟᴘ 𖣠‌ ', callback_data="help", style=enums.ButtonStyle.PRIMARY),
-                     InlineKeyboardButton('᪥ ᴀʙᴏᴜᴛ ᪥', callback_data="about", style=enums.ButtonStyle.PRIMARY),
-                ]]
-        reply_markup = InlineKeyboardMarkup(buttons)
-        current_time = datetime.now(pytz.timezone(TIMEZONE))
-        curr_time = current_time.hour
-        if curr_time < 12:
-            gtxt = "ɢᴏᴏᴅ ᴍᴏʀɴɪɴɢ 🌞"
-        elif curr_time < 17:
-            gtxt = "ɢᴏᴏᴅ ᴀғᴛᴇʀɴᴏᴏɴ 🌓"
-        elif curr_time < 21:
-            gtxt = "ɢᴏᴏᴅ ᴇᴠᴇɴɪɴɢ 🌘"
-        else:
-            gtxt = "ɢᴏᴏᴅ ɴɪɢʜᴛ 🌑"
-        try:
-            try:
-                PIC = f"{random.choice(PICS_URL)}?r={get_random_mix_id()}"
-            except Exception:
-                PIC = random.choice(PICS)
-            await client.edit_message_media(
-                query.message.chat.id,
-                query.message.id,
-                InputMediaPhoto(PIC)
-            )
-        except Exception:
-            pass
-        await query.message.edit_text(
-            text=script.START_TXT.format(query.from_user.mention, gtxt, temp.U_NAME, temp.B_NAME),
-            reply_markup=reply_markup,
-            parse_mode=enums.ParseMode.HTML
-        )
-        await query.answer(MSG_ALRT)
-
-    elif query.data == "donation":
-        buttons = [[
-                InlineKeyboardButton('🌲 Sᴇɴᴅ Dᴏɴᴀᴛᴇ Sᴄʀᴇᴇɴsʜᴏᴛ Hᴇʀᴇ', url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)
-            ],[
-                InlineKeyboardButton('⇍ ʙᴀᴄᴋ ⇏', callback_data='about', style=enums.ButtonStyle.DANGER)
-            ]]
-        reply_markup = InlineKeyboardMarkup(buttons)
-        await query.message.edit_text(text="● ◌ ◌")
-        await query.message.edit_text(text="● ● ◌")
-        await query.message.edit_text(text="● ● ●")
-        reply_markup = InlineKeyboardMarkup(buttons)
-        await client.edit_message_media(
-            query.message.chat.id,
-            query.message.id,
-            InputMediaPhoto('https://graph.org/file/99eebf5dbe8a134f548e0.jpg')
-        )
-        await query.message.edit_text(
-            text=script.DREAMXBOTZ_DONATION.format(query.from_user.mention, QR_CODE, OWNER_UPI_ID),
-            reply_markup=reply_markup,
-            parse_mode=enums.ParseMode.HTML
-        )
-
-    elif query.data == "help":
-        buttons = [[
-            InlineKeyboardButton('⇋ ʙᴀᴄᴋ ᴛᴏ ʜᴏᴍᴇ ⇋', callback_data='start', style=enums.ButtonStyle.DANGER)
-        ]]
-        reply_markup = InlineKeyboardMarkup(buttons)
-        await query.message.edit_text(
-            text=script.HELP_TXT,
-            reply_markup=reply_markup,
-            parse_mode=enums.ParseMode.HTML
-        )
-
-    elif query.data == "about":
-        buttons = [[
-            InlineKeyboardButton('❃ ɢʀᴏᴜᴘ ❃', url='https://t.me/movies_4uz', style=enums.ButtonStyle.SUCCESS),
-            InlineKeyboardButton (' ⫹⫺ ᴄʜᴀɴɴᴇʟ ⫹⫺ ', url='https://t.me/movies4u_backup', style=enums.ButtonStyle.SUCCESS),
-        ],[
-            InlineKeyboardButton('⇋ ʙᴀᴄᴋ ᴛᴏ ʜᴏᴍᴇ ⇋', callback_data='start', style=enums.ButtonStyle.DANGER)
-        ]]
-        reply_markup = InlineKeyboardMarkup(buttons)
-        await query.message.edit_text(
-            text=script.ABOUT_TXT.format(temp.U_NAME, temp.B_NAME, OWNER_LNK),
-            reply_markup=reply_markup,
-            parse_mode=enums.ParseMode.HTML
-        )
-
-    elif query.data == "give_trial":
-        try:
-            user_id = query.from_user.id
-            has_free_trial = await db.check_trial_status(user_id)
-            if has_free_trial:
-                await query.answer(
-                    "🚸 ʏᴏᴜ'ᴠᴇ ᴀʟʀᴇᴀᴅʏ ᴄʟᴀɪᴍᴇᴅ ʏᴏᴜʀ ꜰʀᴇᴇ ᴛʀɪᴀʟ ᴏɴᴄᴇ !\n\n📌 ᴄʜᴇᴄᴋᴏᴜᴛ ᴏᴜʀ ᴘʟᴀɴꜱ ʙʏ : /plan",
-                    show_alert=True
-                )
-                return
-            else:
-                await db.give_free_trial(user_id)
-                await query.answer("✅ Trial activated!", show_alert=True)
-
-                msg = await client.send_photo(
-                    chat_id=query.message.chat.id,
-                    photo="https://i.ibb.co/0jC8MSDZ/photo-2025-07-26-10-42-36-7531339283701956616.jpg",
-                    caption=(
-                        "<b>🥳 ᴄᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴꜱ\n\n"
-                        "🎉 ʏᴏᴜ ᴄᴀɴ ᴜsᴇ ꜰʀᴇᴇ ᴛʀᴀɪʟ ꜰᴏʀ <u>5 ᴍɪɴᴜᴛᴇs</u> ꜰʀᴏᴍ ɴᴏᴡ !\n\n"
-                        "ɴᴇᴇᴅ ᴘʀᴇᴍɪᴜᴍ 👉🏻 /plan</b>"
-                    ),
-                    parse_mode=enums.ParseMode.HTML,
-                    reply_markup=InlineKeyboardMarkup([[
-                        InlineKeyboardButton("🚀 𝐁𝐔𝐘 𝐏𝐑𝐄𝐌𝐈𝐔𝐌 🚀", callback_data="premium_info", style=enums.ButtonStyle.PRIMARY)
-                    ]])
-                )
-                await asyncio.sleep(DELETE_TIME)
-                return await msg.delete()
-        except Exception:
-            logging.exception("Error in give_trial callback")
-
-
-
-    elif query.data == "source":
-        buttons = [[
-            InlineKeyboardButton('ᴩʀᴏᴠɪᴅᴇʀʙᴏᴛᴢ', url='https://tx.me/ProviderBotz', style=enums.ButtonStyle.PRIMARY),
-            InlineKeyboardButton('⇋ ʙᴀᴄᴋ ⇋', callback_data='about', style=enums.ButtonStyle.DANGER)
-        ]]
-        reply_markup = InlineKeyboardMarkup(buttons)
-        await query.message.edit_text(
-            text=script.SOURCE_TXT,
-            reply_markup=reply_markup,
-            parse_mode=enums.ParseMode.HTML
-        )
-
-    elif query.data == "ref_point":
-        await query.answer(f'You Have: {referdb.get_refer_points(query.from_user.id)} Refferal points.', show_alert=True)
-
-    elif query.data == "disclaimer":
-            btn = [[
-                    InlineKeyboardButton("⇋ ʙᴀᴄᴋ ⇋", callback_data="about", style=enums.ButtonStyle.PRIMARY)
-                  ]]
-            reply_markup = InlineKeyboardMarkup(btn)
-            await query.message.edit_text(
-                text=(script.DISCLAIMER_TXT),
-                reply_markup=reply_markup,
-                parse_mode=enums.ParseMode.HTML
-            )
-
-    elif query.data == "premium_info":
-        try:
-            btn = [[
-                InlineKeyboardButton('• ʙᴜʏ ᴘʀᴇᴍɪᴜᴍ •', callback_data='buy_info', style=enums.ButtonStyle.PRIMARY),
-            ],[
-                InlineKeyboardButton('• ʀᴇꜰᴇʀ ꜰʀɪᴇɴᴅꜱ', callback_data='reffff', style=enums.ButtonStyle.SUCCESS),
-                InlineKeyboardButton('ꜰʀᴇᴇ ᴛʀɪᴀʟ •', callback_data='give_trial', style=enums.ButtonStyle.PRIMARY)
-            ],[
-                InlineKeyboardButton('⇋ ʙᴀᴄᴋ ᴛᴏ ʜᴏᴍᴇ ⇋', callback_data='start', style=enums.ButtonStyle.DANGER)
-            ]]
-            reply_markup = InlineKeyboardMarkup(btn)
-            await client.edit_message_media(
-                chat_id=query.message.chat.id,
-                message_id=query.message.id,
-                media=InputMediaPhoto(media=SUBSCRIPTION, caption=script.BPREMIUM_TXT, parse_mode=enums.ParseMode.HTML),
-                reply_markup=reply_markup
-            )
-        except Exception:
-            logging.exception("Exception in 'premium_info' callback")
-
-
-    elif query.data == "buy_info":
-        try:
-            btn = [[
-                InlineKeyboardButton('ꜱᴛᴀʀ', callback_data='star_info', style=enums.ButtonStyle.PRIMARY),
-                InlineKeyboardButton('ᴜᴘɪ', callback_data='upi_info', style=enums.ButtonStyle.PRIMARY)
-            ],[
-                InlineKeyboardButton('⇋ ʙᴀᴄᴋ ᴛᴏ ᴘʀᴇᴍɪᴜᴍ ⇋', callback_data='premium_info', style=enums.ButtonStyle.DANGER)
-            ]]
-            reply_markup = InlineKeyboardMarkup(btn)
-            await client.edit_message_media(
-                chat_id=query.message.chat.id,
-                message_id=query.message.id,
-                media=InputMediaPhoto(media=SUBSCRIPTION, caption=script.PREMIUM_TEXT, parse_mode=enums.ParseMode.HTML),
-                reply_markup=reply_markup
-            )
-        except Exception:
-            logging.exception("Exception in 'buy_info' callback")
-
-    elif query.data == "upi_info":
-        try:
-            btn = [[
-                InlineKeyboardButton('• ꜱᴇɴᴅ  ᴘᴀʏᴍᴇɴᴛ ꜱᴄʀᴇᴇɴꜱʜᴏᴛ •', url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY),
-            ],[
-                InlineKeyboardButton('⇋ ʙᴀᴄᴋ ⇋', callback_data='buy_info', style=enums.ButtonStyle.DANGER)
-            ]]
-            reply_markup = InlineKeyboardMarkup(btn)
-            await client.edit_message_media(
-                chat_id=query.message.chat.id,
-                message_id=query.message.id,
-                media=InputMediaPhoto(media=SUBSCRIPTION, caption=script.PREMIUM_UPI_TEXT.format(OWNER_UPI_ID), parse_mode=enums.ParseMode.HTML),
-                reply_markup=reply_markup
-            )
-        except Exception:
-            logging.exception("Exception in 'upi_info' callback")
-
-    elif query.data == "star_info":
-        try:
-            btn = [
-                InlineKeyboardButton(f"{stars}⭐", callback_data=f"buy_{stars}", style=enums.ButtonStyle.PRIMARY)
-                for stars, days in STAR_PREMIUM_PLANS.items()
-            ]
-            buttons = [btn[i:i + 2] for i in range(0, len(btn), 2)]
-            buttons.append([InlineKeyboardButton("⋞ ʙᴀᴄᴋ", callback_data="buy_info", style=enums.ButtonStyle.DANGER)])
-            reply_markup = InlineKeyboardMarkup(buttons)
-            await client.edit_message_media(
-                chat_id=query.message.chat.id,
-                message_id=query.message.id,
-                media=InputMediaPhoto(media=SUBSCRIPTION, caption=script.PREMIUM_STAR_TEXT, parse_mode=enums.ParseMode.HTML),
-                reply_markup=reply_markup
-            )
-        except Exception:
-            logging.exception("Exception in 'star' callback")
-
-
-    elif query.data.startswith("grp_pm"):
-        _, grp_id = query.data.split("#")
-        user_id = query.from_user.id if query.from_user else None
-        if not await is_check_admin(client, int(grp_id), user_id):
-            return await query.answer(script.NT_ADMIN_ALRT_TXT, show_alert=True)
-
-        btn = await group_setting_buttons(int(grp_id))
-        dreamx = await client.get_chat(int(grp_id))
-        await query.message.edit(text=await get_settings_text(grp_id, dreamx.title), reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML)
-
-    elif query.data.startswith("removegrp"):
-        user_id = query.from_user.id
-        data = query.data
-        grp_id = int(data.split("#")[1])
-        if not await is_check_admin(client, grp_id, query.from_user.id):
-            return await query.answer(script.NT_ADMIN_ALRT_TXT, show_alert=True)
-        await db.remove_group_connection(grp_id, user_id)
-        await query.answer("Group removed from your connections.", show_alert=True)
-        connected_groups = await db.get_connected_grps(user_id)
-        if not connected_groups:
-            await query.edit_message_text("Nᴏ Cᴏɴɴᴇᴄᴛᴇᴅ Gʀᴏᴜᴘs Fᴏᴜɴᴅ .")
-            return
-        group_list = []
-        for group in connected_groups:
-            try:
-                Chat = await client.get_chat(group)
-                group_list.append([
-                    InlineKeyboardButton(
-                        text=Chat.title, callback_data=f"grp_pm#{Chat.id}")
-                ])
-            except Exception:
-                pass
-        await query.edit_message_text(
-            "⚠️ ꜱᴇʟᴇᴄᴛ ᴛʜᴇ ɢʀᴏᴜᴘ ᴡʜᴏꜱᴇ ꜱᴇᴛᴛɪɴɢꜱ ʏᴏᴜ ᴡᴀɴᴛ ᴛᴏ ᴄʜᴀɴɢᴇ.\n\n"
-            "ɪꜰ ʏᴏᴜʀ ɢʀᴏᴜᴘ ɪꜱ ɴᴏᴛ ꜱʜᴏᴡɪɴɢ ʜᴇʀᴇ,\n"
-            "ᴜꜱᴇ /reload ɪɴ ᴛʜᴀᴛ ɢʀᴏᴜᴘ ᴀɴᴅ ɪᴛ ᴡɪʟʟ ᴀᴘᴘᴇᴀʀ ʜᴇʀᴇ.",
-            reply_markup=InlineKeyboardMarkup(group_list)
-        )
-
-    elif query.data.startswith("setgs"):
-        ident, set_type, status, grp_id = query.data.split("#")
-        userid = query.from_user.id if query.from_user else None
-        if not await is_check_admin(client, int(grp_id), userid):
-            await query.answer(script.NT_ADMIN_ALRT_TXT, show_alert=True)
-            return
-        if status == "True":
-            await save_group_settings(int(grp_id), set_type, False)
-            await query.answer("ᴏꜰꜰ ✗")
-        else:
-            await save_group_settings(int(grp_id), set_type, True)
-            await query.answer("ᴏɴ ✓")
-        settings = await get_settings(int(grp_id))
-        if settings is not None:
-            btn = await group_setting_buttons(int(grp_id))
-            reply_markup = InlineKeyboardMarkup(btn)
-            await query.message.edit_reply_markup(reply_markup)
-    await query.answer(MSG_ALRT)
-
-
-async def auto_filter(client, msg, spoll=False):
-    """
-    Core auto_filter logic with timing/debug logging removed.
-    """
-    curr_time = datetime.now(pytz.timezone('Asia/Kolkata')).time()
-
-    async def _schedule_delete(sent_obj, orig_msg, delay):
-        try:
-            await asyncio.sleep(delay)
-            try:
-                await sent_obj.delete()
-            except Exception:
-                pass
-            try:
-                await orig_msg.delete()
-            except Exception:
-                pass
-        except Exception:
-            # ignore scheduling errors
-            pass
-    m = None
-    try:
-        if not spoll:
-            message = msg
-            if message.text.startswith("/"):
-                return
-            if re.findall(r"((^\/|^,|^!|^\.|^[\U0001F600-\U000E007F]).*)", message.text):
-                return
-            if len(message.text) < 100:
-                message_text = message.text or ""
-                search = message_text.lower()
-                m = await message.reply_text(script.SEARCHING_TXT.format(search))
-                find = search.split(" ")
-                search = ""
-                removes = ["in", "upload", "series", "full",
-                           "horror", "thriller", "mystery", "print", "file"]
-                for x in find:
-                    if x in removes:
-                        continue
-                    else:
-                        search = search + x + " "
-                search = re.sub(r"\b(pl(i|e)*?(s|z+|ease|se|ese|(e+)s(e)?)|((send|snd|giv(e)?|gib)(\sme)?)|movie(s)?|new|latest|bro|bruh|broh|helo|that|find|dubbed|link|venum|iruka|pannunga|pannungga|anuppunga|anupunga|anuppungga|anupungga|film|undo|kitti|kitty|tharu|kittumo|kittum|movie|any(one)|with\ssubtitle(s)?)\b", "", search, flags=re.IGNORECASE)
-                search = search.replace("-", " ")
-                search = re.sub(r"[:']", "", search)
-                search = re.sub(r"\s+", " ", search).strip()
-                files, offset, total_results = await get_search_results(message.chat.id, search, offset=0, filter=True)
-                settings = await get_settings(message.chat.id)
-                if not files:
-                    if settings.get("spell_check"):
-                        ai_sts = await m.edit('🤖 ᴘʟᴇᴀꜱᴇ ᴡᴀɪᴛ, ᴀɪ ɪꜱ ᴄʜᴇᴄᴋɪɴɢ ʏᴏᴜʀ ꜱᴘᴇʟʟɪɴɢ...')
-                        is_misspelled = await ai_spell_check(chat_id=message.chat.id, wrong_name=search)
-                        if is_misspelled:
-                            await ai_sts.edit(f'✅ Aɪ Sᴜɢɢᴇsᴛᴇᴅ: <code>{is_misspelled}</code>\n🔍 Searching for it...')
-                            message.text = is_misspelled
-                            await ai_sts.delete()
-                            return await auto_filter(client, message)
-                        await ai_sts.delete()
-                        result = await advantage_spell_chok(client, message)
-                        return result
-                    else:
-                        try:
-                            if m:
-                                await m.delete()
-                        except Exception:
-                            pass
-                        result = await advantage_spell_chok(client, message)
-                        return result
-            else:
-                return
-        else:
-            # FIX 3: NoneType crash - reply_to_message can be None (your Render error line 1741)
-            try:
-                message = msg.message.reply_to_message
-                if message is None:
-                    message = msg.message
-                search, files, offset, total_results = spoll
-                try:
-                    m = await message.reply_text(f'🔎 sᴇᴀʀᴄʜɪɴɢ {search}')
-                except AttributeError:
-                    m = await msg.message.reply_text(f'🔎 sᴇᴀʀᴄʜɪɴɢ {search}')
-                settings = await get_settings(message.chat.id)
-                try:
-                    await msg.message.delete()
-                except Exception:
-                    pass
-            except Exception as e:
-                logger.error(f"Error in spoll path: {e}", exc_info=True)
-                try:
-                    message = msg.message
-                    search, files, offset, total_results = spoll
-                    m = await message.reply_text(f'🔎 sᴇᴀʀᴄʜɪɴɢ {search}')
-                    settings = await get_settings(message.chat.id)
-                except Exception as e2:
-                    logger.error(f"Fallback also failed: {e2}")
-                    return
-        key = f"{message.chat.id}-{message.id}"
-        FRESH[key] = search
-        temp.GETALL[key] = files
-        req = message.from_user.id if message.from_user else 0
-        temp.SHORT[message.from_user.id] = message.chat.id
-        try:
-            await client.send_reaction(chat_id=message.chat.id, message_id=message.id, emoji="🍿")
-        except Exception:
-            pass
-        if settings.get('button'):
-            btn = [
-                [
-                    InlineKeyboardButton(text=f"{get_size(file.file_size)} ≽ " + clean_filename(
-                        file.file_name), callback_data=f'file#{file.file_id}'),
-                ]
-                for file in files
-            ]
-            btn.insert(0,
-                       [
-                           InlineKeyboardButton(
-                               '𝐐ᴜᴀʟɪᴛʏ', callback_data=f"qualities#{req}#{key}", style=enums.ButtonStyle.DANGER),
-                           InlineKeyboardButton(
-                               "𝐋ᴀɴɢᴜᴀɢᴇ", callback_data=f"languages#{req}#{key}", style=enums.ButtonStyle.PRIMARY),
-                           InlineKeyboardButton(
-                               "𝐒ᴇᴀsᴏɴ",  callback_data=f"seasons#{req}#{key}", style=enums.ButtonStyle.DANGER)
-                       ]
-                       )
-            [
-    InlineKeyboardButton(
-        "🗃️ Sᴇɴᴅ Aʟʟ 🗃️",
-        callback_data=...,
-        style=enums.ButtonStyle.SUCCESS
-    )
-            ]
-        else:
-            btn = []
-            btn.insert(0,
-                       [
-                           InlineKeyboardButton(
-                               '𝐐ᴜᴀʟɪᴛʏ', callback_data=f"qualities#{req}#{key}", style=enums.ButtonStyle.DANGER),
-                           InlineKeyboardButton(
-                               "𝐋ᴀɴɢᴜᴀɢᴇ", callback_data=f"languages#{req}#{key}", style=enums.ButtonStyle.PRIMARY),
-                           InlineKeyboardButton(
-                               "𝐒ᴇᴀsᴏɴ",  callback_data=f"seasons#{req}#{key}", style=enums.ButtonStyle.DANGER)
-                       ]
-                       )
-            [
-    InlineKeyboardButton(
-        "🗃️ Sᴇɴᴅ Aʟʟ 🗃️",
-        callback_data=...,
-        style=enums.ButtonStyle.SUCCESS
-    )
-            ]
-
-        if offset != "":
-            req = message.from_user.id if message.from_user else 0
-            if ULTRA_FAST_MODE:
-                btn.append(
-                    [InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
-                        text="1", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)]
-                )
-            else:
-                try:
-                    if settings['max_btn']:
-                        btn.append(
-                            [InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
-                                text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)]
-                        )
-                    else:
-                        btn.append(
-                            [InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
-                                text=f"1/{math.ceil(int(total_results)/int(MAX_B_TN))}", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)]
-                        )
-                except KeyError:
-                    await save_group_settings(message.chat.id, 'max_btn', True)
-                    btn.append(
-                        [InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER), InlineKeyboardButton(
-                            text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages", style=enums.ButtonStyle.SUCCESS), InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{offset}", style=enums.ButtonStyle.DANGER)]
-                    )
-        else:
-            btn.append([InlineKeyboardButton(
-                text="↭ ɴᴏ ᴍᴏʀᴇ ᴘᴀɢᴇꜱ ᴀᴠᴀɪʟᴀʙʟᴇ ↭", callback_data="pages")])
-
-        if settings.get('imdb'):
-            imdb = await get_posterx(search, file=(files[0]).file_name) if TMDB_POSTER else await get_poster(search, file=(files[0]).file_name)
-        else:
-            imdb = None
-        cur_time = datetime.now(pytz.timezone('Asia/Kolkata')).time()
-        time_difference = timedelta(hours=cur_time.hour, minutes=cur_time.minute, seconds=(cur_time.second+(cur_time.microsecond/1000000))) - \
-            timedelta(hours=curr_time.hour, minutes=curr_time.minute,
-                      seconds=(curr_time.second+(curr_time.microsecond/1000000)))
-        remaining_seconds = "{:.2f}".format(time_difference.total_seconds())
-        TEMPLATE = script.IMDB_TEMPLATE_TXT
-        settings = await get_settings(message.chat.id)
-        if settings.get('template'):
-            TEMPLATE = settings['template']
-        if imdb:
-            cap = TEMPLATE.format(
-                query=search,
-                title=imdb['title'],
-                votes=imdb['votes'],
-                aka=imdb["aka"],
-                seasons=imdb["seasons"],
-                box_office=imdb['box_office'],
-                localized_title=imdb['localized_title'],
-                kind=imdb['kind'],
-                imdb_id=imdb["imdb_id"],
-                cast=imdb['cast'],
-                runtime=imdb['runtime'],
-                countries=imdb['countries'],
-                certificates=imdb['certificates'],
-                languages=imdb['languages'],
-                director=imdb['director'],
-                writer=imdb['writer'],
-                producer=imdb['producer'],
-                composer=imdb['composer'],
-                cinematographer=imdb['cinematographer'],
-                music_team=imdb['music_team'],
-                distributors=imdb['distributors'],
-                release_date=imdb['release_date'],
-                year=imdb['year'],
-                genres=imdb['genres'],
-                poster=imdb['poster'],
-                plot=imdb['plot'] if settings.get('button') else "N/A",
-                rating=imdb['rating'],
-                url=imdb['url'],
-                **locals()
-            )
-            temp.IMDB_CAP[message.from_user.id] = cap
-            if not settings.get('button'):
-                cap += "\n\n<b><u>Your Requested Files Are Here</u></b>\n\n"
-                for idx, file in enumerate(files, start=1):
-                    cap += f"\n📀 <b>{get_size(file.file_size)}</b>\n╰⌯⌲ 📁 <b><a href='https://telegram.me/{temp.U_NAME}?start=file_{message.chat.id}_{file.file_id}'>{clean_filename(file.file_name)}</a></b>\n"
-        else:
-            temp.IMDB_CAP[message.from_user.id] = None
-            if ULTRA_FAST_MODE:
-                if settings.get('button'):
-                    cap = f"<b>🏷 ᴛɪᴛʟᴇ : <code>{search}</code>\n⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n\n🗳 ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ : {message.from_user.mention}\n⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : ⚡ {message.chat.title or temp.B_LINK or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'} \n\n<u>Your Requested Files Are Here</u> \n\n</b>"
-                else:
-                    cap = f"<b>🏷 ᴛɪᴛʟᴇ : <code>{search}</code>\n⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n\n🗳 ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ : {message.from_user.mention}\n⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : ⚡ {message.chat.title or temp.B_LINK or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'} \n\n<u>Your Requested Files Are Here</u> \n\n</b>"
-                    for idx, file in enumerate(files, start=1):
-                        cap += f"\n📀 <b>{get_size(file.file_size)}</b>\n╰⌯⌲ 📁 <b><a href='https://telegram.me/{temp.U_NAME}?start=file_{message.chat.id}_{file.file_id}'>{clean_filename(file.file_name)}</a></b>\n"
-            else:
-                if settings.get('button'):
-                    cap = f"<b>🏷 ᴛɪᴛʟᴇ : <code>{search}</code>\n🧱 ᴛᴏᴛᴀʟ ꜰɪʟᴇꜱ : <code>{total_results}</code>\n⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n\n📝 ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ : {message.from_user.mention}\n⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : ⚡ {message.chat.title or temp.B_LINK or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'} \n\n<u>Your Requested Files Are Here</u> \n\n</b>"
-                else:
-                    cap = f"<b>🏷 ᴛɪᴛʟᴇ : <code>{search}</code>\n🧱 ᴛᴏᴛᴀʟ ꜰɪʟᴇꜱ : <code>{total_results}</code>\n⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n\n📝 ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ : {message.from_user.mention}\n⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : ⚡ {message.chat.title or temp.B_LINK or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'} \n\n<u>Your Requested Files Are Here</u> \n\n</b>"
-                    for idx, file in enumerate(files, start=1):
-                        cap += f"\n📀 <b>{get_size(file.file_size)}</b>\n╰⌯⌲ 📁 <b><a href='https://telegram.me/{temp.U_NAME}?start=file_{message.chat.id}_{file.file_id}'>{clean_filename(file.file_name)}</a></b>\n"
-        try:
-            if imdb and imdb.get('poster'):
-                try:
-                    if TMDB_POSTER:
-                        photo = imdb.get('backdrop') if imdb.get('backdrop') and LANDSCAPE_POSTER else imdb.get('poster')
-                    else:
-                        photo = imdb.get('poster')
-                    sent = await message.reply_photo(photo=photo, caption=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML, link_preview_options=LinkPreviewOptions(is_disabled=True))
-                    if m:
-                        await m.delete()
-                except (MediaEmpty, PhotoInvalidDimensions, WebpageMediaEmpty):
-                    pic = imdb.get('poster')
-                    poster = pic.replace('.jpg', "._V1_UX360.jpg")
-                    sent = await message.reply_photo(photo=poster, caption=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML)
-                    if m:
-                        await m.delete()
-                except Exception as e:
-                    logger.exception(e)
-                    sent = await message.reply_text(text=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML, link_preview_options=LinkPreviewOptions(is_disabled=True))
-            else:
-                sent = await message.reply_text(text=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML, link_preview_options=LinkPreviewOptions(is_disabled=True))
-                if m:
-                    await m.delete()
-        except Exception as e:
-            logger.exception("Failed to send result: %s", e)
-            return
-        try:
-            if settings.get('auto_delete'):
-                asyncio.create_task(_schedule_delete(sent, message, DELETE_TIME))
-        except KeyError:
-            try:
-                await save_group_settings(message.chat.id, 'auto_delete', True)
-            except Exception:
-                pass
-            asyncio.create_task(_schedule_delete(sent, message, DELETE_TIME))
-        return
-    except Exception as e:
-        logger.exception(e)
-        return
-
-async def ai_spell_check(chat_id, wrong_name):
-    async def search_movie(wrong_name):
-        search_results = imdb.search_movie(wrong_name)
-        if not search_results or not hasattr(search_results, "titles"):
-            return []
-        movie_list = [movie.title for movie in search_results.titles]
-        return movie_list
-    movie_list = await search_movie(wrong_name)
-    if not movie_list:
-        return
-    for _ in range(5):
-        closest_match = process.extractOne(wrong_name, movie_list)
-        if not closest_match or closest_match[1] <= 80:
-            return
-        movie = closest_match[0]
-        files, _, _ = await get_search_results(chat_id=chat_id, query=movie)
-        if files:
-            return movie
-        movie_list.remove(movie)
-
-async def advantage_spell_chok(client, message):
-    search = message.text
-    query = re.sub(
-        r"\b(pl(i|e)*?(s|z+|ease|se|ese|(e+)s(e)?)|((send|snd|giv(e)?|gib)(\sme)?)|movie(s)?|new|latest|br((o|u)h?)*|^h(e|a)?(l)*(o)*|mal(ayalam)?|t(h)?amil|file|that|find|und(o)*|kit(t(i|y)?)?o(w)?|thar(u)?(o)*w?|kittum(o)*|aya(k)*(um(o)*)?|full\smovie|any(one)|with\ssubtitle(s)?)",
-        "", message.text, flags=re.IGNORECASE)
-    query = query.strip() + " movie"
-    try:
-        movies = await get_poster(search, bulk=True)
-    except Exception as e:
-        logger.exception("get_poster failed for query=%s: %s", query, e)
-        try:
-            k = await message.reply(script.I_CUDNT.format(message.from_user.mention))
-            await asyncio.sleep(60)
-            try:
-                await k.delete()
-            except Exception:
-                pass
-        except Exception:
-            pass
-        try:
-            await message.delete()
-        except Exception:
-            pass
-        return
-    if not movies:
-        google = quote_plus(search)
-        button = [[InlineKeyboardButton(
-            "ʀᴇǫᴜᴇsᴛ 📝 ᴀᴅᴍɪɴ", url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)]]
-        k = await message.reply_text(text=script.I_CUDNT.format(search), reply_markup=InlineKeyboardMarkup(button))
-        await asyncio.sleep(60)
-        await k.delete()
-        try:
-            await message.delete()
-        except Exception:
-            pass
-        return
-    user = message.from_user.id if message.from_user else 0
-    # FIX 1: Title direct store, not imdb_id - button click won't need TMDB API
-    buttons = []
-    for movie in movies:
-        safe_title = movie.title.replace("#", "").replace("\n", " ").strip()[:40]
-        if not safe_title:
-            safe_title = movie.title[:40]
-        buttons.append([InlineKeyboardButton(text=movie.title, callback_data=f"spol#{safe_title}#{user}")])
-
-    buttons.append([InlineKeyboardButton(
-        text="🚫 ᴄʟᴏsᴇ 🚫", callback_data='close_data', style=enums.ButtonStyle.DANGER)])
-    d = await message.reply_text(text=script.CUDNT_FND.format(message.from_user.mention), reply_markup=InlineKeyboardMarkup(buttons))
-    await asyncio.sleep(60)
-    await d.delete()
-    try:
-        await message.delete()
-    except Exception:
-        pass
-    
+            # 1. Attempt to
