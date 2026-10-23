@@ -41,7 +41,7 @@ class temp(object):
     BANNED_USERS = []
     BANNED_CHATS = []
     ME = None
-    CURRENT=int(os.environ.get("SKIP", 2))
+    CURRENT = int(os.environ.get("SKIP", 2))
     CANCEL = False
     B_USERS_CANCEL = False
     B_GROUPS_CANCEL = False 
@@ -107,7 +107,6 @@ async def is_subscribed(bot, user_id, fsub_channels):
     
     async def check_channel(channel_id):
         try:
-            # No need to get chat object separately
             await bot.get_chat_member(channel_id, user_id)
         except UserNotParticipant:
             try:
@@ -412,78 +411,4 @@ async def old_get_poster(query, bulk=False, id=False, file=None):
             genre_list = [g.strip() for g in raw_genres.split(",")]
             genres = ", ".join(g for g in genre_list if g in STANDARD_GENRES) or "N/A"
         else:
-            genres = ", ".join(g for g in raw_genres if g in STANDARD_GENRES) or "N/A"
-            
-        return {
-            'title': movie.get('title'),
-            'votes': movie.get('votes'),
-            "aka": list_to_str(movie.get("akas")),
-            "seasons": movie.get("number of seasons"),
-            "box_office": movie.get('box office'),
-            'localized_title': movie.get('localized title'),
-            'kind': movie.get("kind"),
-            "imdb_id": f"tt{movie.get('imdbID')}",
-            "cast": list_to_str(movie.get("cast")),
-            "runtime": list_to_str(movie.get("runtimes")),
-            "countries": list_to_str(movie.get("countries")),
-            "certificates": list_to_str(movie.get("certificates")),
-            "languages": list_to_str(movie.get("languages")),
-            "director": list_to_str(movie.get("director")),
-            "writer": list_to_str(movie.get("writer")),
-            "producer": list_to_str(movie.get("producer")),
-            "composer": list_to_str(movie.get("composer")),
-            "cinematographer": list_to_str(movie.get("cinematographer")),
-            "music_team": list_to_str(movie.get("music department")),
-            "distributors": list_to_str(movie.get("distributors")),
-            'release_date': date,
-            'year': movie.get('year'),
-            'genres': genres,
-            'poster': movie.get('full-size cover url'),
-            'plot': plot,
-            'rating': str(movie.get("rating")),
-            'url': f'https://www.imdb.com/title/tt{movieid}'
-        }
-    except Exception as e:
-        logger.error(f"Error in old_get_poster: {e}")
-        return None
-    
-async def get_posterx(query, bulk=False, id=False, file=None):
-    """
-    Fetches movie details from TMDB using the get_movie_detailsx helper
-    and formats the output to be compatible with the original get_poster function.
-    """
-    if not id:
-        details = await get_movie_detailsx(query, file=file)
-    else:
-        details = await get_movie_detailsx(query, id=True)
-
-    if not details or details.get("error"):
-        return None
-    
-    plot = ""
-    if not LONG_IMDB_DESCRIPTION:
-        plot = details.get('plot')
-        if plot and len(plot) > 0:
-            plot = plot[0]
-    else:
-        plot = details.get('plot outline')
-    if plot and len(plot) > 800:
-        plot = plot[0:800] + "..."
-
-    def list_to_str_internal(val):
-        if isinstance(val, list):
-            return ", ".join(str(x) for x in val if x)
-        return str(val) if val else ""
-
-    return {
-        'title': details.get('title'),
-        'votes': details.get('votes'),
-        "aka": None,
-        "seasons": details.get('seasons'),
-        "box_office": details.get('box_office'),
-        'localized_title': details.get('localized_title'),
-        'kind': 'movie' if 'movie' in details.get('tmdb_url', '') else 'tv series',
-        "imdb_id": details.get('imdb_id'),
-        "cast": list_to_str_internal(details.get("cast")),
-        "runtime": list_to_str_internal(details.get("runtime")),
-        
+            genres = ", ".join(g for g in raw_genres if
