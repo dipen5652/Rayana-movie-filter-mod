@@ -224,7 +224,6 @@ async def add_name_to_db(filename):
     """
     Helper function to add a filename to the database.
     """
-    
     return await db.add_name(filename) 
 
 
@@ -232,7 +231,6 @@ def listx_to_str(k):
     if k is None or k == "":
         return "N/A"
     
-    # Handle non-iterable types first
     if not hasattr(k, '__iter__') or isinstance(k, (str, int, float)):
         return str(k)
     
@@ -455,10 +453,8 @@ async def get_posterx(query, bulk=False, id=False, file=None):
     and formats the output to be compatible with the original get_poster function.
     """
     if not id:
-        # The get_movie_detailsx function handles searching by query string.
         details = await get_movie_detailsx(query, file=file)
     else:
-        # Assumes the 'id' is a TMDB ID or IMDb ID that get_movie_detailsx can handle.
         details = await get_movie_detailsx(query, id=True)
 
     if not details or details.get("error"):
@@ -474,9 +470,7 @@ async def get_posterx(query, bulk=False, id=False, file=None):
     if plot and len(plot) > 800:
         plot = plot[0:800] + "..."
 
-    # --- Mapping TMDB keys to the original IMDb key format ---
-
-    def list_to_str(val):
+    def list_to_str_internal(val):
         if isinstance(val, list):
             return ", ".join(str(x) for x in val if x)
         return str(val) if val else ""
@@ -484,149 +478,12 @@ async def get_posterx(query, bulk=False, id=False, file=None):
     return {
         'title': details.get('title'),
         'votes': details.get('votes'),
-        "aka": None,  # Not typically provided by TMDB in this format
+        "aka": None,
         "seasons": details.get('seasons'),
         "box_office": details.get('box_office'),
         'localized_title': details.get('localized_title'),
         'kind': 'movie' if 'movie' in details.get('tmdb_url', '') else 'tv series',
         "imdb_id": details.get('imdb_id'),
-        "cast": list_to_str(details.get("cast")),
-        "runtime": list_to_str(details.get("runtime")),
-        "countries": list_to_str(details.get("countries")),
-        "certificates": list_to_str(details.get("certificates")),
-        "languages": list_to_str(details.get("languages")),
-        "director": list_to_str(details.get("director")),
-        "writer": list_to_str(details.get("writer")),
-        "producer": list_to_str(details.get("producer")),
-        "composer": list_to_str(details.get("composer")),
-        "cinematographer": list_to_str(details.get("cinematographer")),
-        "music_team": None, # Not provided by the TMDB API wrapper
-        "distributors": list_to_str(details.get("distributors")),
-        'release_date': details.get('release_date'),
-        'year': details.get('year'),
-        'genres': list_to_str(details.get("genres")),
-        'poster': details.get('poster_url'),
-        'backdrop' : details.get('backdrop_url'),
-        'plot': plot,
-        'rating': str(details.get("rating", "N/A")),
-        'url': details.get('tmdb_url')
-    }
-    
-async def search_gagala(text):
-    usr_agent = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-        'Chrome/61.0.3163.100 Safari/537.36'
-    }
-    text = text.replace(" ", "+")
-    url = f"https://www.google.com/search?q={text}"
-
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=usr_agent, timeout=aiohttp.ClientTimeout(total=10)) as response:
-                response.raise_for_status()
-                html = await response.text()
-
-        soup = await asyncio.to_thread(BeautifulSoup, html, 'html.parser')
-        titles = soup.find_all('h3')
-        return [title.get_text() for title in titles if title.get_text().strip()]
-    except Exception as e:
-        logger.warning(f"search_gagala error: {e}")
-        return []
-
-async def get_shortlink(link, grp_id, is_second_shortener=False, is_third_shortener=False):
-    settings = await get_settings(grp_id)
-    if is_third_shortener:             
-        api, site = settings['api_three'], settings['shortner_three']
-    else:
-        if is_second_shortener:
-            api, site = settings['api_two'], settings['shortner_two']
-        else:
-            api, site = settings['api'], settings['shortner']
-    shortzy = Shortzy(api, site)
-    try:
-        link = await shortzy.convert(link)
-    except Exception:
-        link = await shortzy.get_quick_link(link)
-    return link
-
-async def get_settings(group_id):
-    group_id = int(group_id)
-    settings = temp.SETTINGS.get(group_id)
-    if not settings:
-        settings = await db.get_settings(group_id)
-        temp.SETTINGS[group_id] = settings.copy()
-    return settings
-    
-async def save_group_settings(group_id, key, value):
-    group_id = int(group_id)
-    current = await get_settings(group_id)
-    current = current.copy()
-    current.update({key: value})
-    temp.SETTINGS[group_id] = current
-    await db.update_settings(group_id, current)
-
-async def delete_group_setting(group_id, key):
-    group_id = int(group_id)
-    current = await get_settings(group_id)
-    current = current.copy()
-    if key in current:
-        current.pop(key)
-        temp.SETTINGS[group_id] = current
-        await db.update_settings(group_id, current)
-
-def clean_filename(file_name):
-    prefixes = ('[', '@', 'www.')
-    unwanted = {word.lower() for word in BAD_WORDS}
-    
-    file_name = ' '.join(
-        word for word in file_name.split()
-        if not (word.startswith(prefixes) or word.lower() in unwanted)
-    )
-    return file_name
-
-def get_size(size):
-    units = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB"]
-    size = float(size)
-    i = 0
-    while size >= 1024.0 and i < len(units):
-        i += 1
-        size /= 1024.0
-    return "%.2f %s" % (size, units[i])
-
-def split_list(lst, n):
-    for i in range(0, len(lst), n):
-        yield lst[i:i + n]  
-
-def extract_request_content(message_text):
-    match = re.search(r"<u>(.*?)</u>", message_text)
-    if match:
-        return match.group(1).strip()
-    match = re.search(r"📝 ʀᴇǫᴜᴇꜱᴛ ?: ?(.*?)(?:\n|$)", message_text)
-    if match:
-        return match.group(1).strip()
-    return message_text.strip()
-
-def generate_settings_text(settings, title, reset_done=False):
-    note = "\n<b>📌 ɴᴏᴛᴇ :- ʀᴇꜱᴇᴛ ꜱᴜᴄᴄᴇꜱꜱғᴜʟʟʏ ✅</b>" if reset_done else ""
-    return f"""<b>⚙️ ʏᴏᴜʀ sᴇᴛᴛɪɴɢs ꜰᴏʀ - {title}</b>
-
-✅️ <b><u>1sᴛ ᴠᴇʀɪꜰʏ sʜᴏʀᴛɴᴇʀ</u></b>
-<b>ɴᴀᴍᴇ</b> - <code>{settings.get("shortner", "N/A")}</code>
-<b>ᴀᴘɪ</b> - <code>{settings.get("api", "N/A")}</code>
-
-✅️ <b><u>2ɴᴅ ᴠᴇʀɪꜰʏ sʜᴏʀᴛɴᴇʀ</u></b>
-<b>ɴᴀᴍᴇ</b> - <code>{settings.get("shortner_two", "N/A")}</code>
-<b>ᴀᴘɪ</b> - <code>{settings.get("api_two", "N/A")}</code>
-
-✅️ <b><u>𝟹ʀᴅ ᴠᴇʀɪꜰʏ sʜᴏʀᴛɴᴇʀ</u></b>
-<b>ɴᴀᴍᴇ</b> - <code>{settings.get("shortner_three", "N/A")}</code>
-<b>ᴀᴘɪ</b> - <code>{settings.get("api_three", "N/A")}</code>
-
-⏰ <b>2ɴᴅ ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ᴛɪᴍᴇ</b> - <code>{settings.get("verify_time", "N/A")}</code>
-⏰ <b>𝟹ʀᴅ ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ᴛɪᴍᴇ</b> - <code>{settings.get("third_verify_time", "N/A")}</code>
-
-1️⃣ <b>ᴛᴜᴛᴏʀɪᴀʟ ʟɪɴᴋ 1</b> - {settings.get("tutorial", TUTORIAL)}
-2️⃣ <b>ᴛᴜᴛᴏʀɪᴀʟ ʟɪɴᴋ 2</b> - {settings.get("tutorial_2", TUTORIAL_2)}
-3️⃣ <b>ᴛᴜᴛᴏʀɪᴀʟ ʟɪɴᴋ 3</b> - {settings.get("tutorial_3", TUTORIAL_3)}
-
-📝 <b>ʟᴏɢ ᴄʜᴀɴɴᴇ
+        "cast": list_to_str_internal(details.get("cast")),
+        "runtime": list_to_str_internal(details.get("runtime")),
+        
