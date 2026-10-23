@@ -182,7 +182,6 @@ async def next_page(bot, query):
     else:
         search = FRESH.get(key)
 
-    # RESTART RESILIENCE FIX: Agar bot restart hone se memory khali ho
     if not search:
         raw_text = query.message.caption or query.message.text or ""
         match = re.search(r"🏷\s*(?:ᴛɪᴛʟᴇ|TITLE|Title)\s*:\s*<code>(.*?)</code>", raw_text, re.IGNORECASE)
@@ -810,7 +809,7 @@ async def filter_seasons_cb_handler(client: Client, query: CallbackQuery):
                 max_b = int(MAX_B_TN)
                 btn.append([
                     InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages", style=enums.ButtonStyle.DANGER),
-                    InlineKeyboardButton(text=f"1/{math.ceil(int(total_results)/max_b)}", callback_data="pages", style=enums.ButtonStyle.SUCCESS),
+                    InlineKeyboardButton(text=f"1/{math.ceil(int(total_results)/max_b)}", callback_data="pages", style=enums.ButtonStyle.PRIMARY),
                     InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{n_offset}", style=enums.ButtonStyle.DANGER)
                 ])
         except KeyError:
@@ -1764,7 +1763,7 @@ async def auto_filter(client, msg, spoll=False):
                         photo = imdb_poster.get('backdrop') if imdb_poster.get('backdrop') and LANDSCAPE_POSTER else imdb_poster.get('poster')
                     else:
                         photo = imdb_poster.get('poster')
-                    sent = await message.reply_photo(photo=photo, caption=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML, link_preview_options=LinkPreviewOptions(is_disabled=True))
+                    sent = await message.reply_photo(photo=photo, caption=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML)
                     if m:
                         await m.delete()
                 except (MediaEmpty, PhotoInvalidDimensions, WebpageMediaEmpty):
