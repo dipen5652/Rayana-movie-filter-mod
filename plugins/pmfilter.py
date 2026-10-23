@@ -182,7 +182,6 @@ async def next_page(bot, query):
     else:
         search = FRESH.get(key)
 
-    # RESTART RESILIENCE FIX: Agar bot restart hone se memory khali ho
     if not search:
         raw_text = query.message.caption or query.message.text or ""
         match = re.search(r"🏷\s*(?:ᴛɪᴛʟᴇ|TITLE|Title)\s*:\s*<code>(.*?)</code>", raw_text, re.IGNORECASE)
@@ -1115,163 +1114,33 @@ async def cb_handler(client: Client, query: CallbackQuery):
     elif DreamxData.startswith("generate_stream_link"):
         _, file_id = DreamxData.split(":")
         try:
-            target_channel = BIN_CHANNEL
+            target_channel = BIN_CHANNEL if (BIN_CHANNEL and BIN_CHANNEL != -100) else LOG_CHANNEL
             if not target_channel or target_channel == -100:
-                if LOG_CHANNEL and LOG_CHANNEL != -100:
-                    target_channel = LOG_CHANNEL
-                else:
-                    try:
-                        await client.send_cached_media(
-                            chat_id=query.from_user.id,
-                            file_id=file_id,
-                            caption="✅ <b>Here is your file directly!</b>"
-                        )
-                        await query.answer("✅ Sent file directly to your PM!", show_alert=True)
-                        return
-                    except Exception:
-                        await query.answer("⚠️ BIN_CHANNEL / LOG_CHANNEL is not configured!", show_alert=True)
-                        return
+                await client.send_cached_media(chat_id=query.from_user.id, file_id=file_id, caption="✅ <b>Here is your file directly!</b>")
+                return await query.answer("✅ Sent file directly to PM!", show_alert=True)
 
-            user_id = query.from_user.id
-            username = query.from_user.mention if query.from_user else f"User {user_id}"
-            log_msg = None
+            log_msg = await client.send_cached_media(chat_id=target_channel, file_id=file_id)
+            file_name = clean_filename(getattr(log_msg, 'caption', None) or 'file')
+            f_hash = get_hash(log_msg) if hasattr(log_msg, 'id') else ''
+            base_url = URL.strip() if URL else (f"https://{FQDN}/" if FQDN else "")
 
-            try:
-                log_msg = await client.send_cached_media(chat_id=target_channel, file_id=file_id)
-            except Exception as channel_err:
-                logger.warning("Failed sending to channel %s: %s", target_channel, channel_err)
-                if target_channel != LOG_CHANNEL and LOG_CHANNEL and LOG_CHANNEL != -100:
-                    try:
-                        log_msg = await client.send_cached_media(chat_id=LOG_CHANNEL, file_id=file_id)
-                        target_channel = LOG_CHANNEL
-                    except Exception as log_err:
-                        logger.error("Fallback to LOG_CHANNEL failed: %s", log_err)
-
-            if not log_msg:
-                try:
-                    await client.send_cached_media(
-                        chat_id=query.from_user.id,
-                        file_id=file_id,
-                        caption="✅ <b>Here is your file directly!</b>"
-                    )
-                    await query.answer("✅ Sent file directly to your PM!", show_alert=True)
-                    return
-                except Exception as dm_err:
-                    await query.answer("⚠️ Bot is not Admin in channel!", show_alert=True)
-                    return
-
-            raw_file_name = get_name(log_msg) or getattr(log_msg, 'caption', None) or 'file'
-            file_name_clean = str(raw_file_name).strip() if raw_file_name else 'file'
-            fileName = quote_plus(file_name_clean)
-            file_hash = get_hash(log_msg) if hasattr(log_msg, 'id') else ''
-
-            def _is_valid_url(u: str) -> bool:
-                if not u or not isinstance(u, str):
-                    return False
-                val = u.strip()
-                if not (val.startswith("https://") or val.startswith("http://") or val.startswith("tg://")):
-                    return False
-                low = val.lower()
-                for bad in ["localhost", "0.0.0.0", "127.0.0.1", "http://:/", "https://:/"]:
-                    if bad in low:
-                        return False
-                host = re.sub(r'^https?://', '', val).split('/')[0].split(':')[0]
-                return bool(host and '.' in host)
-
-            stream_base_url = URL.strip() if (URL and _is_valid_url(URL)) else ""
-            if not stream_base_url and FQDN and _is_valid_url(f"https://{FQDN}/"):
-                stream_base_url = f"https://{FQDN}/"
-
-            has_valid_url = bool(stream_base_url and _is_valid_url(stream_base_url))
-
-            if has_valid_url:
-                if not stream_base_url.endswith("/"):
-                    stream_base_url += "/"
-                dreamx_stream = f"{stream_base_url}watch/{str(log_msg.id)}/{fileName}?hash={file_hash}"
-                dreamx_download = f"{stream_base_url}{str(log_msg.id)}/{fileName}?hash={file_hash}"
+            if base_url:
+                if not base_url.endswith("/"): base_url += "/"
+                stream_link = f"{base_url}watch/{log_msg.id}/{quote_plus(file_name)}?hash={f_hash}"
+                dl_link = f"{base_url}{log_msg.id}/{quote_plus(file_name)}?hash={f_hash}"
+                btn = InlineKeyboardMarkup([[InlineKeyboardButton("🚀 ꜰᴀꜱᴛ ᴅᴏᴡɴʟᴏᴀᴅ", url=dl_link), InlineKeyboardButton('🖥️ ᴡᴀᴛᴄʜ ᴏɴʟɪɴᴇ', url=stream_link)]])
+                await query.edit_message_reply_markup(reply_markup=btn)
             else:
-                dreamx_stream = ""
-                dreamx_download = ""
-
-            clean_update = str(UPDATE_CHNL_LNK).strip() if UPDATE_CHNL_LNK else ""
-            if clean_update.startswith("@"):
-                clean_update = f"https://t.me/{clean_update[1:]}"
-            elif clean_update and not clean_update.startswith("http"):
-                clean_update = f"https://t.me/{clean_update}"
-            if not clean_update or not _is_valid_url(clean_update):
-                clean_update = "https://t.me/telegram"
-
-            log_btn = []
-            if has_valid_url:
-                log_btn = [[
-                    InlineKeyboardButton("🚀 ꜰᴀꜱᴛ ᴅᴏᴡɴʟᴏᴀᴅ", url=dreamx_download),
-                    InlineKeyboardButton('🖥️ ᴡᴀᴛᴄʜ ᴏɴʟɪɴᴇ', url=dreamx_stream)
-                ]]
-
-            log_text = f"•• ʟɪɴᴋ ɢᴇɴᴇʀᴀᴛᴇᴅ ꜰᴏʀ ɪᴅ #{user_id}\n•• ᴜꜱᴇʀɴᴀᴍᴇ : {username}\n\n•• ᖴᎥᒪᗴ Nᗩᗰᗴ : {file_name_clean}"
-
-            try:
-                await client.send_message(
-                    chat_id=target_channel,
-                    text=log_text,
-                    reply_to_message_id=log_msg.id,
-                    reply_markup=InlineKeyboardMarkup(log_btn) if log_btn else None
-                )
-            except Exception:
-                pass
-
-            if has_valid_url:
-                try:
-                    await query.answer(MSG_ALRT)
-                except Exception:
-                    pass
-
-                try:
-                    dreamcinezone = await query.edit_message_reply_markup(
-                        reply_markup=InlineKeyboardMarkup([
-                            [
-                                InlineKeyboardButton("🚀 ꜰᴀꜱᴛ ᴅᴏᴡɴʟᴏᴀᴅ ", url=dreamx_download, style=enums.ButtonStyle.PRIMARY),
-                                InlineKeyboardButton('🖥️ ᴡᴀᴛᴄʜ ᴏɴʟɪɴᴇ 🖥️', url=dreamx_stream, style=enums.ButtonStyle.SUCCESS)
-                            ],
-                            [
-                                InlineKeyboardButton('🌹 𝐉ᴏɪɴ 𝐔ᴩᴅᴀᴛᴇꜱ 𝐂ʜᴀɴɴᴇʟ 🌹', url=clean_update, style=enums.ButtonStyle.DANGER)
-                            ]
-                        ])
-                    )
-                    if DELETE_TIME:
-                        await asyncio.sleep(DELETE_TIME)
-                        try:
-                            await dreamcinezone.delete()
-                        except Exception:
-                            pass
-                    return
-                except Exception as edit_err:
-                    logger.error("Failed to edit reply markup: %s", edit_err)
-
-            try:
-                await client.send_cached_media(
-                    chat_id=query.from_user.id,
-                    file_id=file_id,
-                    caption=f"✅ <b>{file_name_clean}</b>\n\n⚠️ <i>Web Stream requires domain setup in .env</i>"
-                )
-            except Exception:
-                pass
-
-            await query.answer("File sent directly to your PM!", show_alert=True)
-            return
-
+                await client.send_cached_media(chat_id=query.from_user.id, file_id=file_id, caption=f"✅ <b>{file_name}</b>")
+                await query.answer("File sent directly to your PM!", show_alert=True)
         except Exception as e:
-            logger.error("Callback error in generate_stream_link: %s", e)
+            logger.error("Error in generate_stream_link: %s", e)
             try:
-                await client.send_cached_media(
-                    chat_id=query.from_user.id,
-                    file_id=file_id,
-                    caption="✅ <b>Here is your file directly!</b>"
-                )
-                await query.answer("✅ Sent file directly to your PM!", show_alert=True)
+                await client.send_cached_media(chat_id=query.from_user.id, file_id=file_id, caption="✅ <b>Here is your file!</b>")
+                await query.answer("Sent directly to PM!", show_alert=True)
             except Exception:
-                await query.answer("⚠️ Stream link error occurred", show_alert=True)
-            return
+                await query.answer("Stream link error", show_alert=True)
+        return
 
     elif query.data == "prestream":
         await query.answer(text=script.PRE_STREAM_ALERT, show_alert=True)
@@ -1764,7 +1633,7 @@ async def auto_filter(client, msg, spoll=False):
                         photo = imdb_poster.get('backdrop') if imdb_poster.get('backdrop') and LANDSCAPE_POSTER else imdb_poster.get('poster')
                     else:
                         photo = imdb_poster.get('poster')
-                    sent = await message.reply_photo(photo=photo, caption=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML, link_preview_options=LinkPreviewOptions(is_disabled=True))
+                    sent = await message.reply_photo(photo=photo, caption=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML)
                     if m:
                         await m.delete()
                 except (MediaEmpty, PhotoInvalidDimensions, WebpageMediaEmpty):
