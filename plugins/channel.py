@@ -5,14 +5,15 @@ from datetime import datetime
 from collections import defaultdict
 from plugins.Dreamxfutures.Imdbposter import get_movie_detailsx, fetch_image, get_movie_details
 from database.users_chats_db import db
+from database.config_db import mdb
 from pyrogram import Client, filters, enums
-from info import CHANNELS, MOVIE_UPDATE_CHANNEL, LINK_PREVIEW, ABOVE_PREVIEW, BAD_WORDS, LANDSCAPE_POSTER, TMDB_POSTER
+from info import CHANNELS, MOVIE_UPDATE_CHANNEL, LINK_PREVIEW, ABOVE_PREVIEW, BAD_WORDS, LANDSCAPE_POSTER, TMDB_POSTER, GRP_LNK
 from Script import script
 from database.ia_filterdb import save_file
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, LinkPreviewOptions
 from utils import temp
 from pymongo.errors import PyMongoError, DuplicateKeyError
-from pyrogram.errors import MessageIdInvalid, MessageNotModified, FloodWait
+from pyrogram.errors import MessageIdInvalid, MessageNotModified, FloodWait, UserIsBlocked, PeerIdInvalid
 from typing import Optional, Tuple
 
 logger = logging.getLogger(__name__)
@@ -133,6 +134,7 @@ def schedule_update(bot, base_name, delay=5):
         delay,
         lambda: asyncio.create_task(update_movie_message(bot, base_name))
     )
+
 def extract_media_info(filename: str, caption: str):
     filename = normalize(clean_mentions_links(filename).title())
     caption_clean = clean_mentions_links(caption).lower() if caption else ""
@@ -186,32 +188,23 @@ def extract_media_info(filename: str, caption: str):
         if year:
             base_name += f" {year}"
 
-    # -------------------------
-    # NEW: strip season/episode tokens from final base_name
-    # -------------------------
     def _strip_season_episode_tokens(name: str) -> str:
-        """
-        Remove common season/episode markers from a title while preserving a trailing year.
-        Examples removed: S01, s01e02, 1x02, season 1, ep 02, episode 2, part 1
-        """
         if not name:
             return name
 
-        # Preserve trailing year (e.g. "Title (2020)" or "Title 2020")
         year_match = re.search(r'\(?\b(19|20)\d{2}\b\)?\s*$', name)
         year_part = ""
         if year_match:
             year_part = year_match.group(0)
             name = name[:year_match.start()].strip()
 
-        # Common patterns to remove
         patterns = [
-            r'\bS\d{1,2}E\d{1,2}\b',     # S01E02
-            r'\bS\d{1,2}\b',             # S01
-            r'\bE\d{1,2}\b',             # E02
-            r'\b\d{1,2}x\d{1,2}\b',      # 1x02
-            r'\bSeason\s*\d{1,2}\b',     # Season 1
-            r'\bEp(?:isode)?\.?\s*\d{1,3}\b',  # Ep02, Episode 2
+            r'\bS\d{1,2}E\d{1,2}\b',
+            r'\bS\d{1,2}\b',
+            r'\bE\d{1,2}\b',
+            r'\b\d{1,2}x\d{1,2}\b',
+            r'\bSeason\s*\d{1,2}\b',
+            r'\bEp(?:isode)?\.?\s*\d{1,3}\b',
             r'\bEpisode\s*\d{1,3}\b',
             r'\bPart\s*\d{1,2}\b'
         ]
@@ -219,11 +212,9 @@ def extract_media_info(filename: str, caption: str):
         for p in patterns:
             name = re.sub(p, ' ', name, flags=re.IGNORECASE)
 
-        # Remove leftover separators and extra whitespace
-        name = re.sub(r'[_\.\-]+', ' ', name)     # underscores/dots/hyphens
+        name = re.sub(r'[_\.\-]+', ' ', name)
         name = re.sub(r'\s+', ' ', name).strip()
 
-        # Reattach year in canonical form if we removed it earlier
         if year_part:
             y = re.search(r'(19|20)\d{2}', year_part)
             if y:
@@ -232,7 +223,6 @@ def extract_media_info(filename: str, caption: str):
         return name.strip()
 
     base_name = _strip_season_episode_tokens(base_name)
-    # If stripping accidentally removed everything, fall back to a safer value
     if not base_name:
         base_name = normalize(remove_ignored_words(normalize(processed_raw))) or filename
 
@@ -265,6 +255,39 @@ async def media_handler(bot, message):
     if not success:
         return
 
+    # ----------------- AUTO NOTIFY PENDING REQUESTS ----------------- #
+    try:
+        raw_file_title = getattr(media, 'file_name', None) or getattr(message, 'caption', None) or ""
+        if raw_file_title:
+            matched_requests = await mdb.get_and_delete_pending(str(raw_file_title))
+            for req in matched_requests:
+                q_title = req.get("query", "movie").title()
+                for uid in req.get("user_ids", []):
+                    try:
+                        await bot.send_message(
+                            chat_id=int(uid),
+                            text=(
+                                f"🎉 <b>Good News! Your Requested Movie is Uploaded!</b>\n\n"
+                                f"🎬 <b>Title:</b> <code>{q_title}</code>\n"
+                                f"📁 <b>File:</b> <code>{raw_file_title}</code>\n\n"
+                                f"👇 <i>Search again in group to get file:</i>"
+                            ),
+                            reply_markup=InlineKeyboardMarkup([
+                                [InlineKeyboardButton("🔍 Search Now In Group", url=GRP_LNK)]
+                            ]),
+                            parse_mode=enums.ParseMode.HTML
+                        )
+                        await asyncio.sleep(0.3)  # Telegram FloodWait Protection
+                    except (UserIsBlocked, PeerIdInvalid):
+                        pass
+                    except FloodWait as fw:
+                        await asyncio.sleep(fw.value + 1)
+                    except Exception as err:
+                        logger.warning(f"Could not notify user {uid}: {err}")
+    except Exception as e:
+        logger.error(f"Auto-notify error in channel.py: {e}")
+
+    # ----------------- ORIGINAL MOVIE UPDATE CHANNEL ----------------- #
     try:
         if await db.movie_update_status(temp.ME):
             await process_and_send_update(bot, media.file_name, media.caption)
