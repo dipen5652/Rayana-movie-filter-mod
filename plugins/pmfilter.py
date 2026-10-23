@@ -1888,3 +1888,45 @@ async def advantage_spell_chok(client, message):
         await message.delete()
     except Exception:
         pass
+        
+# ----------------- ADMIN COMMANDS FOR PENDING REQUESTS ----------------- #
+@Client.on_message(filters.command(["pending", "pendinglist"]) & filters.private)
+async def show_pending_cmd(client, message):
+    admin_list = [int(x) for x in ADMINS] if isinstance(ADMINS, list) else [int(ADMINS)]
+    if message.from_user.id not in admin_list:
+        return await message.reply_text("⛔ <b>Aapke paas is command ki permission nahi hai!</b>")
+
+    try:
+        pending = await mdb.get_all_pending()
+        if not pending:
+            return await message.reply_text("📭 <b>Koi pending movie request nahi hai!</b>")
+
+        text = f"📋 <b>Total Pending Requests: {len(pending)}</b>\n\n"
+        for idx, p in enumerate(pending, 1):
+            q = p.get("query", "N/A").title()
+            users = p.get("user_ids", [])
+            text += f"<b>{idx}.</b> <code>{q}</code> — 👥 {len(users)} user(s)\n"
+
+        await message.reply_text(text)
+    except Exception as e:
+        logger.error(f"Error in show_pending_cmd: {e}")
+        await message.reply_text(f"❌ Error: {e}")
+
+
+@Client.on_message(filters.command(["clearpending", "delpending"]) & filters.private)
+async def clear_pending_cmd(client, message):
+    admin_list = [int(x) for x in ADMINS] if isinstance(ADMINS, list) else [int(ADMINS)]
+    if message.from_user.id not in admin_list:
+        return await message.reply_text("⛔ <b>Aapke paas is command ki permission nahi hai!</b>")
+
+    try:
+        if len(message.command) > 1:
+            query = " ".join(message.command[1:])
+            await mdb.delete_pending(query)
+            await message.reply_text(f"✅ Deleted pending request: <code>{query}</code>")
+        else:
+            await mdb.clear_all_pending()
+            await message.reply_text("✅ Saari pending requests clear ho gayi!")
+    except Exception as e:
+        logger.error(f"Error in clear_pending_cmd: {e}")
+        await message.reply_text(f"❌ Error: {e}")
