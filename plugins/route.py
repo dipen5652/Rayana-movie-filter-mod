@@ -102,15 +102,52 @@ async def media_streamer(request: web.Request, id: int, secure_hash: str):
     
     file_size = file_id.file_size
 
-    if range_header:
-        from_bytes, until_bytes = range_header.replace("bytes=", "").split("-")
-        from_bytes = int(from_bytes)
-        until_bytes = int(until_bytes) if until_bytes else file_size - 1
-    else:
-        from_bytes = request.http_range.start or 0
-        until_bytes = (request.http_range.stop or file_size) - 1
+    # SAFE RANGE HEADER PARSING (Prevents player crash on Safari, MX Player, VLC)
+    from_bytes = 0
+    until_bytes = file_size - 1
+    has_valid_range = False
 
-    if (until_bytes > file_size) or (from_bytes < 0) or (until_bytes < from_bytes):
+    if range_header:
+        try:
+            clean_range = str(range_header).strip().replace("bytes=", "")
+            if "," in clean_range:
+                clean_range = clean_range.split(",")[0].strip()
+            
+            parts = clean_range.split("-")
+            if len(parts) >= 2:
+                from_str = parts[0].strip()
+                until_str = parts[1].strip()
+
+                if from_str:
+                    from_bytes = int(from_str)
+                else:
+                    # Suffix byte range: bytes=-500 (last 500 bytes)
+                    from_bytes = max(0, file_size - int(until_str))
+                    until_bytes = file_size - 1
+                    has_valid_range = True
+
+                if until_str and not has_valid_range:
+                    until_bytes = int(until_str)
+                elif not has_valid_range:
+                    until_bytes = file_size - 1
+
+                has_valid_range = True
+        except Exception as e:
+            logger.warning(f"Malformed Range Header '{range_header}': {e}. Falling back to full stream.")
+            from_bytes = 0
+            until_bytes = file_size - 1
+            has_valid_range = False
+    else:
+        try:
+            from_bytes = request.http_range.start or 0
+            until_bytes = (request.http_range.stop or file_size) - 1
+            has_valid_range = bool(request.http_range.start or request.http_range.stop)
+        except Exception:
+            from_bytes = 0
+            until_bytes = file_size - 1
+            has_valid_range = False
+
+    if (until_bytes >= file_size) or (from_bytes < 0) or (until_bytes < from_bytes):
         return web.Response(
             status=416,
             body="416: Range not satisfiable",
@@ -130,35 +167,4 @@ async def media_streamer(request: web.Request, id: int, secure_hash: str):
         file_id, index, offset, first_part_cut, last_part_cut, part_count, chunk_size
     )
 
-    mime_type = file_id.mime_type
-    file_name = file_id.file_name
-
-    if mime_type:
-        if not file_name:
-            try:
-                file_name = f"{secrets.token_hex(2)}.{mime_type.split('/')[1]}"
-            except (IndexError, AttributeError):
-                file_name = f"{secrets.token_hex(2)}.unknown"
-    else:
-        if file_name:
-            mime_type = mimetypes.guess_type(file_id.file_name)[0] or "application/octet-stream"
-        else:
-            mime_type = "application/octet-stream"
-            file_name = f"{secrets.token_hex(2)}.unknown"
-
-    return web.Response(
-        status=206 if range_header else 200,
-        body=body,
-        headers={
-            "Content-Type": f"{mime_type}",
-            "Content-Range": f"bytes {from_bytes}-{until_bytes}/{file_size}",
-            "Content-Length": str(req_length),
-            "Content-Disposition": f'inline; filename="{file_name}"',  # inline for streaming
-            "Accept-Ranges": "bytes",
-            # CORS headers for JSMKV
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
-            "Access-Control-Allow-Headers": "Range, Content-Type",
-            "Access-Control-Expose-Headers": "Content-Length, Content-Range, Accept-Ranges",
-        },
-    )
+    mime_type = file_id.
