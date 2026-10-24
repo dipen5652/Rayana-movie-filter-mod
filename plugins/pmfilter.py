@@ -1872,7 +1872,8 @@ async def advantage_spell_chok(client, message):
 
         
 
-        buttons = []
+            # ----------------- CLEAN BUTTON FILTER ----------------- #
+    buttons_list = []
     clean_user_q = re.sub(r"[_\.\-\:\'\"]", " ", search).strip().lower()
 
     for movie in movies:
@@ -1882,17 +1883,15 @@ async def advantage_spell_chok(client, message):
 
         clean_imdb_title = re.sub(r"[_\.\-\:\'\"]", " ", safe_title).strip().lower()
 
-        # Score calculation
         score = fuzz.token_sort_ratio(clean_user_q, clean_imdb_title)
         p_score = fuzz.partial_ratio(clean_user_q, clean_imdb_title)
 
-        # 55% token match ya 65% partial match
         if score >= 55 or p_score >= 65:
-            buttons.append([InlineKeyboardButton(text=movie.title, callback_data=f"spol#{safe_title}#{user}")])
+            buttons_list.append([InlineKeyboardButton(text=movie.title, callback_data=f"spol#{safe_title}#{user}")])
 
-    if not buttons:
-        button = [[InlineKeyboardButton("✳️ 𝐑𝐞𝐪𝐮𝐞𝐬𝐭 𝐭𝐨 𝐚𝐝𝐦𝐢𝐧", url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)]]
-        k = await message.reply_text(text=script.I_CUDNT.format(search), reply_markup=InlineKeyboardMarkup(button))
+    if not buttons_list:
+        btn_req = [[InlineKeyboardButton("✳️ 𝐑𝐞𝐪𝐮𝐞𝐬𝐭 𝐭𝐨 𝐚𝐝𝐦𝐢𝐧", url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)]]
+        k = await message.reply_text(text=script.I_CUDNT.format(search), reply_markup=InlineKeyboardMarkup(btn_req))
         await asyncio.sleep(60)
         try:
             await k.delete()
@@ -1904,8 +1903,8 @@ async def advantage_spell_chok(client, message):
             pass
         return
 
-        buttons.append([InlineKeyboardButton(text="🚫 ᴄʟᴏsᴇ 🚫", callback_data='close_data', style=enums.ButtonStyle.DANGER)])
-    d = await message.reply_text(text=script.CUDNT_FND.format(message.from_user.mention), reply_markup=InlineKeyboardMarkup(buttons))
+    buttons_list.append([InlineKeyboardButton(text="🚫 ᴄʟᴏsᴇ 🚫", callback_data='close_data', style=enums.ButtonStyle.DANGER)])
+    d = await message.reply_text(text=script.CUDNT_FND.format(message.from_user.mention), reply_markup=InlineKeyboardMarkup(buttons_list))
     await asyncio.sleep(60)
     try:
         await d.delete()
