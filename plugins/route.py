@@ -179,18 +179,22 @@ async def media_streamer(request: web.Request, id: int, secure_hash: str):
             mime_type = "application/octet-stream"
             file_name = f"{secrets.token_hex(2)}.unknown"
 
+        resp_headers = {
+        "Content-Type": f"{mime_type}",
+        "Content-Length": str(req_length),
+        "Content-Disposition": f'inline; filename="{file_name}"',
+        "Accept-Ranges": "bytes",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+        "Access-Control-Allow-Headers": "Range, Content-Type",
+        "Access-Control-Expose-Headers": "Content-Length, Content-Range, Accept-Ranges",
+    }
+
+    if has_valid_range:
+        resp_headers["Content-Range"] = f"bytes {from_bytes}-{until_bytes}/{file_size}"
+
     return web.Response(
         status=206 if has_valid_range else 200,
         body=body,
-        headers={
-            "Content-Type": f"{mime_type}",
-            "Content-Range": f"bytes {from_bytes}-{until_bytes}/{file_size}",
-            "Content-Length": str(req_length),
-            "Content-Disposition": f'inline; filename="{file_name}"',
-            "Accept-Ranges": "bytes",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
-            "Access-Control-Allow-Headers": "Range, Content-Type",
-            "Access-Control-Expose-Headers": "Content-Length, Content-Range, Accept-Ranges",
-        },
+        headers=resp_headers
     )
