@@ -1975,12 +1975,12 @@ async def quality_audit_cmd(client, message):
             return await msg.edit_text("✅ <b>Database clean hai! Aisi koi movie nahi mili jisme CamRip aur WEB-DL dono maujood hon.</b>")
 
         output = "📊 <b>Movies with both WEB-DL & Cam/PreDVD:</b>\n\n"
-        output += "<code>Movie Title           | WEB-DL | PreDVD | HDTS</code>\n"
-        output += "<code>---------------------------------------------</code>\n"
 
         for idx, (m_title, counts) in enumerate(results.items(), 1):
-            title_cut = (m_title[:18] + '..') if len(m_title) > 20 else m_title.ljust(20)
-            output += f"<code>{idx}. {title_cut} | {counts['web_dl']} file | {counts['predvd']} file | {counts['hdts']} file</code>\n"
+            output += f"<b>{idx}. {m_title}</b>\n"
+            output += f"   ├ 🟢 <b>WEB-DL:</b> <code>{counts['web_dl']} file</code>\n"
+            output += f"   ├ 🟡 <b>PreDVD:</b> <code>{counts['predvd']} file</code>\n"
+            output += f"   └ 🔴 <b>HDTS:</b> <code>{counts['hdts']} file</code>\n\n"
 
         await msg.edit_text(output)
     except Exception as e:
