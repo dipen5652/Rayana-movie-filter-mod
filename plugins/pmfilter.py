@@ -1956,3 +1956,34 @@ async def clear_pending_cmd(client, message):
     except Exception as e:
         logger.error(f"Error in clear_pending_cmd: {e}")
         await message.reply_text(f"❌ Error: {e}")
+
+
+# ----------------- QUALITY AUDIT COMMAND ----------------- #
+@Client.on_message(filters.command(["camcheck", "qualitycheck"]) & filters.private)
+async def quality_audit_cmd(client, message):
+    admin_list = [int(x) for x in ADMINS] if isinstance(ADMINS, list) else [int(ADMINS)]
+    if message.from_user.id not in admin_list:
+        return await message.reply_text("⛔ <b>Aapke paas is command ki permission nahi hai!</b>")
+
+    msg = await message.reply_text("🔍 <b>Database scan ho raha hai, thoda waqt lag sakta hai...</b>")
+
+    try:
+        from database.ia_filterdb import get_duplicate_quality_movies
+        results = await get_duplicate_quality_movies()
+
+        if not results:
+            return await msg.edit_text("✅ <b>Database clean hai! Aisi koi movie nahi mili jisme CamRip aur WEB-DL dono maujood hon.</b>")
+
+        output = "📊 <b>Movies with both WEB-DL & Cam/PreDVD:</b>\n\n"
+        output += "<code>Movie Title           | WEB-DL | PreDVD | HDTS</code>\n"
+        output += "<code>---------------------------------------------</code>\n"
+
+        for idx, (m_title, counts) in enumerate(results.items(), 1):
+            title_cut = (m_title[:18] + '..') if len(m_title) > 20 else m_title.ljust(20)
+            output += f"<code>{idx}. {title_cut} | {counts['web_dl']} file | {counts['predvd']} file | {counts['hdts']} file</code>\n"
+
+        await msg.edit_text(output)
+    except Exception as e:
+        logger.error(f"Error in camcheck: {e}")
+        await msg.edit_text(f"❌ Error: {e}")
+        
