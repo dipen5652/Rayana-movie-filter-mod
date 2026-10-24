@@ -1,5 +1,5 @@
 from utils import get_random_mix_id, get_size, is_subscribed, is_req_subscribed, group_setting_buttons, get_poster, get_posterx, temp, get_settings, save_group_settings, get_cap, imdb, is_check_admin, extract_request_content, log_error, clean_filename, generate_season_variations, clean_search_text, get_settings_text
-from rapidfuzz import process
+from rapidfuzz import process, fuzz
 from dreamxbotz.util.file_properties import get_name, get_hash
 from urllib.parse import quote_plus
 import logging
@@ -1870,9 +1870,9 @@ async def advantage_spell_chok(client, message):
             pass
         return
 
-        from rapidfuzz import fuzz
+        
 
-    buttons = []
+        buttons = []
     clean_user_q = re.sub(r"[_\.\-\:\'\"]", " ", search).strip().lower()
 
     for movie in movies:
@@ -1882,15 +1882,14 @@ async def advantage_spell_chok(client, message):
 
         clean_imdb_title = re.sub(r"[_\.\-\:\'\"]", " ", safe_title).strip().lower()
 
-        # Strict match: Check karta hai ki user ka word IMDb title se milta-julta hai ya nahi
+        # Score calculation
         score = fuzz.token_sort_ratio(clean_user_q, clean_imdb_title)
         p_score = fuzz.partial_ratio(clean_user_q, clean_imdb_title)
 
-        # Sirf tabhi button banega jab kam se kam 55% similarity ho
+        # 55% token match ya 65% partial match
         if score >= 55 or p_score >= 65:
             buttons.append([InlineKeyboardButton(text=movie.title, callback_data=f"spol#{safe_title}#{user}")])
 
-    # Agar IMDb ne sab ajeeb movies di hain aur koi bhi dhang ka match nahi mila:
     if not buttons:
         button = [[InlineKeyboardButton("✳️ 𝐑𝐞𝐪𝐮𝐞𝐬𝐭 𝐭𝐨 𝐚𝐝𝐦𝐢𝐧", url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)]]
         k = await message.reply_text(text=script.I_CUDNT.format(search), reply_markup=InlineKeyboardMarkup(button))
@@ -1905,7 +1904,8 @@ async def advantage_spell_chok(client, message):
             pass
         return
 
-    buttons.append([InlineKeyboardButton(text="🚫 ᴄʟᴏsᴇ 🚫", callback_data='close_data', style=enums.ButtonStyle.DANGER)])
+        buttons.append([InlineKeyboardButton(text="🚫 ᴄʟᴏsᴇ 🚫", callback_data='close_data', style=enums.ButtonStyle.DANGER)])
+    d = await message.reply_text(text=script.CUDNT_FND.format(message.from_user.mention), reply_markup=InlineKeyboardMarkup(buttons))
     await asyncio.sleep(60)
     try:
         await d.delete()
