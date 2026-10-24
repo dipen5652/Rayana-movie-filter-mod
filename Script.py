@@ -1,12 +1,12 @@
 class script(object):
     START_TXT = """ʜᴇʏ {}, {} 
+    
 <b>ɪ ᴀᴍ <a href="https://t.me/{}">{}</a>, ʏᴏᴜʀ ᴘᴇʀꜱᴏɴᴀʟ ᴍᴏᴠɪᴇ ᴀꜱɪꜱᴛᴀɴᴛ 🍿.</b>
-
 ▭▬▭▬▭▬▭▬▭▬▭▬▭▬▭
 📌 ᴀᴅᴅ ᴍᴇ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴇɴᴊᴏʏ ɪɴꜱᴛᴀɴᴛ ᴍᴏᴠɪᴇ & ꜱᴇʀɪᴇꜱ ʀᴇꜱᴜʟᴛꜱ 🎬
 ⚡ ꜱᴇɴᴅ ᴍᴇ ᴀɴʏ ᴍᴏᴠɪᴇ ᴏʀ ꜱᴇʀɪᴇꜱ ɴᴀᴍᴇ
 ▭▬▭▬▭▬▭▬▭▬▭▬▭▬▭
-<blockquote>🫟 ᴍᴀɪɴᴛᴀɪɴᴇᴅ ʙʏ : <a href="https://telegram.me/admnsprt_bot">[ᴍʀ•ᴅɪᴘᴀᴋ]</a></blockquote>"""
+<blockquote>🫟 ᴍᴀɪɴᴛᴀɪɴᴇᴅ ʙʏ : <a href="https://telegram.me/admnsprt_bot">[ᴍʀ⌖ᴅɪᴘᴀᴋ]</a></blockquote>"""
 
 
     GSTART_TXT = """"ʜᴇʏ {},
@@ -14,7 +14,7 @@ class script(object):
 <b>🤖 ɪ ᴀᴍ <a href="https://t.me/{}">{}</a>, ʏᴏᴜʀ ᴘᴇʀꜱᴏɴᴀʟ ᴍᴏᴠɪᴇ ᴀꜱɪꜱᴛᴀɴᴛ.
 
 ⚡ ꜱᴇᴀʀᴄʜ ᴀɴʏ ᴍᴏᴠɪᴇ ᴏʀ ꜱᴇʀɪᴇꜱ ɴᴀᴍᴇ
-<blockquote>🫟 ᴍᴀɪɴᴛᴀɪɴᴇᴅ ʙʏ : <a href="https://telegram.me/admnsprt_bot">[ᴍʀ•ᴅɪᴘᴀᴋ]</a></blockquote>"""
+<blockquote>🫟 ᴍᴀɪɴᴛᴀɪɴᴇᴅ ʙʏ : <a href="https://telegram.me/admnsprt_bot">[ᴍʀ⌖ᴅɪᴘᴀᴋ]</a></blockquote>"""
     
     HELP_TXT = """⦿━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━⦿
 <blockquote>🎦 ᴍᴏᴠɪᴇs</blockquote>
