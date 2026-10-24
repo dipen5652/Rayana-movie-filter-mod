@@ -1870,15 +1870,42 @@ async def advantage_spell_chok(client, message):
             pass
         return
 
+        from rapidfuzz import fuzz
+
     buttons = []
+    clean_user_q = re.sub(r"[_\.\-\:\'\"]", " ", search).strip().lower()
+
     for movie in movies:
         safe_title = movie.title.replace("#", "").replace("\n", " ").strip()[:40]
         if not safe_title:
             safe_title = movie.title[:40]
-        buttons.append([InlineKeyboardButton(text=movie.title, callback_data=f"spol#{safe_title}#{user}")])
+
+        clean_imdb_title = re.sub(r"[_\.\-\:\'\"]", " ", safe_title).strip().lower()
+
+        # Strict match: Check karta hai ki user ka word IMDb title se milta-julta hai ya nahi
+        score = fuzz.token_sort_ratio(clean_user_q, clean_imdb_title)
+        p_score = fuzz.partial_ratio(clean_user_q, clean_imdb_title)
+
+        # Sirf tabhi button banega jab kam se kam 55% similarity ho
+        if score >= 55 or p_score >= 65:
+            buttons.append([InlineKeyboardButton(text=movie.title, callback_data=f"spol#{safe_title}#{user}")])
+
+    # Agar IMDb ne sab ajeeb movies di hain aur koi bhi dhang ka match nahi mila:
+    if not buttons:
+        button = [[InlineKeyboardButton("✳️ 𝐑𝐞𝐪𝐮𝐞𝐬𝐭 𝐭𝐨 𝐚𝐝𝐦𝐢𝐧", url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)]]
+        k = await message.reply_text(text=script.I_CUDNT.format(search), reply_markup=InlineKeyboardMarkup(button))
+        await asyncio.sleep(60)
+        try:
+            await k.delete()
+        except Exception:
+            pass
+        try:
+            await message.delete()
+        except Exception:
+            pass
+        return
 
     buttons.append([InlineKeyboardButton(text="🚫 ᴄʟᴏsᴇ 🚫", callback_data='close_data', style=enums.ButtonStyle.DANGER)])
-    d = await message.reply_text(text=script.CUDNT_FND.format(message.from_user.mention), reply_markup=InlineKeyboardMarkup(buttons))
     await asyncio.sleep(60)
     try:
         await d.delete()
