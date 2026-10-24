@@ -420,3 +420,42 @@ async def dreamxbotz_get_series(limit: int = 30) -> Dict[str, List[int]]:
     except Exception as e:
         logger.error(f"Error in dreamxbotz_get_series: {e}")
         return []
+
+# ----------------- QUALITY SCANNER LOGIC ----------------- #
+async def get_duplicate_quality_movies():
+    cam_pattern = re.compile(r"\b(cam|camrip|predvd|hdcam|hdts|theatre|telesync|ts|dvdscr)\b", re.IGNORECASE)
+    hd_pattern = re.compile(r"\b(web-?dl|webrip|bluray|hdrip|bdrip|dvdrip)\b", re.IGNORECASE)
+
+    cursor = Media.collection.find({}, {"file_name": 1})
+    movie_dict = {}
+
+    async for file in cursor:
+        raw_name = file.get("file_name", "")
+        if not raw_name:
+            continue
+
+        clean_name = re.sub(r"[_\.\-\[\]\(\)]", " ", raw_name)
+        match_year = re.search(r"^(.*?)(19\d\d|20\d\d)", clean_name, re.IGNORECASE)
+        base_title = match_year.group(1).strip().title() if match_year else clean_name.split()[0].title()
+
+        if len(base_title) < 2:
+            continue
+
+        if base_title not in movie_dict:
+            movie_dict[base_title] = {"web_dl": 0, "predvd": 0, "hdts": 0}
+
+        low = raw_name.lower()
+        if hd_pattern.search(low):
+            movie_dict[base_title]["web_dl"] += 1
+        elif "hdts" in low or "ts" in low:
+            movie_dict[base_title]["hdts"] += 1
+        elif cam_pattern.search(low):
+            movie_dict[base_title]["predvd"] += 1
+
+    duplicates = {}
+    for movie, counts in movie_dict.items():
+        if counts["web_dl"] > 0 and (counts["predvd"] > 0 or counts["hdts"] > 0):
+            duplicates[movie] = counts
+
+    return duplicates
+    
