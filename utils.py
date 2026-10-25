@@ -938,14 +938,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                 cap = IMDB_CAP
                 cap += "\n\n<u>Your Requested Files Are Here</u>\n\n</b>"
                 for idx, file in enumerate(files, start=offset + 1):
-                    cap += (
-                        f"<b>{idx}. "
-                        f"<a href='https://telegram.me/{temp.U_NAME}"
-                        f"?start=file_{query.message.chat.id}_{file.file_id}'>"
-                        f"[{get_size(file.file_size)}] "
-                        f"{clean_filename(file.file_name)}\n\n"
-                        f"</a></b>"
-                    )
+                    cap += f"\n📀 <b>{get_size(file.file_size)}</b>\n╰⌯⌲ 📁 <b><a href='https://telegram.me/{temp.U_NAME}?start=file_{query.message.chat.id}_{file.file_id}'>{clean_filename(file.file_name)}</a></b>\n"
             else:
                 if settings["imdb"]:
                     imdb_data = await get_posterx(search, file=(files[0]).file_name) if TMDB_ON_SEARCH else await get_poster(search, file=(files[0]).file_name)
@@ -986,14 +979,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                     )
 
                     for idx, file in enumerate(files, start=offset + 1):
-                        cap += (
-                            f"<b>{idx}. "
-                            f"<a href='https://telegram.me/{temp.U_NAME}"
-                            f"?start=file_{query.message.chat.id}_{file.file_id}'>"
-                            f"[{get_size(file.file_size)}] "
-                            f"{clean_filename(file.file_name)}\n\n"
-                            f"</a></b>"
-                        )
+                        cap += f"\n📀 <b>{get_size(file.file_size)}</b>\n╰⌯⌲ 📁 <b><a href='https://telegram.me/{temp.U_NAME}?start=file_{query.message.chat.id}_{file.file_id}'>{clean_filename(file.file_name)}</a></b>\n"
                 else:
                     if ULTRA_FAST_MODE:
                         cap = (
@@ -1012,14 +998,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                         )
                     cap += "\n\n<u>Your Requested Files Are Here</u> \n\n</b>"
                     for idx, file in enumerate(files, start=offset + 1):
-                        cap += (
-                            f"<b>{idx}. "
-                            f"<a href='https://telegram.me/{temp.U_NAME}"
-                            f"?start=file_{query.message.chat.id}_{file.file_id}'>"
-                            f"[{get_size(file.file_size)}] "
-                            f"{clean_filename(file.file_name)}\n\n"
-                            f"</a></b>"
-                        )
+                        cap += f"\n📀 <b>{get_size(file.file_size)}</b>\n╰⌯⌲ 📁 <b><a href='https://telegram.me/{temp.U_NAME}?start=file_{query.message.chat.id}_{file.file_id}'>{clean_filename(file.file_name)}</a></b>\n"
         else:
             if ULTRA_FAST_MODE:
                 cap = (
@@ -1038,15 +1017,8 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
 
             cap += "\n\n<u>Your Requested Files Are Here</u>\n\n</b>"
             for idx, file in enumerate(files, start=offset + 1):
-                cap += (
-                    f"<b>{idx}. "
-                    f"<a href='https://telegram.me/{temp.U_NAME}"
-                    f"?start=file_{query.message.chat.id}_{file.file_id}'>"
-                    f"[{get_size(file.file_size)}] "
-                    f"{clean_filename(file.file_name)}\n\n"
-                    f"</a></b>"
-                )
+                cap += f"\n📀 <b>{get_size(file.file_size)}</b>\n╰⌯⌲ 📁 <b><a href='https://telegram.me/{temp.U_NAME}?start=file_{query.message.chat.id}_{file.file_id}'>{clean_filename(file.file_name)}</a></b>\n"
         return cap
     except Exception as e:
         logger.error(f"Error in get_cap: {e}")
-        pass
+        return ""
