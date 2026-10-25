@@ -1,4 +1,5 @@
 import re
+import urllib.parse
 import logging
 import asyncio
 from datetime import datetime
@@ -267,19 +268,21 @@ async def media_handler(bot, message):
                 matched_requests = await mdb.get_and_delete_pending(str(raw_file_title))
                 for req in matched_requests:
                     q_title = req.get("query", "movie").title()
+                   
+                    encoded_query = urllib.parse.quote_plus(q_title)
+                    group_username = "movies_4uz"  # <-- Yahan apna movie group username likhein
 
-                    clean_link_title = re.sub(r"[_\.\-\s]+", "-", base_name.strip())
-                    download_url = f"https://t.me/{temp.U_NAME}?start=getfile-{clean_link_title}"
+                    group_search_url = f"https://t.me/{group_username}?text={encoded_query}"
 
                     cool_text = (
-                        f"✨ <b>ʏᴏᴜʀ ʀᴇǫᴜᴇꜱᴛ ɪꜱ ɴᴏᴡ ᴀᴠᴀɪʟᴀʙʟᴇ!</b> 🎉\n\n"
-                        f"🎬 <b>ᴛɪᴛʟᴇ :</b> <code>{q_title}</code>\n"
-                        f"📁 <b>ꜰɪʟᴇ :</b> <code>{base_name}</code>\n\n"
-                        f"⚡ <i>ʏᴏᴜʀ ᴡᴀɪᴛ ɪꜱ ᴏᴠᴇʀ! ᴄʟɪᴄᴋ ʙᴇʟᴏᴡ ᴛᴏ ɢᴇᴛ ʏᴏᴜʀ ꜰɪʟᴇꜱ ɪɴꜱᴛᴀɴᴛʟʏ.</i> 👇"
+                        f"✨ <b>YOUR REQUEST IS NOW AVAILABLE!</b> 🎉\n\n"
+                        f"🎬 <b>TITLE :</b> <code>{q_title}</code>\n"
+                        f"📁 <b>FILE :</b> <code>{base_name}</code>\n\n"
+                        f"⚡ <i>YOUR WAIT IS OVER! CLICK BELOW TO SEARCH IN GROUP.</i> 👆"
                     )
 
                     buttons = InlineKeyboardMarkup([
-                        [InlineKeyboardButton("✦ 𝗖𝗹𝗶𝗰𝗸 𝗛𝗲𝗿𝗲 𝗧𝗼 𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱 ✦", url=download_url, style=enums.ButtonStyle.SUCCESS)]
+                        [InlineKeyboardButton("🔎 𝗦𝗲𝗮𝗿𝗰𝗵 𝗜𝗻 𝗚𝗿𝗼𝘂𝗽 🔍", url=group_search_url, style=enums.ButtonStyle.SUCCESS)]
                     ])
 
                     for uid in req.get("user_ids", []):
