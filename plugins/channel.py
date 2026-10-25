@@ -268,21 +268,18 @@ async def media_handler(bot, message):
                 matched_requests = await mdb.get_and_delete_pending(str(raw_file_title))
                 for req in matched_requests:
                     q_title = req.get("query", "movie").title()
-                   
-                    encoded_query = urllib.parse.quote_plus(q_title)
-                    group_username = "movies_4uz"  # <-- Yahan apna movie group username likhein
 
-                    group_search_url = f"https://t.me/share/url?url=https://t.me/{group_username}&text={encoded_query}"
+                    clean_link_title = re.sub(r"[_\.\-\s]+", "-", base_name.strip())
+                    download_url = f"https://t.me/{temp.U_NAME}?start=getfile-{clean_link_title}"
 
                     cool_text = (
                         f"✨ <b>YOUR REQUEST IS NOW AVAILABLE!</b> 🎉\n\n"
-                        f"🎬 <b>TITLE :</b> <code>{q_title}</code>\n"
                         f"📁 <b>FILE :</b> <code>{base_name}</code>\n\n"
-                        f"⚡ <i>YOUR WAIT IS OVER! CLICK BELOW TO SEARCH IN GROUP.</i> 👆"
+                        f"⚡ <i>YOUR WAIT IS OVER! CLICK BELOW TO GET YOUR FILES INSTANTLY.</i> 👆"
                     )
 
                     buttons = InlineKeyboardMarkup([
-                        [InlineKeyboardButton("🔎 𝗦𝗲𝗮𝗿𝗰𝗵 𝗜𝗻 𝗚𝗿𝗼𝘂𝗽 🔍", url=group_search_url, style=enums.ButtonStyle.SUCCESS)]
+                        [InlineKeyboardButton("✨ Click Here To Download ✨", url=download_url, style=enums.ButtonStyle.SUCCESS)]
                     ])
 
                     for uid in req.get("user_ids", []):
