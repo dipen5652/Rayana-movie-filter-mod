@@ -1019,6 +1019,9 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
             for idx, file in enumerate(files, start=offset + 1):
                 cap += f"\n📀 <b>{get_size(file.file_size)}</b>\n╰⌯⌲ 📁 <b><a href='https://telegram.me/{temp.U_NAME}?start=file_{query.message.chat.id}_{file.file_id}'>{clean_filename(file.file_name)}</a></b>\n"
         return cap
-    except Exception as e:
+        except Exception as e:
         logger.error(f"Error in get_cap: {e}")
-        return ""
+        fallback_cap = "<b>🎬 Your Requested Files Are Here:</b>\n"
+        for idx, file in enumerate(files, start=offset + 1):
+            fallback_cap += f"\n📀 <b>{get_size(file.file_size)}</b>\n╰⌯⌲ 📁 <b><a href='https://telegram.me/{temp.U_NAME}?start=file_{query.message.chat.id}_{file.file_id}'>{clean_filename(file.file_name)}</a></b>\n"
+        return fallback_cap
