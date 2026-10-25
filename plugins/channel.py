@@ -272,7 +272,7 @@ async def media_handler(bot, message):
                     encoded_query = urllib.parse.quote_plus(q_title)
                     group_username = "movies_4uz"  # <-- Yahan apna movie group username likhein
 
-                    group_search_url = f"https://t.me/{group_username}?text={encoded_query}"
+                    group_search_url = f"tg://resolve?domain={group_username}?text={encoded_query}"
 
                     cool_text = (
                         f"✨ <b>YOUR REQUEST IS NOW AVAILABLE!</b> 🎉\n\n"
