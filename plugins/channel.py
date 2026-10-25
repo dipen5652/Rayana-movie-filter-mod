@@ -1,5 +1,4 @@
 import re
-import urllib.parse
 import logging
 import asyncio
 from datetime import datetime
