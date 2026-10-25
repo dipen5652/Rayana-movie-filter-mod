@@ -179,7 +179,7 @@ async def media_streamer(request: web.Request, id: int, secure_hash: str):
             mime_type = "application/octet-stream"
             file_name = f"{secrets.token_hex(2)}.unknown"
 
-        resp_headers = {
+            resp_headers = {
         "Content-Type": f"{mime_type}",
         "Content-Length": str(req_length),
         "Content-Disposition": f'inline; filename="{file_name}"',
@@ -198,3 +198,4 @@ async def media_streamer(request: web.Request, id: int, secure_hash: str):
         body=body,
         headers=resp_headers
     )
+
