@@ -1565,8 +1565,7 @@ async def auto_filter(client, msg, spoll=False):
                 search = message_text.lower()
 
                 # --- STICKER SENDING BLOCK ---
-                stick_id = "CAACAgUAAxkBAAERTxNqHJCPWS-Zc83vZHgJurVyuLemVgADGQACkvAAAVf3jZFgBfE1MzsE"
-                keyboard = InlineKeyboardMarkup([[InlineKeyboardButton(f'🔎 SEARCHING {search}', callback_data="hiding")]])
+                stick_id = "CAACAgUAAxkBAAERTxNqHJCPWS-Zc83vZHgJurVyuLemVgADGQACkvAAAVf3jZFgBfE1MzsE"             
                 try:
                     m = await message.reply_sticker(sticker=stick_id, reply_markup=keyboard)
                 except Exception as e:
