@@ -1565,9 +1565,9 @@ async def auto_filter(client, msg, spoll=False):
                 search = message_text.lower()
 
                 # --- STICKER SENDING BLOCK ---
-                stick_id = "CAACAgUAAxkBAAERTxNqHJCPWS-Zc83vZHgJurVyuLemVgADGQACkvAAAVf3jZFgBfE1MzsE"             
+                stick_id = "CAACAgUAAxkBAAERTxNqHJCPWS-Zc83vZHgJurVyuLemVgADGQACkvAAAVf3jZFgBfE1MzsE"
                 try:
-                    m = await message.reply_sticker(sticker=stick_id, reply_markup=keyboard)
+                    m = await message.reply_sticker(sticker=stick_id)
                 except Exception as e:
                     logger.exception(f"reply_sticker failed: {e}")
                     m = await message.reply_text(script.SEARCHING_TXT.format(search))
