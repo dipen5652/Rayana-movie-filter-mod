@@ -1553,6 +1553,7 @@ async def auto_filter(client, msg, spoll=False):
             pass
 
     m = None
+        m = None
     try:
         if not spoll:
             message = msg
@@ -1563,7 +1564,18 @@ async def auto_filter(client, msg, spoll=False):
             if len(message.text) < 100:
                 message_text = message.text or ""
                 search = message_text.lower()
-                m = await message.reply_text(script.SEARCHING_TXT.format(search))
+
+                # --- STICKER SENDING BLOCK ---
+                # Yahan aap apna pasandeeda sticker ID daal sakte hain
+                stick_id = "CAACAgUAAxkBAAERTxNqHJCPWS-Zc83vZHgJurVyuLemVgADGQACkvAAAVf3jZFgBfE1MzsE"
+                keyboard = InlineKeyboardMarkup([[InlineKeyboardButton(f'🔎 SEARCHING {search}', callback_data="hiding")]])
+                try:
+                    m = await message.reply_sticker(sticker=stick_id, reply_markup=keyboard)
+                except Exception as e:
+                    logger.exception(f"reply_sticker failed: {e}")
+                    m = await message.reply_text(script.SEARCHING_TXT.format(search))
+
+                # --- SEARCH QUERY CLEANING ---
                 find = search.split(" ")
                 search = ""
                 removes = ["in", "upload", "series", "full", "horror", "thriller", "mystery", "print", "file"]
@@ -1572,15 +1584,25 @@ async def auto_filter(client, msg, spoll=False):
                         continue
                     else:
                         search = search + x + " "
+
                 search = re.sub(r"\b(pl(i|e)*?(s|z+|ease|se|ese|(e+)s(e)?)|((send|snd|giv(e)?|gib)(\sme)?)|movie(s)?|new|latest|bro|bruh|broh|helo|that|find|dubbed|link|venum|iruka|pannunga|pannungga|anuppunga|anupunga|anuppungga|anupungga|film|undo|kitti|kitty|tharu|kittumo|kittum|movie|any(one)|with\ssubtitle(s)?)\b", "", search, flags=re.IGNORECASE)
                 search = search.replace("-", " ")
                 search = re.sub(r"[:']", "", search)
                 search = re.sub(r"\s+", " ", search).strip()
+
                 files, offset, total_results = await get_search_results(message.chat.id, search, offset=0, filter=True)
                 settings = await get_settings(message.chat.id)
+
                 if not files:
                     if settings.get("spell_check"):
-                        ai_sts = await m.edit('🤖 ᴘʟᴇᴀꜱᴇ ᴡᴀɪᴛ, ᴀɪ ɪꜱ ᴄʜᴇᴄᴋɪɴɢ ʏᴏᴜʀ ꜱᴘᴇʟʟɪɴɢ...')
+                        # Sticker ko pehle delete karke AI text bhejna taaki edit error na aaye
+                        try:
+                            if m:
+                                await m.delete()
+                        except Exception:
+                            pass
+
+                        ai_sts = await message.reply_text('🤖 ᴘʟᴇᴀꜱᴇ ᴡᴀɪᴛ, ᴀɪ ɪꜱ ᴄʜᴇᴄᴋɪɴɢ ʏᴏᴜʀ ꜱᴘᴇʟʟɪɴɢ...')
                         is_misspelled = await ai_spell_check(chat_id=message.chat.id, wrong_name=search)
                         if is_misspelled:
                             await ai_sts.edit(f'✅ Aɪ Sᴜɢɢᴇsᴛᴇᴅ: <code>{is_misspelled}</code>\n🔍 Searching for it...')
@@ -1588,6 +1610,13 @@ async def auto_filter(client, msg, spoll=False):
                             await ai_sts.delete()
                             return await auto_filter(client, message)
                         await ai_sts.delete()
+                        return await advantage_spell_chok(client, message)
+                    else:
+                        try:
+                            if m:
+                                await m.delete()
+                        except Exception:
+                            pass
                         return await advantage_spell_chok(client, message)
                     else:
                         try:
