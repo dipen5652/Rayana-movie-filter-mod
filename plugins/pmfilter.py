@@ -366,7 +366,12 @@ async def next_page(bot, query):
                         pass
             else:
                 cap = await get_cap(settings, remaining_seconds, files, query, total, dreamx_title, offset+1)
-                await query.message.edit_text(text=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML)
+                await query.message.edit_text(
+                    text=cap,
+                    reply_markup=InlineKeyboardMarkup(btn),
+                    parse_mode=enums.ParseMode.HTML,
+                    link_preview_options=LinkPreviewOptions(is_disabled=True)
+                )
         except (MessageNotModified, MessageIdInvalid):
             pass
         except Exception as e:
