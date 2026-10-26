@@ -1548,8 +1548,6 @@ async def auto_filter(client, msg, spoll=False):
             try:
                 await orig_msg.delete()
             except Exception:
-                pass
-        except Exception:
             pass
 
     m = None
@@ -1565,7 +1563,6 @@ async def auto_filter(client, msg, spoll=False):
                 search = message_text.lower()
 
                 # --- STICKER SENDING BLOCK ---
-                # Yahan aap apna pasandeeda sticker ID daal sakte hain
                 stick_id = "CAACAgUAAxkBAAERTxNqHJCPWS-Zc83vZHgJurVyuLemVgADGQACkvAAAVf3jZFgBfE1MzsE"
                 keyboard = InlineKeyboardMarkup([[InlineKeyboardButton(f'🔎 SEARCHING {search}', callback_data="hiding")]])
                 try:
@@ -1588,8 +1585,7 @@ async def auto_filter(client, msg, spoll=False):
                 search = search.replace("-", " ")
                 search = re.sub(r"[:']", "", search)
                 search = re.sub(r"\s+", " ", search).strip()
-
-                                files, offset, total_results = await get_search_results(message.chat.id, search, offset=0, filter=True)
+                files, offset, total_results = await get_search_results(message.chat.id, search, offset=0, filter=True)
                 settings = await get_settings(message.chat.id)
 
                 if not files:
