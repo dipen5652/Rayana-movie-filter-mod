@@ -1589,12 +1589,11 @@ async def auto_filter(client, msg, spoll=False):
                 search = re.sub(r"[:']", "", search)
                 search = re.sub(r"\s+", " ", search).strip()
 
-                files, offset, total_results = await get_search_results(message.chat.id, search, offset=0, filter=True)
+                                files, offset, total_results = await get_search_results(message.chat.id, search, offset=0, filter=True)
                 settings = await get_settings(message.chat.id)
 
-                                if not files:
+                if not files:
                     if settings.get("spell_check"):
-                        # Sticker ko delete karke AI text bhejna taaki edit error na aaye
                         try:
                             if m:
                                 await m.delete()
