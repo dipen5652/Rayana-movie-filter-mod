@@ -1552,7 +1552,7 @@ async def auto_filter(client, msg, spoll=False):
         except Exception:
             pass
 
-        m = None
+  m = None
     try:
         if not spoll:
             message = msg
