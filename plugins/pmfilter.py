@@ -1548,6 +1548,8 @@ async def auto_filter(client, msg, spoll=False):
             try:
                 await orig_msg.delete()
             except Exception:
+                pass
+        except Exception:
             pass
 
     m = None
