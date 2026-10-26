@@ -361,12 +361,12 @@ async def next_page(bot, query):
                         pass
                 else:
                     try:
-                        await query.message.edit_text(text=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML, disable_web_page_preview=True)
+                        await query.message.edit_text(text=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML)
                     except (MessageNotModified, MessageIdInvalid):
                         pass
             else:
                 cap = await get_cap(settings, remaining_seconds, files, query, total, dreamx_title, offset+1)
-                await query.message.edit_text(text=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML, disable_web_page_preview=True)
+                await query.message.edit_text(text=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML)
         except (MessageNotModified, MessageIdInvalid):
             pass
         except Exception as e:
@@ -709,7 +709,7 @@ async def filter_languages_cb_handler(client: Client, query: CallbackQuery):
         dreamx_title = clean_search_text(search)
         cap = await get_cap(settings, remaining_seconds, files, query, total_results, dreamx_title, offset=1)
         try:
-            await query.message.edit_text(text=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML, disable_web_page_preview=True)
+            await query.message.edit_text(text=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML)
         except (MessageNotModified, MessageIdInvalid):
             pass
     else:
