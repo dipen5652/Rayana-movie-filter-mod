@@ -1552,7 +1552,6 @@ async def auto_filter(client, msg, spoll=False):
         except Exception:
             pass
 
-    m = None
         m = None
     try:
         if not spoll:
@@ -1593,9 +1592,9 @@ async def auto_filter(client, msg, spoll=False):
                 files, offset, total_results = await get_search_results(message.chat.id, search, offset=0, filter=True)
                 settings = await get_settings(message.chat.id)
 
-                if not files:
+                                if not files:
                     if settings.get("spell_check"):
-                        # Sticker ko pehle delete karke AI text bhejna taaki edit error na aaye
+                        # Sticker ko delete karke AI text bhejna taaki edit error na aaye
                         try:
                             if m:
                                 await m.delete()
@@ -1610,13 +1609,6 @@ async def auto_filter(client, msg, spoll=False):
                             await ai_sts.delete()
                             return await auto_filter(client, message)
                         await ai_sts.delete()
-                        return await advantage_spell_chok(client, message)
-                    else:
-                        try:
-                            if m:
-                                await m.delete()
-                        except Exception:
-                            pass
                         return await advantage_spell_chok(client, message)
                     else:
                         try:
