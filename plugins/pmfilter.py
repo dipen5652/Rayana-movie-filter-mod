@@ -429,6 +429,13 @@ async def advantage_spoll_choker(bot, query):
             reqstr = await bot.get_users(reqstr1)
         except Exception:
             reqstr = query.from_user
+             # --- SAVE TO PENDING LIST ---
+        try:
+            save_title = clean_search_text(movie_title) if 'clean_search_text' in globals() else movie_title.strip().lower()
+            if len(save_title) >= 3 and reqstr1 != 0:
+                await mdb.add_pending_request(save_title, reqstr1)
+        except Exception as err:
+            logger.error(f"Error saving pending request from spol: {err}")
         if NO_RESULTS_MSG:
             try:
                 await bot.send_message(chat_id=BIN_CHANNEL, text=script.NORSLTS.format(reqstr.id, reqstr.mention, movie_title))
