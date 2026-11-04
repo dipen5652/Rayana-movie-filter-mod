@@ -272,7 +272,7 @@ async def media_handler(bot, message):
                     download_url = f"https://t.me/{temp.U_NAME}?start=getfile-{clean_link_title}"
 
                     buttons = InlineKeyboardMarkup([
-            [InlineKeyboardButton("📥 Click Here To Download 📥", url=download_url, style=enums.ButtonStyle.PRIMARY)]
+            [InlineKeyboardButton("📥 Click Here To Download 📥", url=download_url, style=enums.ButtonStyle.SUCCESS)]
         ])
 
         for uid in req.get("user_ids", []):
@@ -284,10 +284,10 @@ async def media_handler(bot, message):
                     user_name = "User"
 
                 cool_text = (
-                    f"Hello 👋 <b>{user_name}</b> Your Request 🥰\n\n"
-                    f"📁 <b>FILE :</b> <code>{base_name}</code>\n"
-                    f"                🥳  <b>IS NOW AVAILABLE</b> ✅\n\n"
-                    f"⏱️ <i>YOUR WAIT IS OVER! CLICK BELOW TO GET YOUR FILES INSTANTLY 👇</i>"
+                    f"𝐇𝐚𝐥𝐥𝐨 👋 <b>{user_name}</b> 𝐘𝐨𝐮𝐫 𝐑𝐞𝐪𝐮𝐞𝐬𝐭𝐞𝐝 𝐦𝐨𝐯𝐢𝐞 🥰\n\n"
+                    f"🎬 <b>FILE :</b> <code>{base_name}</code>\n"
+                    f"                🥳  <b>𝐈𝐬 𝐧𝐨𝐰 𝐚𝐯𝐚𝐢𝐥𝐚𝐛𝐥𝐞</b> ✅\n\n"
+                    f"⏱️ <i>𝗬𝗢𝗨𝗥 𝗪𝗔𝗜𝗧 𝗜𝗦 𝗢𝗩𝗘𝗥! 𝗖𝗟𝗜𝗖𝗞 𝗕𝗘𝗟𝗢𝗪 𝗧𝗢 𝗚𝗘𝗧 𝗬𝗢𝗨𝗥 𝗙𝗜𝗟𝗘𝗦 𝗜𝗡𝗦𝗧𝗔𝗡𝗧𝗟𝗬 👇</i>"
                 )
 
                 await bot.send_message(
