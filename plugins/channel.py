@@ -287,7 +287,7 @@ async def media_handler(bot, message):
                                 f"Hello 👋 <b>{user_name}</b> Your Requested movie 🥳\n\n"
                                 f"📁 <b>FILE :</b> <code>{base_name}</code>\n"
                                 f"                🥳  <b>IS NOW AVAILABLE</b> ✅\n\n"
-                                f"⏱️ <i>YOUR WAIT IS OVER! CLICK BELOW TO GET YOUR FILES INSTANTLY 👇</i>"
+                                f"⏱️ <i>𝗬𝗢𝗨𝗥 𝗪𝗔𝗜𝗧 𝗜𝗦 𝗢𝗩𝗘𝗥! 𝗖𝗟𝗜𝗖𝗞 𝗕𝗘𝗟𝗢𝗪 𝗧𝗢 𝗚𝗘𝗧 𝗬𝗢𝗨𝗥 𝗙𝗜𝗟𝗘𝗦 𝗜𝗡𝗦𝗧𝗔𝗡𝗧𝗟𝗬 👇</i>"
                             )
 
                             await bot.send_message(
