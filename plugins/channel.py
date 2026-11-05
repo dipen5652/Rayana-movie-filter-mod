@@ -272,37 +272,37 @@ async def media_handler(bot, message):
                     download_url = f"https://t.me/{temp.U_NAME}?start=getfile-{clean_link_title}"
 
                     buttons = InlineKeyboardMarkup([
-                    [InlineKeyboardButton("📥 Click Here To Download 📥", url=download_url, style=enums.ButtonStyle.SUCCESS)]
-                ])
+                        [InlineKeyboardButton("📥 Click Here To Download 📥", url=download_url, style=enums.ButtonStyle.SUCCESS)]
+                    ])
 
-                for uid in req.get("user_ids", []):
-                    try:
+                    for uid in req.get("user_ids", []):
                         try:
-                            user = await bot.get_users(int(uid))
-                            user_name = user.first_name
-                        except Exception:
-                            user_name = "User"
+                            try:
+                                user = await bot.get_users(int(uid))
+                                user_name = user.first_name
+                            except Exception:
+                                user_name = "User"
 
-                        cool_text = (
-                            f"Hello 👋 <b>{user_name}</b> Your Requested movie 🥳\n\n"
-                            f"📁 <b>FILE :</b> <code>{base_name}</code>\n"
-                            f"                🥳  <b>IS NOW AVAILABLE</b> ✅\n\n"
-                            f"⏱️ <i>YOUR WAIT IS OVER! CLICK BELOW TO GET YOUR FILES INSTANTLY 👇</i>"
-                        )
+                            cool_text = (
+                                f"Hello 👋 <b>{user_name}</b> Your Requested movie 🥳\n\n"
+                                f"📁 <b>FILE :</b> <code>{base_name}</code>\n"
+                                f"                🥳  <b>IS NOW AVAILABLE</b> ✅\n\n"
+                                f"⏱️ <i>YOUR WAIT IS OVER! CLICK BELOW TO GET YOUR FILES INSTANTLY 👇</i>"
+                            )
 
-                        await bot.send_message(
-                            chat_id=int(uid),
-                            text=cool_text,
-                            reply_markup=buttons,
-                            parse_mode=enums.ParseMode.HTML
-                        )
-                        await asyncio.sleep(0.3)
-                    except (UserIsBlocked, PeerIdInvalid):
-                        pass
-                    except FloodWait as fw:
-                        await asyncio.sleep(fw.value + 1)
-                    except Exception as err:
-                        logger.warning(f"Could not notify user {uid}: {err}")
+                            await bot.send_message(
+                                chat_id=int(uid),
+                                text=cool_text,
+                                reply_markup=buttons,
+                                parse_mode=enums.ParseMode.HTML
+                            )
+                            await asyncio.sleep(0.3)
+                        except (UserIsBlocked, PeerIdInvalid):
+                            pass
+                        except FloodWait as fw:
+                            await asyncio.sleep(fw.value + 1)
+                        except Exception as err:
+                            logger.warning(f"Could not notify user {uid}: {err}")
     except Exception as e:
         logger.error(f"Auto-notify error in channel.py: {e}")
     # ----------------- ORIGINAL MOVIE UPDATE CHANNEL ----------------- #
