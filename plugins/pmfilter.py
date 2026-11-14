@@ -442,7 +442,7 @@ async def advantage_spoll_choker(bot, query):
             except Exception as e:
                 logger.error("Error In Spol: %s", e)
         btn = InlineKeyboardMarkup(
-            [[InlineKeyboardButton("✳️ 𝐑𝐞𝐪𝐮𝐞𝐬𝐭 𝐭𝐨 𝐚𝐝𝐦𝐢𝐧", url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)]])
+            [[InlineKeyboardButton("🪧 𝐑𝐞𝐪𝐮𝐞𝐬𝐭 𝐭𝐨 𝐀𝐝𝐝 𝐌𝐨𝐯𝐢𝐞", url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)]])
         try:
             k = await query.message.edit_text(text=script.MVE_NT_FND.format(movie_title), reply_markup=btn)
             await asyncio.sleep(10)
@@ -1886,7 +1886,7 @@ async def advantage_spell_chok(client, message):
         return
 
     if not movies:
-        button = [[InlineKeyboardButton("✳️ 𝐑𝐞𝐪𝐮𝐞𝐬𝐭 𝐭𝐨 𝐚𝐝𝐦𝐢𝐧", url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)]]
+        button = [[InlineKeyboardButton("🪧 𝐑𝐞𝐪𝐮𝐞𝐬𝐭 𝐭𝐨 𝐀𝐝𝐝 𝐌𝐨𝐯𝐢𝐞", url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)]]
         k = await message.reply_text(text=script.I_CUDNT.format(search), reply_markup=InlineKeyboardMarkup(button))
         await asyncio.sleep(60)
         try:
@@ -1919,7 +1919,7 @@ async def advantage_spell_chok(client, message):
             buttons_list.append([InlineKeyboardButton(text=movie.title, callback_data=f"spol#{safe_title}#{user}")])
 
     if not buttons_list:
-        btn_req = [[InlineKeyboardButton("✳️ 𝐑𝐞𝐪𝐮𝐞𝐬𝐭 𝐭𝐨 𝐚𝐝𝐦𝐢𝐧", url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)]]
+        btn_req = [[InlineKeyboardButton("🪧 𝐑𝐞𝐪𝐮𝐞𝐬𝐭 𝐭𝐨 𝐀𝐝𝐝 𝐌𝐨𝐯𝐢𝐞", url=OWNER_LNK, style=enums.ButtonStyle.PRIMARY)]]
         k = await message.reply_text(text=script.I_CUDNT.format(search), reply_markup=InlineKeyboardMarkup(btn_req))
         await asyncio.sleep(60)
         try:
